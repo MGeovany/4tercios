@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { FormEvent, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -10,13 +9,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
-export default function LoginPage() {
-  const router = useRouter();
+export default function OlvideContrasenaPage() {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
 
   const supabaseReady = useMemo(() => {
     try {
@@ -30,26 +27,29 @@ export default function LoginPage() {
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
-    setSuccess(null);
+    setMessage(null);
     setLoading(true);
 
     try {
       const supabase = getSupabaseBrowserClient();
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email: email.trim(),
-        password,
+      const redirectTo =
+        typeof window !== "undefined"
+          ? `${window.location.origin}/restablecer-contrasena`
+          : undefined;
+
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+        redirectTo,
       });
 
-      if (signInError) {
-        setError(signInError.message);
+      if (resetError) {
+        setError(resetError.message);
         return;
       }
 
-      setSuccess("Ingreso exitoso. Redirigiendo...");
-      router.replace("/dashboard");
+      setMessage("Te enviamos un enlace para restablecer tu contraseña.");
     } catch (err) {
-      const message = err instanceof Error ? err.message : "No se pudo iniciar sesión.";
-      setError(message);
+      const msg = err instanceof Error ? err.message : "No se pudo enviar el correo.";
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -60,7 +60,7 @@ export default function LoginPage() {
       <div className="mx-auto max-w-md px-6 py-16">
         <Card className="border-border/50">
           <CardHeader>
-            <CardTitle>Iniciar sesión</CardTitle>
+            <CardTitle>Olvidé mi contraseña</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {!supabaseReady ? (
@@ -83,39 +83,19 @@ export default function LoginPage() {
                   onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
-              <div className="grid gap-2">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="password">Contraseña</Label>
-                  <Link
-                    href="/olvide-contrasena"
-                    className="text-muted-foreground hover:text-foreground text-xs"
-                  >
-                    Olvidé mi contraseña
-                  </Link>
-                </div>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  autoComplete="current-password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-              </div>
 
               {error ? <p className="text-sm text-red-600">{error}</p> : null}
-              {success ? <p className="text-sm text-emerald-600">{success}</p> : null}
+              {message ? <p className="text-sm text-emerald-600">{message}</p> : null}
 
               <Button type="submit" className="w-full" disabled={loading || !supabaseReady}>
-                {loading ? "Ingresando..." : "Continuar"}
+                {loading ? "Enviando..." : "Enviar enlace"}
               </Button>
             </form>
 
             <p className="text-muted-foreground text-sm">
-              ¿No tienes cuenta?{" "}
-              <Link href="/registro" className="text-foreground underline-offset-4 hover:underline">
-                Regístrate
+              ¿Recordaste tu contraseña?{" "}
+              <Link href="/login" className="text-foreground underline-offset-4 hover:underline">
+                Volver a iniciar sesión
               </Link>
             </p>
           </CardContent>

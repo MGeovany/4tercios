@@ -28,16 +28,19 @@ export default function AuthCallbackPage() {
     let mounted = true;
 
     async function resolveAuthCallback() {
+      let onboardingCompleted = false;
       try {
         const supabase = getSupabaseBrowserClient();
-        await supabase.auth.getSession();
+        const { data } = await supabase.auth.getUser();
+        const meta = (data.user?.user_metadata ?? {}) as Record<string, unknown>;
+        onboardingCompleted = meta.onboarding_completed === true;
       } finally {
         stripSensitiveHash();
       }
 
       if (!mounted) return;
       const next = searchParams.get("next") || "/dashboard";
-      router.replace(next);
+      router.replace(onboardingCompleted ? next : "/onboarding");
     }
 
     void resolveAuthCallback();

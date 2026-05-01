@@ -7,7 +7,7 @@ export function Footer({ variant = "default" }: { variant?: "default" | "dashboa
     return (
       <footer className="border-t border-zinc-100 bg-white">
         <div className="flex w-full flex-col items-center justify-between gap-2 px-6 py-4 text-xs text-zinc-500 sm:flex-row">
-          <p>© {year} Lensia</p>
+          <p>© {year} 4Tercios</p>
           <div className="flex items-center gap-4">
             <Link href="/privacidad" className="hover:text-zinc-900">
               Privacidad
@@ -31,7 +31,7 @@ export function Footer({ variant = "default" }: { variant?: "default" | "dashboa
       <div className={`${containerClassName} py-14 lg:py-16`}>
         <div className="grid gap-10 lg:grid-cols-12">
           <div className="lg:col-span-5">
-            <p className="text-lg font-semibold tracking-tight">Lensia</p>
+            <p className="text-lg font-semibold tracking-tight">4Tercios</p>
             <p className="mt-3 text-sm font-medium text-white">Una selfie. Sus fotos.</p>
             <p className="mt-4 max-w-md text-sm leading-6 text-white">
               Búsqueda por selfie para fotos de eventos. Publica tu galería, comparte un link o QR y
@@ -99,10 +99,10 @@ export function Footer({ variant = "default" }: { variant?: "default" | "dashboa
               <p className="text-sm font-semibold text-white">Soporte</p>
               <div className="mt-4 space-y-2">
                 <a
-                  href="mailto:hola@lensia.app"
+                  href="mailto:hola@4tercios.thefndrs.com"
                   className="block text-sm text-white hover:underline"
                 >
-                  hola@lensia.app
+                  hola@4tercios.thefndrs.com
                 </a>
                 <p className="text-sm text-white">20% por venta. Tu defines el precio.</p>
                 <Link href="/contacto" className="block text-sm text-white hover:underline">
@@ -132,7 +132,7 @@ export function Footer({ variant = "default" }: { variant?: "default" | "dashboa
         </div>
 
         <div className="mt-12 flex flex-col gap-3 border-t border-white/10 pt-8 lg:flex-row lg:items-center lg:justify-between">
-          <p className="text-xs text-white">© {year} Lensia. Todos los derechos reservados.</p>
+          <p className="text-xs text-white">© {year} 4Tercios. Todos los derechos reservados.</p>
           <p className="text-xs text-white">Hecho para fotografos de eventos en Centroamerica.</p>
         </div>
       </div>

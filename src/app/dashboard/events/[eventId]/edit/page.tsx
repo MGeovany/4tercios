@@ -241,7 +241,9 @@ function EditEventForm({ eventId }: { eventId: string }) {
                     "focus-within:border-zinc-400 focus-within:ring-[3px] focus-within:ring-zinc-950/10"
                   )}
                 >
-                  <span className="px-3 text-sm text-zinc-500 select-none">lensia.app/e/</span>
+                  <span className="px-3 text-sm text-zinc-500 select-none">
+                    4tercios.thefndrs.com/e/
+                  </span>
                   <input
                     id="slug"
                     type="text"

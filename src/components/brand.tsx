@@ -27,7 +27,7 @@ export function Brand({
           size === "md" && "text-base"
         )}
       >
-        Lensia
+        4Tercios
       </span>
     </Link>
   );

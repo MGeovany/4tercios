@@ -72,7 +72,7 @@ export default function SearchResultsPage() {
       <header className="border-border/40 bg-background/80 sticky top-0 z-50 border-b backdrop-blur-xl">
         <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
           <Link href="/" className="flex items-center gap-2">
-            <span className="text-lg font-semibold">Lensia</span>
+            <span className="text-lg font-semibold">4Tercios</span>
           </Link>
         </nav>
       </header>
@@ -129,7 +129,7 @@ export default function SearchResultsPage() {
                     {/* Watermark overlay */}
                     <div className="absolute inset-0 flex items-center justify-center">
                       <div className="text-muted-foreground/10 rotate-[-30deg] text-3xl font-bold">
-                        LENSIA
+                        4TERCIOS
                       </div>
                     </div>
                     {/* Selection checkbox */}

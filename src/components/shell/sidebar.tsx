@@ -1,12 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
+import { useState } from "react";
 import { CalendarIcon, GearIcon, HomeIcon, PlusIcon, ReaderIcon } from "@radix-ui/react-icons";
 
 import { cn } from "@/lib/utils";
 import { useLensia } from "@/lib/local-store";
 import { Brand } from "@/components/brand";
+import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 type NavItem = {
   id: string;
@@ -110,10 +112,26 @@ function UserPill() {
 }
 
 export function Sidebar() {
+  const router = useRouter();
   const pathname = usePathname() ?? "";
+  const [isSigningOut, setIsSigningOut] = useState(false);
+
+  async function handleSignOut() {
+    if (isSigningOut) return;
+    setIsSigningOut(true);
+
+    try {
+      const supabase = getSupabaseBrowserClient();
+      await supabase.auth.signOut();
+    } finally {
+      router.replace("/login");
+      router.refresh();
+      setIsSigningOut(false);
+    }
+  }
 
   return (
-    <aside className="hidden lg:flex lg:w-60 lg:flex-col lg:border-r lg:border-zinc-200 lg:bg-white">
+    <aside className="hidden lg:sticky lg:top-0 lg:flex lg:h-screen lg:w-60 lg:flex-col lg:self-start lg:overflow-y-auto lg:border-r lg:border-zinc-200 lg:bg-white">
       <div className="px-5 pt-6 pb-4">
         <Brand href="/dashboard" />
       </div>
@@ -136,6 +154,21 @@ export function Sidebar() {
       </div>
 
       <div className="mt-auto border-t border-zinc-100 p-3">
+        <button
+          type="button"
+          onClick={() => {
+            void handleSignOut();
+          }}
+          disabled={isSigningOut}
+          className={cn(
+            "mb-2 flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+            "focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none",
+            "text-zinc-600 hover:bg-zinc-50 hover:text-zinc-950",
+            "disabled:pointer-events-none disabled:opacity-50"
+          )}
+        >
+          {isSigningOut ? "Cerrando sesión..." : "Cerrar sesión"}
+        </button>
         <UserPill />
       </div>
     </aside>

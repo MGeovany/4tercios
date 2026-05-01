@@ -46,7 +46,9 @@ export default function RegistroPage() {
             full_name: name.trim(),
           },
           emailRedirectTo:
-            typeof window !== "undefined" ? `${window.location.origin}/dashboard` : undefined,
+            typeof window !== "undefined"
+              ? `${window.location.origin}/auth/callback?next=/onboarding`
+              : undefined,
         },
       });
 
@@ -55,8 +57,8 @@ export default function RegistroPage() {
         return;
       }
 
-      setMessage("Cuenta creada. Revisa tu correo para confirmar el acceso.");
-      router.replace("/login");
+      setMessage("Cuenta creada. Si el email es válido podrás continuar...");
+      router.replace("/onboarding");
     } catch (err) {
       const msg = err instanceof Error ? err.message : "No se pudo crear la cuenta.";
       setError(msg);

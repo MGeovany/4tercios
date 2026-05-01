@@ -166,7 +166,7 @@ function seedState(): LensiaState {
   const user: LensiaUser = {
     id: "usr_photographer_01",
     name: "Sula Photo Studio",
-    email: "hola@lensia.app",
+    email: "hola@4tercios.thefndrs.com",
   };
 
   const events: LensiaEvent[] = [

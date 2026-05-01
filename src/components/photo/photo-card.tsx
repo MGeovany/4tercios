@@ -45,7 +45,7 @@ export function PhotoCard({
         </div>
         <div className="absolute bottom-3 left-3">
           <span className="text-xs font-medium text-white/85">
-            Lensia
+            4Tercios
             <span className="ml-2 text-white/55">watermark</span>
           </span>
         </div>

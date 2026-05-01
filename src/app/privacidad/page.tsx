@@ -20,7 +20,7 @@ export default function PrivacidadPage() {
       <header className="border-border/40 bg-background/80 sticky top-0 z-50 border-b backdrop-blur-xl">
         <nav className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
           <Link href="/" className="text-lg font-semibold">
-            Lensia
+            4Tercios
           </Link>
           <Button variant="ghost" size="sm" asChild>
             <Link href="/">Volver</Link>
@@ -35,7 +35,7 @@ export default function PrivacidadPage() {
           </h1>
           <p className="text-muted-foreground mt-3 text-sm">Última actualización: 2026-04-21</p>
           <p className="text-muted-foreground mt-6 leading-7">
-            Esta política explica qué información usamos para operar Lensia y cómo la protegemos. Es
+            Esta política explica qué información usamos para operar 4Tercios y cómo la protegemos. Es
             un borrador y debe revisarse con asesoría legal antes de publicarse.
           </p>
         </header>
@@ -60,7 +60,7 @@ export default function PrivacidadPage() {
             <section id="que-recopilamos" className="scroll-mt-24">
               <h2 className="text-xl font-semibold">1. Qué recopilamos</h2>
               <p className="text-muted-foreground mt-3 leading-7">
-                Dependiendo de cómo uses Lensia, podemos recopilar:
+                Dependiendo de cómo uses 4Tercios, podemos recopilar:
               </p>
               <ul className="text-muted-foreground mt-4 list-disc space-y-2 pl-5">
                 <li>Datos del evento (nombre, fecha, ubicación, link público).</li>

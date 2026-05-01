@@ -47,8 +47,12 @@ export default function LoginPage() {
         return;
       }
 
+      const { data: userData } = await supabase.auth.getUser();
+      const meta = (userData.user?.user_metadata ?? {}) as Record<string, unknown>;
+      const onboardingCompleted = meta.onboarding_completed === true;
+
       setSuccess("Ingreso exitoso. Redirigiendo...");
-      router.replace("/dashboard");
+      router.replace(onboardingCompleted ? "/dashboard" : "/onboarding");
     } catch (err) {
       const message = err instanceof Error ? err.message : "No se pudo iniciar sesión.";
       setError(message);

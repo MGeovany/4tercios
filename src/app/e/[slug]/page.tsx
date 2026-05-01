@@ -144,7 +144,7 @@ export default function PublicEventPage({ params }: { params: Promise<{ slug: st
                 <div className="aspect-[4/3]" style={{ backgroundImage: photoGradient(id) }} />
                 <div className="p-3">
                   <p className="text-sm font-semibold text-zinc-950">Foto</p>
-                  <p className="mt-1 text-xs text-zinc-500">Watermark Lensia</p>
+                  <p className="mt-1 text-xs text-zinc-500">Watermark 4Tercios</p>
                 </div>
               </div>
             ))}

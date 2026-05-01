@@ -8,7 +8,7 @@ export default function ContactoPage() {
       <header className="border-border/40 bg-background/80 sticky top-0 z-50 border-b backdrop-blur-xl">
         <nav className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
           <Link href="/" className="text-lg font-semibold">
-            Lensia
+            4Tercios
           </Link>
           <Button variant="ghost" size="sm" asChild>
             <Link href="/">Volver</Link>
@@ -33,7 +33,7 @@ export default function ContactoPage() {
               <p className="text-muted-foreground mt-2 text-sm">Responderemos lo antes posible.</p>
               <div className="mt-4">
                 <Button asChild>
-                  <a href="mailto:hola@lensia.app">hola@lensia.app</a>
+                  <a href="mailto:hola@4tercios.thefndrs.com">hola@4tercios.thefndrs.com</a>
                 </Button>
               </div>
             </div>

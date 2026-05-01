@@ -44,7 +44,7 @@ export type Photo = {
 
 export const mockPhotographer = {
   name: "Sula Photo Studio",
-  email: "hola@lensia.app",
+  email: "hola@4tercios.thefndrs.com",
 };
 
 export const mockEvents: Event[] = [

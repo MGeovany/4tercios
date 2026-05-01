@@ -3,12 +3,12 @@ import { Footer } from "@/components/footer";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex min-h-screen flex-col bg-white">
-      <div className="flex w-full flex-1">
-        <Sidebar />
+    <div className="flex min-h-screen bg-white">
+      <Sidebar />
+      <div className="flex min-h-screen min-w-0 flex-1 flex-col">
         <div className="min-w-0 flex-1">{children}</div>
+        <Footer variant="dashboard" />
       </div>
-      <Footer variant="dashboard" />
     </div>
   );
 }

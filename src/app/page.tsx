@@ -22,7 +22,7 @@ import { Button } from "@/components/ui/button";
 
 const NAV_LINKS = [
   { href: "#como-funciona", label: "Cómo funciona" },
-  { href: "#por-que", label: "Por qué Lensia" },
+  { href: "#por-que", label: "Por qué 4Tercios" },
   { href: "#precio", label: "Precio" },
 ];
 
@@ -32,7 +32,7 @@ const STEPS = [
     icon: Upload,
     title: "Sube tu galería",
     description:
-      "Arrastra la carpeta. Lensia organiza tus fotos, detecta caras y prepara todo para compartir.",
+      "Arrastra la carpeta. 4Tercios organiza tus fotos, detecta caras y prepara todo para compartir.",
   },
   {
     step: "02",
@@ -61,7 +61,7 @@ const BENEFITS = [
     icon: Check,
     title: "Cero configuración",
     description:
-      "Si sabes compartir un link, sabes usar Lensia. Nada que instalar, nada que estudiar.",
+      "Si sabes compartir un link, sabes usar 4Tercios. Nada que instalar, nada que estudiar.",
   },
   {
     icon: Shield,
@@ -111,7 +111,7 @@ const PLACEHOLDER_BASE = "https://picsum.photos/seed";
 const buildRow = (prefix: string, count = 8) =>
   Array.from({ length: count }, (_, i) => ({
     id: `${prefix}-${i + 1}`,
-    src: `${PLACEHOLDER_BASE}/lensia-${prefix}-${i + 1}/480/360`,
+    src: `${PLACEHOLDER_BASE}/4tercios-${prefix}-${i + 1}/480/360`,
   }));
 
 const HERO_ROWS = [
@@ -212,7 +212,7 @@ export default function LandingPage() {
       <header className="border-border/60 bg-background/80 sticky top-0 z-50 border-b backdrop-blur-md">
         <nav className="mx-auto flex h-14 max-w-6xl items-center justify-between px-6">
           <Link href="/" className="text-[15px] font-semibold tracking-tight">
-            Lensia
+            4Tercios
           </Link>
 
           <div className="hidden items-center gap-7 md:flex">
@@ -280,7 +280,7 @@ export default function LandingPage() {
           </h1>
           <p className="text-muted-foreground mx-auto mt-5 max-w-xl text-[15px] leading-relaxed text-pretty sm:text-base">
             Publica la galería de tu evento, comparte un link y deja que cada persona encuentre sus
-            coincidencias. Tú fotografías; Lensia se encarga del resto.
+            coincidencias. Tú fotografías; 4Tercios se encarga del resto.
           </p>
           <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Button size="lg" asChild>
@@ -345,11 +345,11 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Why Lensia */}
+      {/* Why 4Tercios */}
       <section id="por-que" className="mx-auto max-w-5xl px-6 py-20">
         <div className="max-w-xl">
           <p className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
-            Por qué Lensia
+            Por qué 4Tercios
           </p>
           <h2 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">
             Menos envíos manuales. Más ventas.
@@ -485,7 +485,7 @@ export default function LandingPage() {
       <footer className="border-border/60 border-t">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 py-8 sm:flex-row">
           <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold">Lensia</span>
+            <span className="text-sm font-semibold">4Tercios</span>
             <span className="text-muted-foreground text-xs">· Una selfie. Sus fotos.</span>
           </div>
           <div className="text-muted-foreground flex gap-6 text-xs">
@@ -499,7 +499,7 @@ export default function LandingPage() {
               Contacto
             </Link>
           </div>
-          <p className="text-muted-foreground text-xs">© 2026 Lensia</p>
+          <p className="text-muted-foreground text-xs">© 2026 4Tercios</p>
         </div>
       </footer>
     </div>

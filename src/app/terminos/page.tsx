@@ -20,7 +20,7 @@ export default function TerminosPage() {
       <header className="border-border/40 bg-background/80 sticky top-0 z-50 border-b backdrop-blur-xl">
         <nav className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
           <Link href="/" className="text-lg font-semibold">
-            Lensia
+            4Tercios
           </Link>
           <Button variant="ghost" size="sm" asChild>
             <Link href="/">Volver</Link>
@@ -35,7 +35,7 @@ export default function TerminosPage() {
           </h1>
           <p className="text-muted-foreground mt-3 text-sm">Última actualización: 2026-04-21</p>
           <p className="text-muted-foreground mt-6 leading-7">
-            Estos términos regulan el uso de Lensia. Son un borrador y deben revisarse con asesoría
+            Estos términos regulan el uso de 4Tercios. Son un borrador y deben revisarse con asesoría
             legal antes de publicarse.
           </p>
         </header>
@@ -69,7 +69,7 @@ export default function TerminosPage() {
               <h2 className="text-xl font-semibold">1. Definiciones</h2>
               <ul className="text-muted-foreground mt-4 list-disc space-y-2 pl-5">
                 <li>
-                  <span className="text-foreground font-medium">“Lensia”</span>: la plataforma,
+                  <span className="text-foreground font-medium">“4Tercios”</span>: la plataforma,
                   sitio web y funcionalidades relacionadas.
                 </li>
                 <li>
@@ -96,7 +96,7 @@ export default function TerminosPage() {
             <section id="aceptacion" className="scroll-mt-24">
               <h2 className="text-xl font-semibold">2. Aceptación</h2>
               <p className="text-muted-foreground mt-3 leading-7">
-                Al usar Lensia aceptas estos términos. Si no estás de acuerdo, no uses la
+                Al usar 4Tercios aceptas estos términos. Si no estás de acuerdo, no uses la
                 plataforma.
               </p>
               <p className="text-muted-foreground mt-3 leading-7">
@@ -125,11 +125,11 @@ export default function TerminosPage() {
             <section id="uso" className="scroll-mt-24">
               <h2 className="text-xl font-semibold">4. Uso permitido</h2>
               <p className="text-muted-foreground mt-3 leading-7">
-                Puedes usar Lensia para publicar galerías de eventos y facilitar la compra de fotos.
+                Puedes usar 4Tercios para publicar galerías de eventos y facilitar la compra de fotos.
               </p>
               <p className="text-muted-foreground mt-3 leading-7">No está permitido:</p>
               <ul className="text-muted-foreground mt-4 list-disc space-y-2 pl-5">
-                <li>Usar Lensia para actividades ilegales o fraudulentas.</li>
+                <li>Usar 4Tercios para actividades ilegales o fraudulentas.</li>
                 <li>Subir malware, intentar acceder sin autorización o degradar el servicio.</li>
                 <li>Suplantar identidad o crear eventos engañosos.</li>
                 <li>Recolectar datos de otros usuarios sin consentimiento.</li>
@@ -156,7 +156,7 @@ export default function TerminosPage() {
                 <li>
                   Si recibimos una reclamación razonable, podemos ocultar o retirar contenido.
                 </li>
-                <li>Mantienes Lensia indemne ante reclamos derivados de tu contenido.</li>
+                <li>Mantienes 4Tercios indemne ante reclamos derivados de tu contenido.</li>
               </ul>
             </section>
 
@@ -179,7 +179,7 @@ export default function TerminosPage() {
             <section id="ventas" className="scroll-mt-24">
               <h2 className="text-xl font-semibold">7. Ventas y comisión</h2>
               <p className="text-muted-foreground mt-3 leading-7">
-                Tú defines el precio por foto. Lensia cobra una comisión del 20% únicamente sobre
+                Tú defines el precio por foto. 4Tercios cobra una comisión del 20% únicamente sobre
                 ventas completadas. No hay mensualidades ni cargos adicionales.
               </p>
               <ul className="text-muted-foreground mt-4 list-disc space-y-2 pl-5">
@@ -191,7 +191,7 @@ export default function TerminosPage() {
                   Puedes cambiar precios por evento, y dichos cambios aplican a futuras compras.
                 </li>
                 <li>
-                  Lensia puede ofrecer promociones solo si tú las habilitas o si se acuerda por
+                  4Tercios puede ofrecer promociones solo si tú las habilitas o si se acuerda por
                   escrito.
                 </li>
               </ul>
@@ -226,7 +226,7 @@ export default function TerminosPage() {
             <section id="suspension" className="scroll-mt-24">
               <h2 className="text-xl font-semibold">9. Suspensión y terminación</h2>
               <p className="text-muted-foreground mt-3 leading-7">
-                Podemos suspender o terminar el acceso a Lensia si:
+                Podemos suspender o terminar el acceso a 4Tercios si:
               </p>
               <ul className="text-muted-foreground mt-4 list-disc space-y-2 pl-5">
                 <li>Incumples estos términos.</li>
@@ -234,7 +234,7 @@ export default function TerminosPage() {
                 <li>Detectamos fraude, abuso o intentos de comprometer el servicio.</li>
               </ul>
               <p className="text-muted-foreground mt-3 leading-7">
-                También puedes dejar de usar Lensia en cualquier momento.
+                También puedes dejar de usar 4Tercios en cualquier momento.
               </p>
             </section>
 
@@ -243,7 +243,7 @@ export default function TerminosPage() {
             <section id="propiedad" className="scroll-mt-24">
               <h2 className="text-xl font-semibold">10. Propiedad intelectual</h2>
               <p className="text-muted-foreground mt-3 leading-7">
-                Lensia y su marca, diseño y software pertenecen a sus respectivos titulares.
+                4Tercios y su marca, diseño y software pertenecen a sus respectivos titulares.
               </p>
               <p className="text-muted-foreground mt-3 leading-7">
                 El fotógrafo conserva los derechos sobre sus fotos. Al subir contenido, nos otorgas
@@ -257,7 +257,7 @@ export default function TerminosPage() {
             <section id="responsabilidad" className="scroll-mt-24">
               <h2 className="text-xl font-semibold">11. Garantías y responsabilidad</h2>
               <p className="text-muted-foreground mt-3 leading-7">
-                Lensia se ofrece “tal cual”. No garantizamos disponibilidad ininterrumpida. En la
+                4Tercios se ofrece “tal cual”. No garantizamos disponibilidad ininterrumpida. En la
                 medida permitida por ley, no seremos responsables por pérdidas indirectas derivadas
                 del uso de la plataforma.
               </p>
@@ -272,7 +272,7 @@ export default function TerminosPage() {
             <section id="indemnizacion" className="scroll-mt-24">
               <h2 className="text-xl font-semibold">12. Indemnización</h2>
               <p className="text-muted-foreground mt-3 leading-7">
-                Aceptas defender e indemnizar a Lensia ante reclamaciones derivadas de tu uso del
+                Aceptas defender e indemnizar a 4Tercios ante reclamaciones derivadas de tu uso del
                 servicio, tu contenido, o tu incumplimiento de estos términos.
               </p>
             </section>

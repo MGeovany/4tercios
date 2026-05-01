@@ -607,7 +607,7 @@ function NotificationsSection() {
           <Toggle
             checked={draft.emailProductNews}
             onChange={toggle("emailProductNews")}
-            label="Novedades de Lensia"
+            label="Novedades de 4Tercios"
             description="Nuevas funciones y tips. Sin spam."
           />
         </div>

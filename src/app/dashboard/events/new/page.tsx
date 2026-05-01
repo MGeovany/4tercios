@@ -233,7 +233,9 @@ export default function NewEventPage() {
                       "focus-within:border-zinc-400 focus-within:ring-[3px] focus-within:ring-zinc-950/10"
                     )}
                   >
-                    <span className="px-3 text-sm text-zinc-500 select-none">lensia.app/e/</span>
+                    <span className="px-3 text-sm text-zinc-500 select-none">
+                      4tercios.thefndrs.com/e/
+                    </span>
                     <input
                       id="slug"
                       type="text"
@@ -378,7 +380,7 @@ export default function NewEventPage() {
               </p>
 
               <div className="mt-4 rounded-md bg-zinc-50 px-3 py-2 text-xs">
-                <span className="text-zinc-500">lensia.app/e/</span>
+                <span className="text-zinc-500">4tercios.thefndrs.com/e/</span>
                 <span className="font-medium text-zinc-900">{effectiveSlug}</span>
               </div>
 

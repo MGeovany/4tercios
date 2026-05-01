@@ -10,7 +10,7 @@ export default function GalleryPage({ params }: { params: { id: string } }) {
       <header className="border-border/40 bg-background/80 sticky top-0 z-50 border-b backdrop-blur-xl">
         <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
           <Link href="/" className="flex items-center gap-2">
-            <span className="text-lg font-semibold">Lensia</span>
+            <span className="text-lg font-semibold">4Tercios</span>
           </Link>
         </nav>
       </header>

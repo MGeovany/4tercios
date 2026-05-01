@@ -281,7 +281,7 @@ export default function LandingPage() {
               width={LANDING_LOGO_WIDTH}
               height={LANDING_LOGO_HEIGHT}
               priority
-              className="h-8 w-auto"
+              className="h-4 w-auto"
             />
           </Link>
 
@@ -565,7 +565,7 @@ export default function LandingPage() {
                 alt="4Tercios"
                 width={LANDING_LOGO_WIDTH}
                 height={LANDING_LOGO_HEIGHT}
-                className="h-7 w-auto"
+                className="h-5 w-auto"
               />
             </Link>
             <span className="text-muted-foreground text-xs">· Una selfie. Sus fotos.</span>

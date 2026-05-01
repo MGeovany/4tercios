@@ -268,7 +268,7 @@ export function StepBrand({
       <div className="space-y-6">
         <div className="space-y-3">
           <Label className="flex items-center gap-2">
-            <Sparkles className="text-muted-foreground size-3.5" /> Color principal
+ Color principal
           </Label>
           <div className="flex flex-wrap gap-3">
             {BRAND_COLORS.map((c) => {
@@ -304,20 +304,6 @@ export function StepBrand({
           </p>
         </div>
 
-        <div className="grid gap-2">
-          <Label htmlFor="welcome">Mensaje de bienvenida</Label>
-          <Textarea
-            id="welcome"
-            rows={3}
-            maxLength={200}
-            placeholder="Ej. ¡Bienvenidos! Sube una selfie para encontrar tus fotos del evento."
-            value={value.welcomeMessage}
-            onChange={(e) => onChange({ ...value, welcomeMessage: e.target.value })}
-          />
-          <p className="text-muted-foreground text-xs">
-            Aparece arriba en cada evento. Es opcional.
-          </p>
-        </div>
       </div>
     </div>
   );

@@ -48,7 +48,7 @@ export const DEFAULT_ONBOARDING_STATE: OnboardingState = {
     instagram: "",
   },
   brand: {
-    primaryColor: "#134074",
+    primaryColor: "#2563eb",
     welcomeMessage: "",
   },
   payments: {
@@ -89,11 +89,11 @@ export const PHOTOGRAPHY_OPTIONS: { value: PhotographyType; label: string }[] = 
 ];
 
 export const BRAND_COLORS = [
-  { value: "#134074", label: "Yale" },
-  { value: "#18181b", label: "Carbón" },
-  { value: "#166534", label: "Bosque" },
-  { value: "#9d174d", label: "Vino" },
-  { value: "#b45309", label: "Arena" },
+  { value: "#2563eb", label: "Azul eléctrico" },
+  { value: "#0f172a", label: "Medianoche" },
+  { value: "#059669", label: "Esmeralda" },
+  { value: "#7c3aed", label: "Violeta" },
+  { value: "#ea580c", label: "Atardecer" },
 ];
 
 export const COUNTRY_OPTIONS = [

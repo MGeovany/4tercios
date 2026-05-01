@@ -9,10 +9,7 @@ export const ONBOARDING_STEP_IDS = [
 export type OnboardingStepId = (typeof ONBOARDING_STEP_IDS)[number];
 
 export function isOnboardingStepId(value: unknown): value is OnboardingStepId {
-  return (
-    typeof value === "string" &&
-    ONBOARDING_STEP_IDS.includes(value as OnboardingStepId)
-  );
+  return typeof value === "string" && ONBOARDING_STEP_IDS.includes(value as OnboardingStepId);
 }
 
 export function getOnboardingStepFromMetadata(

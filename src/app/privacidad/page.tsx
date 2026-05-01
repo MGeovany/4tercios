@@ -35,8 +35,8 @@ export default function PrivacidadPage() {
           </h1>
           <p className="text-muted-foreground mt-3 text-sm">Última actualización: 2026-04-21</p>
           <p className="text-muted-foreground mt-6 leading-7">
-            Esta política explica qué información usamos para operar 4Tercios y cómo la protegemos. Es
-            un borrador y debe revisarse con asesoría legal antes de publicarse.
+            Esta política explica qué información usamos para operar 4Tercios y cómo la protegemos.
+            Es un borrador y debe revisarse con asesoría legal antes de publicarse.
           </p>
         </header>
 

@@ -22,6 +22,8 @@ import {
 import { Button } from "@/components/ui/button";
 
 const LANDING_LOGO_SRC = "/brand/logo-landing.png";
+const LANDING_LOGO_WIDTH = 695;
+const LANDING_LOGO_HEIGHT = 97;
 
 const NAV_LINKS = [
   { href: "#como-funciona", label: "Cómo funciona" },
@@ -210,7 +212,7 @@ function MarqueeRow({
     const apply = () => {
       frame = 0;
       if (stripHalf <= 0) return;
-      const distance = ((window.scrollY * speed) % stripHalf + stripHalf) % stripHalf;
+      const distance = (((window.scrollY * speed) % stripHalf) + stripHalf) % stripHalf;
       const x = direction === "left" ? -distance : distance - stripHalf;
       strip.style.transform = `translate3d(${x}px, 0, 0)`;
     };
@@ -237,7 +239,7 @@ function MarqueeRow({
   }, [direction, speed]);
 
   return (
-    <div className="mask-[linear-gradient(to_right,transparent,black_8%,black_92%,transparent)] overflow-hidden">
+    <div className="overflow-hidden mask-[linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]">
       <div ref={stripRef} className="marquee-strip flex w-max gap-4">
         {loop.map((item) => (
           <div
@@ -276,11 +278,11 @@ export default function LandingPage() {
             <Image
               src={LANDING_LOGO_SRC}
               alt="4Tercios"
-              width={1024}
-              height={576}
+              width={LANDING_LOGO_WIDTH}
+              height={LANDING_LOGO_HEIGHT}
               priority
-              className="h-8 w-auto rounded-sm"
-            />aaaa
+              className="h-8 w-auto"
+            />
           </Link>
 
           <div className="hidden items-center gap-7 md:flex">
@@ -561,9 +563,9 @@ export default function LandingPage() {
               <Image
                 src={LANDING_LOGO_SRC}
                 alt="4Tercios"
-                width={1024}
-                height={576}
-                className="h-7 w-auto rounded-sm"
+                width={LANDING_LOGO_WIDTH}
+                height={LANDING_LOGO_HEIGHT}
+                className="h-7 w-auto"
               />
             </Link>
             <span className="text-muted-foreground text-xs">· Una selfie. Sus fotos.</span>

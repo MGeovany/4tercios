@@ -8,7 +8,6 @@ import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 export function OnboardingGate({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const [ready, setReady] = useState(false);
 
   const supabaseReady = useMemo(() => {
     try {
@@ -19,11 +18,10 @@ export function OnboardingGate({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
+  const [ready, setReady] = useState(() => !supabaseReady);
+
   useEffect(() => {
-    if (!supabaseReady) {
-      setReady(true);
-      return;
-    }
+    if (!supabaseReady) return;
 
     let mounted = true;
 

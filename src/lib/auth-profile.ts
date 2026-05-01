@@ -25,9 +25,6 @@ function readText(value: unknown) {
 }
 
 export function useAuthProfile() {
-  const [profile, setProfile] = useState<AuthProfile>(EMPTY_PROFILE);
-  const [loading, setLoading] = useState(true);
-
   const supabaseReady = useMemo(() => {
     try {
       getSupabaseBrowserClient();
@@ -37,11 +34,11 @@ export function useAuthProfile() {
     }
   }, []);
 
+  const [profile, setProfile] = useState<AuthProfile>(EMPTY_PROFILE);
+  const [loading, setLoading] = useState(() => supabaseReady);
+
   useEffect(() => {
-    if (!supabaseReady) {
-      setLoading(false);
-      return;
-    }
+    if (!supabaseReady) return;
 
     let mounted = true;
 

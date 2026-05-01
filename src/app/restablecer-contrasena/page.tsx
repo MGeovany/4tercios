@@ -22,7 +22,11 @@ function stripSensitiveHash() {
     hash.includes("provider_token=");
 
   if (!hasAuthTokens) return;
-  window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
+  window.history.replaceState(
+    {},
+    document.title,
+    window.location.pathname + window.location.search
+  );
 }
 
 export default function RestablecerContrasenaPage() {

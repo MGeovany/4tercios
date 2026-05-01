@@ -15,10 +15,10 @@ export function Topbar({
         <div className="flex min-w-0 items-center gap-3">
           <Brand href="/dashboard" size="sm" />
           <div className="min-w-0">
-          <h1 className="truncate text-[15px] font-semibold tracking-tight text-zinc-950">
-            {title}
-          </h1>
-          {subtitle ? <p className="truncate text-xs text-zinc-500">{subtitle}</p> : null}
+            <h1 className="truncate text-[15px] font-semibold tracking-tight text-zinc-950">
+              {title}
+            </h1>
+            {subtitle ? <p className="truncate text-xs text-zinc-500">{subtitle}</p> : null}
           </div>
         </div>
         {right ? <div className="flex items-center gap-2">{right}</div> : null}

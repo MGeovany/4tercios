@@ -282,7 +282,7 @@ export function StepBrand({
                   aria-pressed={active}
                   className={cn(
                     "relative size-10 rounded-full transition-transform",
-                    active ? "scale-105 ring-2 ring-offset-2 ring-offset-background" : "ring-0"
+                    active ? "ring-offset-background scale-105 ring-2 ring-offset-2" : "ring-0"
                   )}
                   style={{
                     backgroundColor: c.value,
@@ -340,10 +340,7 @@ export function StepPayments({
       <div className="space-y-6">
         <div className="grid gap-2">
           <Label htmlFor="country">País</Label>
-          <Select
-            value={value.country}
-            onValueChange={(v) => onChange({ ...value, country: v })}
-          >
+          <Select value={value.country} onValueChange={(v) => onChange({ ...value, country: v })}>
             <SelectTrigger id="country" className="w-full">
               <SelectValue placeholder="Selecciona tu país" />
             </SelectTrigger>
@@ -395,7 +392,7 @@ export function StepPayments({
                       active ? "border-foreground bg-foreground" : "border-border"
                     )}
                   >
-                    {active ? <Check className="size-4 text-background" strokeWidth={3} /> : null}
+                    {active ? <Check className="text-background size-4" strokeWidth={3} /> : null}
                   </span>
                 </button>
               );

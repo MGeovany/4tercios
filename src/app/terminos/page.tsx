@@ -35,8 +35,8 @@ export default function TerminosPage() {
           </h1>
           <p className="text-muted-foreground mt-3 text-sm">Última actualización: 2026-04-21</p>
           <p className="text-muted-foreground mt-6 leading-7">
-            Estos términos regulan el uso de 4Tercios. Son un borrador y deben revisarse con asesoría
-            legal antes de publicarse.
+            Estos términos regulan el uso de 4Tercios. Son un borrador y deben revisarse con
+            asesoría legal antes de publicarse.
           </p>
         </header>
 
@@ -125,7 +125,8 @@ export default function TerminosPage() {
             <section id="uso" className="scroll-mt-24">
               <h2 className="text-xl font-semibold">4. Uso permitido</h2>
               <p className="text-muted-foreground mt-3 leading-7">
-                Puedes usar 4Tercios para publicar galerías de eventos y facilitar la compra de fotos.
+                Puedes usar 4Tercios para publicar galerías de eventos y facilitar la compra de
+                fotos.
               </p>
               <p className="text-muted-foreground mt-3 leading-7">No está permitido:</p>
               <ul className="text-muted-foreground mt-4 list-disc space-y-2 pl-5">

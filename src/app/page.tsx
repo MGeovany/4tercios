@@ -108,7 +108,7 @@ const PRICING_BULLETS = [
   "Tú controlas el tiempo online",
 ];
 
-const LANDING_LOGO_SRC = "/brand/logo-landing.png";
+const LANDING_LOGO_SRC = "/brand/logo-4-3.png";
 
 const LANDING_PHOTOS = [
   "/landing/fotos-webp/006.webp",
@@ -276,10 +276,10 @@ export default function LandingPage() {
             <Image
               src={LANDING_LOGO_SRC}
               alt="4Tercios"
-              width={84}
-              height={28}
+              width={1024}
+              height={576}
               priority
-              className="h-7 w-auto"
+              className="h-8 w-16 rounded-sm object-cover object-center ring-1 ring-black/10"
             />
           </Link>
 
@@ -561,9 +561,9 @@ export default function LandingPage() {
               <Image
                 src={LANDING_LOGO_SRC}
                 alt="4Tercios"
-                width={84}
-                height={28}
-                className="h-6 w-auto"
+                width={1024}
+                height={576}
+                className="h-7 w-14 rounded-sm object-cover object-center ring-1 ring-black/10"
               />
             </Link>
             <span className="text-muted-foreground text-xs">· Una selfie. Sus fotos.</span>

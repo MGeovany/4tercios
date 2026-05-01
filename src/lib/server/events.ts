@@ -37,6 +37,8 @@ export type CreateEventInput = {
   date: string;
   city?: string;
   venue?: string;
+  locationLat?: number;
+  locationLng?: number;
   description?: string;
   pricePerPhotoHnl: number;
   onlineDays: number;
@@ -49,7 +51,7 @@ export async function createEvent(input: CreateEventInput): Promise<EventRow> {
   const { data: userData, error: userError } = await supabase.auth.getUser();
   if (userError || !userData.user) throw new Error("Not authenticated");
 
-  const insert = {
+  const insert: Record<string, unknown> = {
     photographer_id: userData.user.id,
     slug: input.slug,
     name: input.name,
@@ -61,7 +63,12 @@ export async function createEvent(input: CreateEventInput): Promise<EventRow> {
     price_per_photo_hnl: input.pricePerPhotoHnl,
     online_days: input.onlineDays,
     whatsapp: input.whatsapp ?? null,
-  } as const;
+  };
+
+  if (Number.isFinite(input.locationLat) && Number.isFinite(input.locationLng)) {
+    insert.location_lat = input.locationLat;
+    insert.location_lng = input.locationLng;
+  }
 
   const { data, error } = await supabase.from("events").insert(insert).select("*").single();
   if (error) throw error;
@@ -80,6 +87,8 @@ export type UpdateEventInput = {
   date?: string;
   city?: string | null;
   venue?: string | null;
+  locationLat?: number | null;
+  locationLng?: number | null;
   description?: string | null;
   pricePerPhotoHnl?: number;
   onlineDays?: number;
@@ -95,6 +104,8 @@ export async function updateEvent(id: string, patch: UpdateEventInput) {
   if (patch.date != null) update.date = patch.date;
   if (patch.city !== undefined) update.city = patch.city;
   if (patch.venue !== undefined) update.venue = patch.venue;
+  if (patch.locationLat !== undefined) update.location_lat = patch.locationLat;
+  if (patch.locationLng !== undefined) update.location_lng = patch.locationLng;
   if (patch.description !== undefined) update.description = patch.description;
   if (patch.pricePerPhotoHnl != null) update.price_per_photo_hnl = patch.pricePerPhotoHnl;
   if (patch.onlineDays != null) update.online_days = patch.onlineDays;

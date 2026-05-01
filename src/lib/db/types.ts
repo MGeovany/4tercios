@@ -34,6 +34,8 @@ export type EventRow = {
   date: string;
   city: string | null;
   venue: string | null;
+  location_lat: number | null;
+  location_lng: number | null;
   description: string | null;
   cover_photo_id: string | null;
   price_per_photo_hnl: number;

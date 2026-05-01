@@ -44,7 +44,14 @@ export function AuthCallbackClient() {
         const code = searchParams.get("code");
         if (code) {
           const { error } = await supabase.auth.exchangeCodeForSession(window.location.href);
-          if (error) throw error;
+          if (error && !isMissingPkceVerifierError(error)) {
+            throw error;
+          }
+        }
+
+        const { data: sessionData } = await supabase.auth.getSession();
+        if (!sessionData.session) {
+          throw new Error("No se pudo completar la sesión. Intenta iniciar sesión nuevamente.");
         }
 
         const { data } = await supabase.auth.getUser();
@@ -71,5 +78,14 @@ export function AuthCallbackClient() {
     <div className="bg-background flex min-h-screen items-center justify-center px-6">
       <p className="text-muted-foreground text-sm">Validando inicio de sesión...</p>
     </div>
+  );
+}
+
+function isMissingPkceVerifierError(error: { message?: string; name?: string }) {
+  const name = error.name?.toLowerCase() ?? "";
+  const message = error.message?.toLowerCase() ?? "";
+  return (
+    name.includes("authpkcecodeverifiermissingerror") ||
+    message.includes("pkce code verifier not found in storage")
   );
 }

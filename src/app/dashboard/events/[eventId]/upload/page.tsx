@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { UploadStation } from "./upload-station";
 import { PhotosListActions } from "./photos-list-actions";
+import { publishEventAction } from "./actions";
 
 export default async function UploadPage({ params }: { params: Promise<{ eventId: string }> }) {
   const { eventId } = await params;
@@ -31,6 +32,8 @@ export default async function UploadPage({ params }: { params: Promise<{ eventId
     errors: photos.filter((p) => p.status === "error").length,
     faces: photos.reduce((acc, p) => acc + p.faces_count, 0),
   };
+  const canPublish = totals.ready > 0 && totals.processing === 0;
+  const isPublished = event.status === "Listo" && event.is_public;
 
   return (
     <>
@@ -91,7 +94,19 @@ export default async function UploadPage({ params }: { params: Promise<{ eventId
                   <KpiBox label="Rostros" value={totals.faces} />
                   <KpiBox label="Errores" value={totals.errors} />
                 </div>
-                <div className="pt-2">
+                <div className="space-y-2 pt-2">
+                  <form action={publishEventAction.bind(null, event.id)}>
+                    <Button type="submit" className="w-full" disabled={!canPublish || isPublished}>
+                      {isPublished ? "Evento publicado" : "Publicar evento"}
+                    </Button>
+                  </form>
+                  <p className="text-xs text-zinc-500">
+                    {isPublished
+                      ? "Tu evento ya esta visible en la web."
+                      : canPublish
+                        ? "Publica cuando estes listo para recibir visitas."
+                        : "Se habilita cuando haya fotos listas y no queden fotos procesandose."}
+                  </p>
                   <Button asChild className="w-full">
                     <Link href={`/e/${event.slug}`}>Abrir página pública</Link>
                   </Button>

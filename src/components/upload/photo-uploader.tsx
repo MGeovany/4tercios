@@ -44,80 +44,82 @@ export function PhotoUploader({ eventId, onPhotoReady }: UploaderProps) {
   const start = React.useCallback(
     async (queue: Item[]) => {
       setRunning(true);
-      const supabase = getSupabaseBrowserClient();
+      try {
+        const supabase = getSupabaseBrowserClient();
 
-      // Ensure we have an authenticated session before attempting Storage uploads.
-      // Without a session, uploads hit Storage as anon and will fail RLS.
-      const { data: sessionData } = await supabase.auth.getSession();
-      if (!sessionData.session) {
-        throw new Error("Sesión no encontrada. Vuelve a iniciar sesión para subir fotos.");
-      }
-
-      await runWithConcurrency(queue, CONCURRENCY, async (item) => {
-        try {
-          update(item.localId, { stage: "uploading", progress: 5 });
-
-          const registerRes = await fetch("/api/photos", {
-            method: "POST",
-            headers: { "content-type": "application/json" },
-            body: JSON.stringify({
-              event_id: eventId,
-              filename: item.file.name,
-              bytes: item.file.size,
-            }),
-          });
-          if (!registerRes.ok) {
-            const { error } = await safeJson(registerRes);
-            throw new Error(error || `Register failed: ${registerRes.status}`);
-          }
-          const { photo, path } = (await registerRes.json()) as {
-            photo: { id: string };
-            bucket: string;
-            path: string;
-          };
-
-          update(item.localId, { photoId: photo.id, progress: 15 });
-
-          const uploadResult = await supabase.storage
-            .from(STORAGE_BUCKETS.originals)
-            .upload(path, item.file, {
-              contentType: item.file.type || "image/jpeg",
-              upsert: true,
-              cacheControl: "31536000",
-            });
-          if (uploadResult.error) {
-            throw new Error(uploadResult.error.message);
-          }
-
-          update(item.localId, { stage: "processing", progress: 60 });
-
-          const procRes = await fetch(`/api/photos/${photo.id}/process`, {
-            method: "POST",
-          });
-          if (!procRes.ok) {
-            const { error } = await safeJson(procRes);
-            throw new Error(error || `Processing failed: ${procRes.status}`);
-          }
-          const procBody = (await procRes.json()) as {
-            photo: { id: string; faces_count: number; thumb_path: string | null };
-          };
-
-          update(item.localId, {
-            stage: "ready",
-            progress: 100,
-            faces: procBody.photo.faces_count,
-          });
-
-          onPhotoReady?.(procBody.photo.id);
-          return procBody.photo;
-        } catch (err) {
-          const message = err instanceof Error ? err.message : "Error desconocido";
-          update(item.localId, { stage: "error", error: message });
-          throw err;
+        // Ensure we have an authenticated session before attempting Storage uploads.
+        // Without a session, uploads hit Storage as anon and will fail RLS.
+        const session = await ensureUploadSession(supabase);
+        if (!session) {
+          throw new Error("Sesión no encontrada. Vuelve a iniciar sesión para subir fotos.");
         }
-      });
 
-      setRunning(false);
+        await runWithConcurrency(queue, CONCURRENCY, async (item) => {
+          try {
+            update(item.localId, { stage: "uploading", progress: 5 });
+
+            const registerRes = await fetch("/api/photos", {
+              method: "POST",
+              headers: { "content-type": "application/json" },
+              body: JSON.stringify({
+                event_id: eventId,
+                filename: item.file.name,
+                bytes: item.file.size,
+              }),
+            });
+            if (!registerRes.ok) {
+              const { error } = await safeJson(registerRes);
+              throw new Error(error || `Register failed: ${registerRes.status}`);
+            }
+            const { photo, path, upload_token } = (await registerRes.json()) as {
+              upload_token: string;
+              photo: { id: string };
+              bucket: string;
+              path: string;
+            };
+
+            update(item.localId, { photoId: photo.id, progress: 15 });
+
+            const uploadError = await uploadOriginalWithSignedUrl(
+              supabase,
+              path,
+              item.file,
+              upload_token
+            );
+            if (uploadError) {
+              throw new Error(uploadError.message);
+            }
+
+            update(item.localId, { stage: "processing", progress: 60 });
+
+            const procRes = await fetch(`/api/photos/${photo.id}/process`, {
+              method: "POST",
+            });
+            if (!procRes.ok) {
+              const { error } = await safeJson(procRes);
+              throw new Error(error || `Processing failed: ${procRes.status}`);
+            }
+            const procBody = (await procRes.json()) as {
+              photo: { id: string; faces_count: number; thumb_path: string | null };
+            };
+
+            update(item.localId, {
+              stage: "ready",
+              progress: 100,
+              faces: procBody.photo.faces_count,
+            });
+
+            onPhotoReady?.(procBody.photo.id);
+            return procBody.photo;
+          } catch (err) {
+            const message = err instanceof Error ? err.message : "Error desconocido";
+            update(item.localId, { stage: "error", error: message });
+            throw err;
+          }
+        });
+      } finally {
+        setRunning(false);
+      }
     },
     [eventId, onPhotoReady, update]
   );
@@ -257,6 +259,35 @@ export function PhotoUploader({ eventId, onPhotoReady }: UploaderProps) {
 
 function safeJson(res: Response): Promise<{ error?: string }> {
   return res.json().catch(() => ({}));
+}
+
+async function ensureUploadSession(supabase: ReturnType<typeof getSupabaseBrowserClient>) {
+  const { data } = await supabase.auth.getSession();
+  if (!data.session) return null;
+
+  const { data: refreshed, error } = await supabase.auth.refreshSession();
+  if (error) {
+    // Keep the current session if refresh fails transiently.
+    return data.session;
+  }
+  return refreshed.session ?? data.session;
+}
+
+async function uploadOriginalWithSignedUrl(
+  supabase: ReturnType<typeof getSupabaseBrowserClient>,
+  path: string,
+  file: File,
+  token: string
+) {
+  if (!token) return { message: "Missing signed upload token" } as { message: string };
+  const uploaded = await supabase.storage
+    .from(STORAGE_BUCKETS.originals)
+    .uploadToSignedUrl(path, token, file, {
+      contentType: file.type || "image/jpeg",
+      cacheControl: "31536000",
+      upsert: false,
+    });
+  return uploaded.error ?? null;
 }
 
 function stageLabel(stage: UploadStage) {

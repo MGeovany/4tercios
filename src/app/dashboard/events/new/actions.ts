@@ -12,6 +12,8 @@ export type CreateEventActionInput = {
   date: string;
   city?: string;
   venue?: string;
+  locationLat?: number;
+  locationLng?: number;
   description?: string;
   pricePerPhotoHnl: number;
   onlineDays: number;
@@ -32,6 +34,8 @@ export async function createEventAction(
       date: input.date,
       city: input.city,
       venue: input.venue,
+      locationLat: input.locationLat,
+      locationLng: input.locationLng,
       description: input.description,
       pricePerPhotoHnl: input.pricePerPhotoHnl,
       onlineDays: input.onlineDays,
@@ -40,11 +44,20 @@ export async function createEventAction(
     });
     return { ok: true, eventId: event.id };
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Error inesperado";
+    const message = getErrorMessage(err);
     return { ok: false, error: message };
   }
 }
 
 export async function redirectToUpload(eventId: string) {
   redirect(`/dashboard/events/${eventId}/upload`);
+}
+
+function getErrorMessage(err: unknown) {
+  if (err instanceof Error && err.message) return err.message;
+  if (typeof err === "object" && err !== null && "message" in err) {
+    const message = (err as { message?: unknown }).message;
+    if (typeof message === "string" && message.length > 0) return message;
+  }
+  return "Error inesperado";
 }

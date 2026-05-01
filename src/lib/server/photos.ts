@@ -18,7 +18,7 @@ export async function listPhotosForEvent(eventId: string): Promise<PhotoRow[]> {
     .eq("event_id", eventId)
     .order("created_at", { ascending: false })
     .limit(500);
-  if (error) throw error;
+  if (error) throw toError(error, "Failed to list photos");
   return data as PhotoRow[];
 }
 
@@ -31,8 +31,9 @@ export async function registerPhoto(input: {
   filename: string;
   ext: string;
   bytes: number;
-}): Promise<{ photo: PhotoRow; bucket: string }> {
+}): Promise<{ photo: PhotoRow; bucket: string; uploadToken: string }> {
   const supabase = await getSupabaseServerClient();
+  const admin = getSupabaseServiceClient();
   // Verify the caller owns this event (RLS enforces, but we want a clean error).
   const { data: event, error: evtError } = await supabase
     .from("events")
@@ -56,7 +57,7 @@ export async function registerPhoto(input: {
     })
     .select("*")
     .single();
-  if (error) throw error;
+  if (error) throw toError(error, "Failed to register photo");
 
   // Bump event status to Subiendo when first photo lands.
   await supabase
@@ -65,7 +66,18 @@ export async function registerPhoto(input: {
     .eq("id", input.eventId)
     .in("status", ["Borrador"]);
 
-  return { photo: data as PhotoRow, bucket: STORAGE_BUCKETS.originals };
+  const signedUpload = await admin.storage
+    .from(STORAGE_BUCKETS.originals)
+    .createSignedUploadUrl(path, { upsert: false });
+  if (signedUpload.error || !signedUpload.data?.token) {
+    throw new Error(`Signed upload URL failed: ${signedUpload.error?.message ?? "No token"}`);
+  }
+
+  return {
+    photo: data as PhotoRow,
+    bucket: STORAGE_BUCKETS.originals,
+    uploadToken: signedUpload.data.token,
+  };
 }
 
 /**
@@ -76,17 +88,23 @@ export async function processPhoto(photoId: string): Promise<PhotoRow> {
   const supabase = await getSupabaseServerClient();
   const { data: photo, error } = await supabase
     .from("photos")
-    .select("*, events!inner(id, photographer_id)")
+    .select("*, events!photos_event_id_fkey(id, photographer_id)")
     .eq("id", photoId)
     .maybeSingle();
-  if (error) throw error;
+  if (error) throw toError(error, "Failed to load photo");
   if (!photo) throw new Error("Photo not found");
 
   const row = photo as PhotoRow & { events: { photographer_id: string } };
   if (row.status === "ready") return row;
 
   // Mark as processing. RLS guarantees only the owner can do this.
-  await supabase.from("photos").update({ status: "processing" }).eq("id", photoId);
+  const { error: processingStatusError } = await supabase
+    .from("photos")
+    .update({ status: "processing" })
+    .eq("id", photoId);
+  if (processingStatusError) {
+    throw toError(processingStatusError, "Failed to mark photo as processing");
+  }
 
   const admin = getSupabaseServiceClient();
 
@@ -158,7 +176,7 @@ export async function processPhoto(photoId: string): Promise<PhotoRow> {
       .eq("id", row.id)
       .select("*")
       .single();
-    if (updateError) throw updateError;
+    if (updateError) throw toError(updateError, "Failed to persist processed photo");
 
     // Roll up event status when first ready photo arrives.
     await admin
@@ -169,9 +187,9 @@ export async function processPhoto(photoId: string): Promise<PhotoRow> {
 
     return updated as PhotoRow;
   } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
+    const message = toError(err, "Photo processing failed").message;
     await admin.from("photos").update({ status: "error", error_message: message }).eq("id", row.id);
-    throw err;
+    throw new Error(message);
   }
 }
 
@@ -188,14 +206,14 @@ export async function deletePhoto(photoId: string): Promise<{ id: string }> {
     .select("id, storage_path, thumb_path")
     .eq("id", photoId)
     .maybeSingle();
-  if (fetchError) throw fetchError;
+  if (fetchError) throw toError(fetchError, "Failed to fetch photo");
   if (!photo) throw new Error("Photo not found");
 
   const storagePath = photo.storage_path as string;
   const thumbStoragePath = (photo.thumb_path as string | null) ?? null;
 
   const { error: deleteError } = await supabase.from("photos").delete().eq("id", photoId);
-  if (deleteError) throw deleteError;
+  if (deleteError) throw toError(deleteError, "Failed to delete photo");
 
   // Best-effort storage cleanup after successful row delete.
   const originalsDelete = await admin.storage.from(STORAGE_BUCKETS.originals).remove([storagePath]);
@@ -221,4 +239,21 @@ function withTimeout<T>(p: Promise<T>, ms: number): Promise<T> {
       setTimeout(() => reject(new Error(`Operation timed out after ${ms}ms`)), ms)
     ),
   ]);
+}
+
+function toError(input: unknown, fallback: string): Error {
+  if (input instanceof Error) return input;
+  if (!input || typeof input !== "object") return new Error(fallback);
+
+  const maybe = input as {
+    message?: unknown;
+    details?: unknown;
+    hint?: unknown;
+    code?: unknown;
+  };
+  const parts = [maybe.message, maybe.details, maybe.hint, maybe.code]
+    .filter((v): v is string => typeof v === "string" && v.trim().length > 0)
+    .map((v) => v.trim());
+
+  return new Error(parts.length > 0 ? parts.join(" | ") : fallback);
 }

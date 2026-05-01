@@ -37,9 +37,31 @@ export async function POST(request: NextRequest) {
       photo: result.photo,
       bucket: result.bucket,
       path: result.photo.storage_path,
+      upload_token: result.uploadToken,
     });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Unknown error";
+    const message = getErrorMessage(err);
+    console.error("[api/photos] register failed", {
+      message,
+      err,
+    });
     return NextResponse.json({ error: message }, { status: 400 });
   }
+}
+
+function getErrorMessage(err: unknown) {
+  if (err instanceof Error && err.message) return err.message;
+  if (typeof err === "object" && err !== null) {
+    const maybe = err as {
+      message?: unknown;
+      details?: unknown;
+      hint?: unknown;
+      code?: unknown;
+    };
+    const parts = [maybe.message, maybe.details, maybe.hint, maybe.code]
+      .filter((v): v is string => typeof v === "string" && v.trim().length > 0)
+      .map((v) => v.trim());
+    if (parts.length > 0) return parts.join(" | ");
+  }
+  return "Unknown error";
 }

@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { DatePicker } from "@/components/forms/date-picker";
+import { LocationPickerMap } from "@/components/forms/location-picker-map";
 import { useAuthProfile } from "@/lib/auth-profile";
 import { CITY_SUGGESTIONS } from "@/lib/cities";
 import { cn } from "@/lib/utils";
@@ -98,6 +99,8 @@ export default function NewEventPage() {
   const [date, setDate] = React.useState(today);
   const [city, setCity] = React.useState("");
   const [venue, setVenue] = React.useState("");
+  const [location, setLocation] = React.useState<{ lat: number; lng: number } | null>(null);
+  const [resolvingLocation, setResolvingLocation] = React.useState(false);
   const [description, setDescription] = React.useState("");
 
   const [slugTouched, setSlugTouched] = React.useState(false);
@@ -119,6 +122,44 @@ export default function NewEventPage() {
   const receives = priceValid ? Math.max(0, price - commissionHnl(price)) : 0;
   const availableUntil = daysValid ? addDaysIso(date, onlineDays) : null;
 
+  React.useEffect(() => {
+    if (!location) return;
+    const controller = new AbortController();
+
+    const updateLocationFields = async () => {
+      setResolvingLocation(true);
+      try {
+        const res = await fetch(
+          `/api/geocode/reverse?lat=${encodeURIComponent(location.lat)}&lng=${encodeURIComponent(location.lng)}`,
+          {
+            signal: controller.signal,
+          }
+        );
+        if (!res.ok) return;
+        const body = (await res.json()) as { city?: string; venue?: string };
+
+        if (typeof body.city === "string" && body.city.trim().length > 0) {
+          setCity(body.city.trim());
+        }
+        if (typeof body.venue === "string" && body.venue.trim().length > 0) {
+          setVenue(body.venue.trim());
+        }
+      } catch {
+        // Ignore transient geocoder errors and keep manual values.
+      } finally {
+        if (!controller.signal.aborted) {
+          setResolvingLocation(false);
+        }
+      }
+    };
+
+    void updateLocationFields();
+
+    return () => {
+      controller.abort();
+    };
+  }, [location]);
+
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!canSubmit || submitting) return;
@@ -130,6 +171,8 @@ export default function NewEventPage() {
       date,
       city: city.trim() || undefined,
       venue: venue.trim() || undefined,
+      locationLat: location?.lat,
+      locationLng: location?.lng,
       description: description.trim() || undefined,
       pricePerPhotoHnl: price,
       onlineDays,
@@ -215,6 +258,9 @@ export default function NewEventPage() {
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
                   />
+                  {resolvingLocation ? (
+                    <Hint>Actualizando ciudad desde el pin...</Hint>
+                  ) : null}
                 </div>
                 <div>
                   <Label htmlFor="venue">
@@ -227,6 +273,38 @@ export default function NewEventPage() {
                     value={venue}
                     onChange={(e) => setVenue(e.target.value)}
                   />
+                  {resolvingLocation ? (
+                    <Hint>Actualizando lugar desde el pin...</Hint>
+                  ) : null}
+                </div>
+                <div className="sm:col-span-2">
+                  <Label>
+                    Ubicación en mapa <span className="text-zinc-400">· opcional</span>
+                  </Label>
+                  <p className="mt-1.5 text-xs text-zinc-500">
+                    Haz clic en el mapa o mueve el pin para marcar dónde fue la carrera.
+                  </p>
+                  <div className="mt-2">
+                    <LocationPickerMap value={location} onChange={setLocation} />
+                  </div>
+                  <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-zinc-500">
+                    {location ? (
+                      <span className="rounded-md bg-zinc-100 px-2 py-1 font-mono text-zinc-700">
+                        {location.lat.toFixed(6)}, {location.lng.toFixed(6)}
+                      </span>
+                    ) : (
+                      <span>Sin ubicación seleccionada.</span>
+                    )}
+                    {location ? (
+                      <button
+                        type="button"
+                        className="rounded-md border border-zinc-200 px-2 py-1 text-zinc-700 hover:bg-zinc-50"
+                        onClick={() => setLocation(null)}
+                      >
+                        Limpiar pin
+                      </button>
+                    ) : null}
+                  </div>
                 </div>
               </div>
               <datalist id="city-suggestions">

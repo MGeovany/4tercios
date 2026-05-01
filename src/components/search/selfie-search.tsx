@@ -5,11 +5,12 @@ import Link from "next/link";
 import { ArrowRightIcon, CheckIcon } from "@radix-ui/react-icons";
 
 import { SelfieCapture, type SelfieResult } from "./selfie-capture";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
-import { formatHnl } from "@/lib/local-store";
+import { formatHnl } from "@/lib/currency";
 
 type Match = {
   photoId: string;
@@ -96,15 +97,18 @@ export function SelfieSearch({
   const busy = phase === "uploading" || phase === "matching";
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[420px_1fr]">
+    <div className="grid gap-6 xl:grid-cols-[390px_1fr] xl:gap-8">
       <div className="space-y-4">
         {selfie ? (
-          <Card>
-            <CardHeader>
-              <CardTitle>Tu selfie</CardTitle>
+          <Card className="overflow-hidden border-zinc-200/80 bg-white shadow-sm">
+            <CardHeader className="border-b border-zinc-100 bg-zinc-50/70">
+              <div className="flex items-center justify-between">
+                <CardTitle>Tu selfie</CardTitle>
+                <Badge variant="neutral">Paso 1</Badge>
+              </div>
             </CardHeader>
             <CardContent className="space-y-3">
-              <div className="overflow-hidden rounded-2xl border border-zinc-200 bg-black">
+              <div className="overflow-hidden rounded-3xl border border-zinc-200 bg-black">
                 <img
                   src={selfie.previewUrl}
                   alt="Selfie"
@@ -138,9 +142,12 @@ export function SelfieSearch({
             </CardContent>
           </Card>
         ) : (
-          <Card>
-            <CardHeader>
-              <CardTitle>Encuentra tus fotos</CardTitle>
+          <Card className="overflow-hidden border-zinc-200/80 bg-white shadow-sm">
+            <CardHeader className="border-b border-zinc-100 bg-zinc-50/70">
+              <div className="flex items-center justify-between">
+                <CardTitle>Encuentra tus fotos</CardTitle>
+                <Badge variant="neutral">Paso 1</Badge>
+              </div>
             </CardHeader>
             <CardContent>
               <SelfieCapture onCapture={handleCapture} busy={busy} />
@@ -155,7 +162,11 @@ export function SelfieSearch({
             <EmptyState eventName={eventName} />
           ) : (
             <div className="space-y-4">
-              <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4">
+              <div className="rounded-2xl border border-zinc-200/80 bg-zinc-50/70 p-4">
+                <div className="mb-2 flex items-center justify-between gap-2">
+                  <Badge variant="success">Paso 2 · Coincidencias</Badge>
+                  <p className="text-xs text-zinc-500">Selecciona tus fotos favoritas</p>
+                </div>
                 <p className="text-sm text-zinc-700">
                   Encontramos <strong>{result.matches.length}</strong> foto
                   {result.matches.length === 1 ? "" : "s"} que probablemente eres tú.
@@ -187,21 +198,26 @@ export function SelfieSearch({
             </div>
           )
         ) : (
-          <Card>
-            <CardHeader>
-              <CardTitle>Cómo funciona</CardTitle>
+          <Card className="overflow-hidden border-zinc-200/80 bg-white shadow-sm">
+            <CardHeader className="border-b border-zinc-100 bg-zinc-50/70">
+              <div className="flex items-center justify-between">
+                <CardTitle>Cómo funciona</CardTitle>
+                <Badge variant="neutral">Paso 2</Badge>
+              </div>
             </CardHeader>
             <CardContent className="space-y-3 text-sm leading-6 text-zinc-700">
-              <p>
-                <strong>1.</strong> Toma o sube una selfie clara, mirando al frente.
-              </p>
-              <p>
-                <strong>2.</strong> Comparamos tu rostro con cada foto del evento usando IA.
-              </p>
-              <p>
-                <strong>3.</strong> Te mostramos las fotos donde apareces. Selecciona las que
-                quieras y solicítalas por WhatsApp o paga online.
-              </p>
+              <div className="space-y-2.5">
+                <p>
+                  <strong>1.</strong> Toma o sube una selfie clara, mirando al frente.
+                </p>
+                <p>
+                  <strong>2.</strong> Comparamos tu rostro con cada foto del evento usando IA.
+                </p>
+                <p>
+                  <strong>3.</strong> Te mostramos las fotos donde apareces. Selecciona las que
+                  quieras y solicítalas por WhatsApp o paga online.
+                </p>
+              </div>
               <p className="text-xs text-zinc-500">
                 Tu selfie nunca se publica y se elimina después de la búsqueda.
               </p>
@@ -209,12 +225,14 @@ export function SelfieSearch({
                 ¿No tienes cámara? Sube una foto desde tu galería con el botón &ldquo;Subir
                 foto&rdquo;.
               </p>
-              <Link
-                href={`/e/${slug}/results`}
-                className="text-sm font-medium text-zinc-950 underline"
-              >
-                O explora la galería completa →
-              </Link>
+              <div className="rounded-xl border border-zinc-200/80 bg-zinc-50 p-3">
+                <Link
+                  href={`/e/${slug}/results`}
+                  className="text-sm font-medium text-zinc-950 underline underline-offset-4"
+                >
+                  O explora la galería completa →
+                </Link>
+              </div>
             </CardContent>
           </Card>
         )}
@@ -225,7 +243,7 @@ export function SelfieSearch({
 
 function EmptyState({ eventName }: { eventName: string }) {
   return (
-    <Card>
+    <Card className="border-zinc-200/80 bg-white shadow-sm">
       <CardHeader>
         <CardTitle>No encontramos coincidencias</CardTitle>
       </CardHeader>
@@ -265,11 +283,11 @@ function MatchCard({
       type="button"
       onClick={onToggle}
       className={cn(
-        "group relative overflow-hidden rounded-2xl border bg-white text-left transition",
-        selected ? "border-zinc-950 ring-2 ring-zinc-950" : "border-zinc-200 hover:border-zinc-300"
+        "group relative overflow-hidden rounded-2xl border bg-white text-left transition shadow-sm",
+        selected ? "border-zinc-950 ring-2 ring-zinc-950" : "border-zinc-200/80 hover:border-zinc-300"
       )}
     >
-      <div className="relative aspect-[4/3] bg-zinc-100">
+      <div className="relative aspect-4/3 bg-zinc-100">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={match.thumbUrl}
@@ -284,12 +302,7 @@ function MatchCard({
         ) : null}
       </div>
       <div className="flex items-center justify-between gap-2 p-3">
-        <span
-          className={cn(
-            "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium",
-            tier.className
-          )}
-        >
+        <span className={cn("inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium", tier.className)}>
           {tier.label} · {pct}%
         </span>
         <span className="text-xs text-zinc-500">
@@ -351,7 +364,11 @@ function SelectionBar({
   };
 
   return (
-    <div className="sticky bottom-3 mt-6 rounded-2xl border border-zinc-200 bg-white/95 p-4 shadow-lg backdrop-blur">
+    <div className="sticky bottom-3 mt-6 rounded-2xl border border-zinc-200/80 bg-white/95 p-4 shadow-lg backdrop-blur">
+      <div className="mb-2 flex items-center gap-2">
+        <Badge variant="neutral">Paso 3 · Pedido</Badge>
+        <p className="text-xs text-zinc-500">Confirma tus fotos y completa tu compra</p>
+      </div>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-sm text-zinc-700">

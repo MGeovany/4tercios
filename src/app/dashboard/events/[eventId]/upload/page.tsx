@@ -6,11 +6,13 @@ import { requirePhotographer } from "@/lib/server/auth";
 import { getEventByIdForPhotographer } from "@/lib/server/events";
 import { listPhotosForEvent } from "@/lib/server/photos";
 import { Topbar } from "@/components/shell/topbar";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { UploadStation } from "./upload-station";
 import { PhotosListActions } from "./photos-list-actions";
-import { publishEventAction } from "./actions";
+import { publishEventAction, saveEventAsDraftAction } from "./actions";
+import { PublishEventButton, SaveDraftButton } from "./publish-buttons";
 
 export default async function UploadPage({ params }: { params: Promise<{ eventId: string }> }) {
   const { eventId } = await params;
@@ -83,7 +85,12 @@ export default async function UploadPage({ params }: { params: Promise<{ eventId
               <CardContent className="space-y-3">
                 <div>
                   <p className="text-xs text-zinc-500">Evento</p>
-                  <p className="mt-1 text-sm font-semibold text-zinc-950">{event.name}</p>
+                  <div className="mt-1 flex items-center gap-2">
+                    <p className="text-sm font-semibold text-zinc-950">{event.name}</p>
+                    <Badge variant={isPublished ? "success" : "neutral"}>
+                      {isPublished ? "Publicado" : "Draft"}
+                    </Badge>
+                  </div>
                   <p className="mt-1 text-sm text-zinc-700">
                     {event.city ?? "—"} · {event.date}
                   </p>
@@ -95,10 +102,8 @@ export default async function UploadPage({ params }: { params: Promise<{ eventId
                   <KpiBox label="Errores" value={totals.errors} />
                 </div>
                 <div className="space-y-2 pt-2">
-                  <form action={publishEventAction.bind(null, event.id)}>
-                    <Button type="submit" className="w-full" disabled={!canPublish || isPublished}>
-                      {isPublished ? "Evento publicado" : "Publicar evento"}
-                    </Button>
+                  <form action={publishEventAction.bind(null, event.id, event.slug)}>
+                    <PublishEventButton disabled={!canPublish || isPublished} isPublished={isPublished} />
                   </form>
                   <p className="text-xs text-zinc-500">
                     {isPublished
@@ -107,9 +112,9 @@ export default async function UploadPage({ params }: { params: Promise<{ eventId
                         ? "Publica cuando estes listo para recibir visitas."
                         : "Se habilita cuando haya fotos listas y no queden fotos procesandose."}
                   </p>
-                  <Button asChild className="w-full">
-                    <Link href={`/e/${event.slug}`}>Abrir página pública</Link>
-                  </Button>
+                  <form action={saveEventAsDraftAction.bind(null, event.id)}>
+                    <SaveDraftButton disabled={!isPublished} />
+                  </form>
                 </div>
               </CardContent>
             </Card>

@@ -84,6 +84,7 @@ export async function updateEventStatus(id: string, status: EventStatus) {
 export type UpdateEventInput = {
   name?: string;
   type?: EventRow["type"];
+  status?: EventRow["status"];
   date?: string;
   city?: string | null;
   venue?: string | null;
@@ -101,6 +102,7 @@ export async function updateEvent(id: string, patch: UpdateEventInput) {
   const update: Record<string, unknown> = {};
   if (patch.name != null) update.name = patch.name;
   if (patch.type != null) update.type = patch.type;
+  if (patch.status != null) update.status = patch.status;
   if (patch.date != null) update.date = patch.date;
   if (patch.city !== undefined) update.city = patch.city;
   if (patch.venue !== undefined) update.venue = patch.venue;

@@ -1,16 +1,34 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
 import { requirePhotographer } from "@/lib/server/auth";
 import { updateEvent } from "@/lib/server/events";
 
-export async function publishEventAction(eventId: string) {
+export async function publishEventAction(eventId: string, slug: string) {
   await requirePhotographer();
 
   await updateEvent(eventId, {
     status: "Listo",
     isPublic: true,
+  });
+
+  revalidatePath(`/dashboard/events/${eventId}/upload`);
+  revalidatePath("/dashboard/events");
+  revalidatePath("/dashboard");
+  revalidatePath(`/e/${slug}`);
+  revalidatePath(`/e/${slug}/results`);
+
+  redirect(`/e/${slug}`);
+}
+
+export async function saveEventAsDraftAction(eventId: string) {
+  await requirePhotographer();
+
+  await updateEvent(eventId, {
+    status: "Borrador",
+    isPublic: false,
   });
 
   revalidatePath(`/dashboard/events/${eventId}/upload`);

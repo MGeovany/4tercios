@@ -98,7 +98,7 @@ export function SelfieCapture({ onCapture, busy }: Props) {
 
   return (
     <div className="space-y-3">
-      <div className="relative aspect-square overflow-hidden rounded-3xl border border-zinc-200 bg-black">
+      <div className="relative aspect-square overflow-hidden rounded-3xl border border-zinc-200 bg-zinc-950">
         {streaming ? (
           <video
             ref={videoRef}
@@ -112,7 +112,7 @@ export function SelfieCapture({ onCapture, busy }: Props) {
             <p className="text-sm">Activa tu cámara o sube una selfie</p>
           </div>
         )}
-        <div className="pointer-events-none absolute inset-0 ring-1 ring-white/20 ring-inset" />
+        <div className="pointer-events-none absolute inset-0 ring-1 ring-white/10 ring-inset" />
       </div>
 
       {error ? <p className={cn("text-sm font-medium text-red-700")}>{error}</p> : null}
@@ -156,7 +156,7 @@ export function SelfieCapture({ onCapture, busy }: Props) {
         />
       </div>
 
-      <p className="text-xs text-zinc-500">
+      <p className="rounded-lg bg-zinc-50 px-2.5 py-2 text-xs text-zinc-500">
         <ReloadIcon className="mr-1 inline h-3 w-3" />
         Tu selfie se elimina al terminar la búsqueda. No guardamos datos biométricos.
       </p>

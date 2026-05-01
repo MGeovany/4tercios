@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, Check, PartyPopper } from "lucide-react";
+import Confetti from "react-confetti";
 
 import { Brand } from "@/components/brand";
 import { Button } from "@/components/ui/button";
@@ -252,7 +253,13 @@ export function OnboardingClient() {
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-xl px-6 py-10 sm:py-14">
+      <main
+        className={
+          completed
+            ? "mx-auto flex min-h-[calc(100vh-3.5rem)] w-full max-w-xl items-center justify-center px-6"
+            : "mx-auto w-full max-w-xl px-6 py-10 sm:py-14"
+        }
+      >
         {completed ? (
           <CompletionView onContinue={() => router.replace("/dashboard")} />
         ) : (
@@ -339,8 +346,44 @@ function getStepRequirementMessage(stepId: string | undefined, state: Onboarding
 }
 
 function CompletionView({ onContinue }: { onContinue: () => void }) {
+  const [showConfetti, setShowConfetti] = useState(true);
+  const [viewport, setViewport] = useState({ width: 0, height: 0 });
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (prefersReducedMotion) {
+      setShowConfetti(false);
+      return;
+    }
+
+    const updateViewport = () => {
+      setViewport({ width: window.innerWidth, height: window.innerHeight });
+    };
+
+    updateViewport();
+    window.addEventListener("resize", updateViewport);
+    const timeout = window.setTimeout(() => setShowConfetti(false), 5000);
+
+    return () => {
+      window.removeEventListener("resize", updateViewport);
+      window.clearTimeout(timeout);
+    };
+  }, []);
+
   return (
-    <div className="text-center">
+    <div className="relative text-center">
+      {showConfetti && viewport.width > 0 ? (
+        <Confetti
+          width={viewport.width}
+          height={viewport.height}
+          numberOfPieces={220}
+          recycle={false}
+          gravity={0.12}
+          className="pointer-events-none fixed inset-0 z-0"
+        />
+      ) : null}
       <div className="bg-muted mx-auto flex size-14 items-center justify-center rounded-full">
         <PartyPopper className="size-6" />
       </div>

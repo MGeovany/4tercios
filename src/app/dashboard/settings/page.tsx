@@ -11,7 +11,9 @@ import {
   type SupportedLocale,
   type WatermarkStyle,
 } from "@/lib/local-store";
+import { useAuthProfile } from "@/lib/auth-profile";
 import { cn } from "@/lib/utils";
+import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { Topbar } from "@/components/shell/topbar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -176,15 +178,26 @@ function Toggle({
 }
 
 function ProfileSection() {
-  const { session, users, actions } = useLensia();
-  const me = users.find((u) => u.id === session.userId)!;
+  const { profile, loading } = useAuthProfile();
   const { saved, trigger } = useSavedIndicator();
+  const [isSaving, setIsSaving] = React.useState(false);
+  const [saveError, setSaveError] = React.useState<string | null>(null);
 
-  const [name, setName] = React.useState(me.name);
-  const [email, setEmail] = React.useState(me.email);
-  const [phone, setPhone] = React.useState(me.phone ?? "");
-  const [websiteUrl, setWebsiteUrl] = React.useState(me.websiteUrl ?? "");
-  const [bio, setBio] = React.useState(me.bio ?? "");
+  const [name, setName] = React.useState("");
+  const [email, setEmail] = React.useState("");
+  const [phone, setPhone] = React.useState("");
+  const [websiteUrl, setWebsiteUrl] = React.useState("");
+  const [instagram, setInstagram] = React.useState("");
+  const [bio, setBio] = React.useState("");
+
+  React.useEffect(() => {
+    setName(profile.name);
+    setEmail(profile.email);
+    setPhone(profile.phone);
+    setWebsiteUrl(profile.website);
+    setInstagram(profile.instagram);
+    setBio(profile.bio);
+  }, [profile.bio, profile.email, profile.instagram, profile.name, profile.phone, profile.website]);
 
   const initials = name
     .split(" ")
@@ -192,6 +205,7 @@ function ProfileSection() {
     .slice(0, 2)
     .join("")
     .toUpperCase();
+  const hasGoogleAvatar = profile.provider === "google" && profile.avatarUrl;
 
   return (
     <SectionCard
@@ -200,24 +214,58 @@ function ProfileSection() {
       title="Perfil"
       description="Cómo te mostramos en la app y en la galería pública."
       saved={saved}
-      onSubmit={() => {
-        actions.updateUser({
-          name: name.trim() || me.name,
-          email: email.trim() || me.email,
-          phone: phone.trim() || undefined,
-          websiteUrl: websiteUrl.trim() || undefined,
-          bio: bio.trim() || undefined,
-        });
-        trigger();
+      canSave={!loading && !isSaving}
+      onSubmit={async () => {
+        setSaveError(null);
+        setIsSaving(true);
+
+        try {
+          const supabase = getSupabaseBrowserClient();
+          const normalizedEmail = email.trim();
+          const normalizedInstagram = instagram.trim().replace(/^@/, "");
+
+          const { error: profileError } = await supabase.auth.updateUser({
+            data: {
+              business_name: name.trim(),
+              full_name: name.trim(),
+              phone: phone.trim(),
+              website: websiteUrl.trim(),
+              instagram: normalizedInstagram,
+              bio: bio.trim(),
+            },
+          });
+          if (profileError) throw profileError;
+
+          if (normalizedEmail && normalizedEmail !== profile.email) {
+            const { error: emailError } = await supabase.auth.updateUser({ email: normalizedEmail });
+            if (emailError) throw emailError;
+          }
+
+          trigger();
+        } catch (error) {
+          setSaveError(error instanceof Error ? error.message : "No se pudo guardar tu perfil.");
+        } finally {
+          setIsSaving(false);
+        }
       }}
     >
       <div className="flex items-center gap-4">
-        <span className="flex size-14 items-center justify-center rounded-full bg-zinc-100 text-base font-semibold text-zinc-700">
-          {initials || "·"}
-        </span>
+        {hasGoogleAvatar ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={profile.avatarUrl}
+            alt={name ? `Avatar de ${name}` : "Avatar de perfil"}
+            className="size-14 rounded-full object-cover"
+            referrerPolicy="no-referrer"
+          />
+        ) : (
+          <span className="flex size-14 items-center justify-center rounded-full bg-zinc-100 text-base font-semibold text-zinc-700">
+            {initials || "·"}
+          </span>
+        )}
         <div className="text-xs text-zinc-500">
-          <p>El avatar se genera con tus iniciales.</p>
-          <p className="mt-0.5">Subir logo propio llegará pronto.</p>
+          <p>{hasGoogleAvatar ? "Usando foto de Google." : "El avatar se genera con tus iniciales."}</p>
+          <p className="mt-0.5">Datos sincronizados con lo que configuras en onboarding.</p>
         </div>
       </div>
 
@@ -250,6 +298,14 @@ function ProfileSection() {
             onChange={(e) => setWebsiteUrl(e.target.value)}
           />
         </Field>
+        <Field label="Instagram" htmlFor="instagram" optional>
+          <Input
+            id="instagram"
+            placeholder="@tuusuario"
+            value={instagram}
+            onChange={(e) => setInstagram(e.target.value.replace(/^@/, ""))}
+          />
+        </Field>
         <div className="sm:col-span-2">
           <Field
             label="Bio"
@@ -266,57 +322,103 @@ function ProfileSection() {
             />
           </Field>
         </div>
+        {saveError ? <p className="sm:col-span-2 text-sm text-red-600">{saveError}</p> : null}
       </div>
     </SectionCard>
   );
 }
 
-const WATERMARK_OPTIONS: { value: WatermarkStyle; label: string; description: string }[] = [
-  { value: "none", label: "Sin marca", description: "Solo vista previa borrosa." },
-  { value: "subtle", label: "Sutil", description: "Texto pequeño en esquina." },
-  { value: "bold", label: "Visible", description: "Marca diagonal grande." },
-];
+const ONBOARDING_COUNTRY_OPTIONS = [
+  { value: "HN", label: "Honduras" },
+  { value: "GT", label: "Guatemala" },
+  { value: "SV", label: "El Salvador" },
+  { value: "NI", label: "Nicaragua" },
+  { value: "CR", label: "Costa Rica" },
+  { value: "PA", label: "Panamá" },
+  { value: "MX", label: "México" },
+  { value: "CO", label: "Colombia" },
+  { value: "OTRO", label: "Otro país" },
+] as const;
+
+const ONBOARDING_PAYOUT_OPTIONS = [
+  {
+    value: "transferencia",
+    label: "Transferencia bancaria",
+    description: "Recibe directo en tu banco local.",
+  },
+  {
+    value: "tigo_money",
+    label: "Tigo Money / billetera móvil",
+    description: "Ideal si manejas pagos por celular.",
+  },
+  {
+    value: "paypal",
+    label: "PayPal",
+    description: "Para retiros internacionales rápidos.",
+  },
+  {
+    value: "wire",
+    label: "Wire / SWIFT",
+    description: "Para cuentas en USD u otras monedas.",
+  },
+  {
+    value: "otro",
+    label: "Lo conversamos",
+    description: "Te contactamos para definirlo contigo.",
+  },
+] as const;
+
+type OnboardingPayoutMethod = (typeof ONBOARDING_PAYOUT_OPTIONS)[number]["value"];
 
 function BrandSection() {
-  const { settings, actions } = useLensia();
+  const { profile, loading } = useAuthProfile();
   const { saved, trigger } = useSavedIndicator();
+  const [isSaving, setIsSaving] = React.useState(false);
+  const [saveError, setSaveError] = React.useState<string | null>(null);
 
-  const [primaryColor, setPrimaryColor] = React.useState(settings.brand.primaryColor);
-  const [watermarkStyle, setWatermarkStyle] = React.useState<WatermarkStyle>(
-    settings.brand.watermarkStyle
-  );
-  const [instagramHandle, setInstagramHandle] = React.useState(
-    settings.brand.instagramHandle ?? ""
-  );
+  const [primaryColor, setPrimaryColor] = React.useState(profile.brandColor);
+
+  React.useEffect(() => {
+    setPrimaryColor(profile.brandColor || "#2563eb");
+  }, [profile.brandColor]);
 
   return (
     <SectionCard
       id="marca"
       eyebrow="02"
-      title="Marca de galería"
-      description="Cómo se ve tu galería cuando tus clientes la abren."
+      title="Marca"
+      description="Color principal configurado desde onboarding."
       saved={saved}
-      onSubmit={() => {
-        actions.updateSettings("brand", {
-          primaryColor,
-          watermarkStyle,
-          instagramHandle: instagramHandle.trim() || undefined,
-        });
-        trigger();
+      canSave={!loading && !isSaving}
+      onSubmit={async () => {
+        setSaveError(null);
+        setIsSaving(true);
+        try {
+          const supabase = getSupabaseBrowserClient();
+          const { error } = await supabase.auth.updateUser({
+            data: {
+              brand_color: primaryColor.trim() || "#2563eb",
+            },
+          });
+          if (error) throw error;
+          trigger();
+        } catch (error) {
+          setSaveError(error instanceof Error ? error.message : "No se pudo guardar la marca.");
+        } finally {
+          setIsSaving(false);
+        }
       }}
     >
-      <div className="grid gap-6 sm:grid-cols-2">
-        <Field label="Color primario" hint="Botones, acentos y elementos destacados.">
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field label="Color principal" hint="Botones y acentos de la galería pública.">
           <div className="flex items-center gap-3">
-            <div className="relative">
-              <input
-                type="color"
-                value={primaryColor}
-                onChange={(e) => setPrimaryColor(e.target.value)}
-                className="size-10 cursor-pointer rounded-md border border-zinc-200"
-                aria-label="Color primario"
-              />
-            </div>
+            <input
+              type="color"
+              value={primaryColor}
+              onChange={(e) => setPrimaryColor(e.target.value)}
+              className="size-10 cursor-pointer rounded-md border border-zinc-200"
+              aria-label="Color principal"
+            />
             <Input
               value={primaryColor}
               onChange={(e) => setPrimaryColor(e.target.value)}
@@ -325,305 +427,162 @@ function BrandSection() {
             />
           </div>
         </Field>
-
-        <Field label="Handle de Instagram" optional htmlFor="ig">
-          <div className="flex items-center rounded-md border border-zinc-200 bg-white focus-within:border-zinc-400 focus-within:ring-[3px] focus-within:ring-zinc-950/10">
-            <span className="px-3 text-sm text-zinc-500 select-none">@</span>
-            <input
-              id="ig"
-              value={instagramHandle}
-              onChange={(e) => setInstagramHandle(e.target.value.replace(/^@/, ""))}
-              placeholder="sulaphotostudio"
-              className="h-9 flex-1 rounded-r-md border-0 bg-transparent pr-3 text-sm text-zinc-950 placeholder:text-zinc-400 focus:outline-none"
-            />
-          </div>
-        </Field>
-      </div>
-
-      <div className="mt-6">
-        <Label>Estilo de watermark</Label>
-        <div className="mt-2 grid gap-2 sm:grid-cols-3">
-          {WATERMARK_OPTIONS.map((opt) => {
-            const active = watermarkStyle === opt.value;
-            return (
-              <button
-                key={opt.value}
-                type="button"
-                onClick={() => setWatermarkStyle(opt.value)}
-                className={cn(
-                  "flex flex-col items-start rounded-lg border p-3 text-left transition-colors",
-                  active
-                    ? "border-zinc-950 bg-zinc-50"
-                    : "border-zinc-200 bg-white hover:border-zinc-300"
-                )}
-              >
-                <div className="flex w-full items-center justify-between">
-                  <span className="text-sm font-medium text-zinc-950">{opt.label}</span>
-                  <span
-                    className={cn(
-                      "size-4 rounded-full border-2 transition-colors",
-                      active ? "border-zinc-950 bg-zinc-950" : "border-zinc-300"
-                    )}
-                  />
-                </div>
-                <p className="mt-1 text-xs text-zinc-500">{opt.description}</p>
-              </button>
-            );
-          })}
+        <div className="flex items-end">
+          <p className="text-xs text-zinc-500">
+            Este valor se sincroniza con `brand_color` en tu onboarding.
+          </p>
         </div>
       </div>
+      {saveError ? <p className="mt-4 text-sm text-red-600">{saveError}</p> : null}
     </SectionCard>
   );
 }
 
-const PAYOUT_OPTIONS: {
-  value: PayoutMethod;
-  label: string;
-  description: string;
-}[] = [
-  { value: "none", label: "Sin configurar", description: "Configuras esto cuando vendas." },
-  { value: "bank", label: "Transferencia bancaria", description: "BAC, Ficohsa, Atlántida, etc." },
-  { value: "mobile-money", label: "Billetera móvil", description: "Tigo Money, Claro Pay, Nequi." },
-  { value: "paypal", label: "PayPal", description: "Para cobros en USD." },
-];
-
-function maskedAccount(value: string) {
-  if (!value) return "";
-  const clean = value.replace(/\s+/g, "");
-  if (clean.length <= 4) return clean;
-  return `${"•".repeat(Math.max(0, clean.length - 4))}${clean.slice(-4)}`;
-}
-
 function PayoutSection() {
-  const { settings, actions } = useLensia();
+  const { profile, loading } = useAuthProfile();
   const { saved, trigger } = useSavedIndicator();
+  const [isSaving, setIsSaving] = React.useState(false);
+  const [saveError, setSaveError] = React.useState<string | null>(null);
 
-  const [method, setMethod] = React.useState<PayoutMethod>(settings.payout.method);
-  const [currency, setCurrency] = React.useState<"HNL" | "USD">(settings.payout.currency);
-  const [accountHolder, setAccountHolder] = React.useState(settings.payout.accountHolder ?? "");
-  const [rtn, setRtn] = React.useState(settings.payout.rtn ?? "");
-  const [bankName, setBankName] = React.useState(settings.payout.bankName ?? "");
-  const [accountNumber, setAccountNumber] = React.useState(settings.payout.accountNumber ?? "");
-  const [mobileProvider, setMobileProvider] = React.useState(settings.payout.mobileProvider ?? "");
-  const [mobilePhone, setMobilePhone] = React.useState(settings.payout.mobilePhone ?? "");
-  const [paypalEmail, setPaypalEmail] = React.useState(settings.payout.paypalEmail ?? "");
+  const [country, setCountry] = React.useState(profile.paymentsCountry);
+  const [method, setMethod] = React.useState<OnboardingPayoutMethod | "">(
+    (profile.paymentsMethod as OnboardingPayoutMethod) || ""
+  );
+
+  React.useEffect(() => {
+    setCountry(profile.paymentsCountry);
+    setMethod((profile.paymentsMethod as OnboardingPayoutMethod) || "");
+  }, [profile.paymentsCountry, profile.paymentsMethod]);
 
   return (
     <SectionCard
       id="pagos"
       eyebrow="03"
       title="Pagos"
-      description="Dónde recibes el dinero de tus ventas, menos la comisión."
+      description="Método y país configurados en onboarding."
       saved={saved}
-      onSubmit={() => {
-        actions.updateSettings("payout", {
-          method,
-          currency,
-          accountHolder: accountHolder.trim() || undefined,
-          rtn: rtn.trim() || undefined,
-          bankName: method === "bank" ? bankName.trim() || undefined : undefined,
-          accountNumber: method === "bank" ? accountNumber.trim() || undefined : undefined,
-          mobileProvider:
-            method === "mobile-money" ? mobileProvider.trim() || undefined : undefined,
-          mobilePhone: method === "mobile-money" ? mobilePhone.trim() || undefined : undefined,
-          paypalEmail: method === "paypal" ? paypalEmail.trim() || undefined : undefined,
-        });
-        trigger();
+      canSave={!loading && !isSaving && !!country && !!method}
+      onSubmit={async () => {
+        setSaveError(null);
+        setIsSaving(true);
+        try {
+          const supabase = getSupabaseBrowserClient();
+          const { error } = await supabase.auth.updateUser({
+            data: {
+              payments_country: country,
+              payments_method: method,
+            },
+          });
+          if (error) throw error;
+          trigger();
+        } catch (error) {
+          setSaveError(error instanceof Error ? error.message : "No se pudo guardar pagos.");
+        } finally {
+          setIsSaving(false);
+        }
       }}
     >
-      <div className="flex items-start gap-3 rounded-lg border border-zinc-200 bg-zinc-50/60 p-4">
-        <InfoCircledIcon className="mt-0.5 size-4 shrink-0 text-zinc-500" />
-        <div className="text-xs leading-5 text-zinc-600">
-          Tu cuenta aún no tiene ventas pendientes. Al confirmar la primera, depositaremos el neto
-          (después del 20% de comisión) usando el método que configures aquí.
-        </div>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field label="País">
+          <Select value={country} onValueChange={setCountry}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Selecciona tu país" />
+            </SelectTrigger>
+            <SelectContent>
+              {ONBOARDING_COUNTRY_OPTIONS.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </Field>
+        <Field label="Método preferido">
+          <Select value={method} onValueChange={(value) => setMethod(value as OnboardingPayoutMethod)}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Selecciona método" />
+            </SelectTrigger>
+            <SelectContent>
+              {ONBOARDING_PAYOUT_OPTIONS.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </Field>
       </div>
-
-      <div className="mt-6">
-        <Label>Método de cobro</Label>
-        <div className="mt-2 grid gap-2 sm:grid-cols-2">
-          {PAYOUT_OPTIONS.map((opt) => {
-            const active = method === opt.value;
-            return (
-              <button
-                key={opt.value}
-                type="button"
-                onClick={() => setMethod(opt.value)}
-                className={cn(
-                  "flex items-start justify-between gap-3 rounded-lg border p-3 text-left transition-colors",
-                  active
-                    ? "border-zinc-950 bg-zinc-50"
-                    : "border-zinc-200 bg-white hover:border-zinc-300"
-                )}
-              >
-                <div>
-                  <p className="text-sm font-medium text-zinc-950">{opt.label}</p>
-                  <p className="mt-0.5 text-xs text-zinc-500">{opt.description}</p>
-                </div>
-                <span
-                  className={cn(
-                    "mt-0.5 size-4 shrink-0 rounded-full border-2 transition-colors",
-                    active ? "border-zinc-950 bg-zinc-950" : "border-zinc-300"
-                  )}
-                />
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {method !== "none" ? (
-        <div className="mt-6 grid gap-4 border-t border-zinc-100 pt-6 sm:grid-cols-2">
-          <Field label="Nombre del titular" htmlFor="holder">
-            <Input
-              id="holder"
-              value={accountHolder}
-              onChange={(e) => setAccountHolder(e.target.value)}
-              placeholder="Como aparece en tu cuenta"
-            />
-          </Field>
-          <Field label="RTN" hint="Para emisión de factura." optional htmlFor="rtn">
-            <Input
-              id="rtn"
-              value={rtn}
-              onChange={(e) => setRtn(e.target.value)}
-              placeholder="0801-1999-12345"
-            />
-          </Field>
-
-          {method === "bank" ? (
-            <>
-              <Field label="Banco" htmlFor="bank">
-                <Input
-                  id="bank"
-                  value={bankName}
-                  onChange={(e) => setBankName(e.target.value)}
-                  placeholder="BAC, Ficohsa, Atlántida..."
-                />
-              </Field>
-              <Field
-                label="Número de cuenta"
-                htmlFor="acct"
-                hint={accountNumber ? `Guardado como ${maskedAccount(accountNumber)}` : undefined}
-              >
-                <Input
-                  id="acct"
-                  value={accountNumber}
-                  onChange={(e) => setAccountNumber(e.target.value)}
-                  inputMode="numeric"
-                />
-              </Field>
-            </>
-          ) : null}
-
-          {method === "mobile-money" ? (
-            <>
-              <Field label="Proveedor" htmlFor="mprov">
-                <Input
-                  id="mprov"
-                  value={mobileProvider}
-                  onChange={(e) => setMobileProvider(e.target.value)}
-                  placeholder="Tigo Money, Claro Pay..."
-                />
-              </Field>
-              <Field label="Número registrado" htmlFor="mphone">
-                <Input
-                  id="mphone"
-                  value={mobilePhone}
-                  onChange={(e) => setMobilePhone(e.target.value)}
-                  placeholder="+504 9999-1234"
-                />
-              </Field>
-            </>
-          ) : null}
-
-          {method === "paypal" ? (
-            <div className="sm:col-span-2">
-              <Field label="Email de PayPal" htmlFor="paypal">
-                <Input
-                  id="paypal"
-                  type="email"
-                  value={paypalEmail}
-                  onChange={(e) => setPaypalEmail(e.target.value)}
-                  placeholder="tu-correo@ejemplo.com"
-                />
-              </Field>
-            </div>
-          ) : null}
-
-          <Field label="Moneda preferida" hint="Afecta el formato en tu dashboard.">
-            <Select value={currency} onValueChange={(v) => setCurrency(v as "HNL" | "USD")}>
-              <SelectTrigger className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="HNL">Lempira hondureño (HNL)</SelectItem>
-                <SelectItem value="USD">Dólar estadounidense (USD)</SelectItem>
-              </SelectContent>
-            </Select>
-          </Field>
-        </div>
-      ) : null}
+      {saveError ? <p className="mt-4 text-sm text-red-600">{saveError}</p> : null}
     </SectionCard>
   );
 }
 
 function NotificationsSection() {
-  const { settings, actions } = useLensia();
+  const { profile, loading } = useAuthProfile();
   const { saved, trigger } = useSavedIndicator();
+  const [isSaving, setIsSaving] = React.useState(false);
+  const [saveError, setSaveError] = React.useState<string | null>(null);
 
-  const [draft, setDraft] = React.useState<LensiaSettings["notifications"]>(settings.notifications);
+  const [sales, setSales] = React.useState(profile.notifSales);
+  const [matches, setMatches] = React.useState(profile.notifMatches);
+  const [weeklyDigest, setWeeklyDigest] = React.useState(profile.notifWeeklyDigest);
 
-  const toggle = (key: keyof LensiaSettings["notifications"]) => (next: boolean) =>
-    setDraft((d) => ({ ...d, [key]: next }));
+  React.useEffect(() => {
+    setSales(profile.notifSales);
+    setMatches(profile.notifMatches);
+    setWeeklyDigest(profile.notifWeeklyDigest);
+  }, [profile.notifMatches, profile.notifSales, profile.notifWeeklyDigest]);
 
   return (
     <SectionCard
       id="notificaciones"
       eyebrow="04"
       title="Notificaciones"
-      description="Cuándo y cómo te avisamos de la actividad de tus eventos."
+      description="Preferencias configuradas en onboarding."
       saved={saved}
-      onSubmit={() => {
-        actions.updateSettings("notifications", draft);
-        trigger();
+      canSave={!loading && !isSaving}
+      onSubmit={async () => {
+        setSaveError(null);
+        setIsSaving(true);
+        try {
+          const supabase = getSupabaseBrowserClient();
+          const { error } = await supabase.auth.updateUser({
+            data: {
+              notif_sales: sales,
+              notif_matches: matches,
+              notif_weekly_digest: weeklyDigest,
+            },
+          });
+          if (error) throw error;
+          trigger();
+        } catch (error) {
+          setSaveError(error instanceof Error ? error.message : "No se pudo guardar notificaciones.");
+        } finally {
+          setIsSaving(false);
+        }
       }}
     >
-      <div>
-        <p className="text-xs font-medium tracking-wide text-zinc-500 uppercase">Por email</p>
-        <div className="mt-2 flex flex-col gap-1">
-          <Toggle
-            checked={draft.emailNewOrder}
-            onChange={toggle("emailNewOrder")}
-            label="Nueva orden"
-            description="Te avisamos apenas alguien solicita la compra."
-          />
-          <Toggle
-            checked={draft.emailWeeklySummary}
-            onChange={toggle("emailWeeklySummary")}
-            label="Resumen semanal"
-            description="Métricas y ventas cada lunes."
-          />
-          <Toggle
-            checked={draft.emailProductNews}
-            onChange={toggle("emailProductNews")}
-            label="Novedades de 4Tercios"
-            description="Nuevas funciones y tips. Sin spam."
-          />
-        </div>
+      <div className="flex flex-col gap-1">
+        <Toggle
+          checked={sales}
+          onChange={setSales}
+          label="Avisarme de ventas"
+          description="Notificación cuando recibes una venta."
+        />
+        <Toggle
+          checked={matches}
+          onChange={setMatches}
+          label="Avisarme de nuevas coincidencias"
+          description="Cuando haya actividad de búsqueda en tus eventos."
+        />
+        <Toggle
+          checked={weeklyDigest}
+          onChange={setWeeklyDigest}
+          label="Resumen semanal"
+          description="Resumen de actividad y desempeño de la semana."
+        />
       </div>
-
-      <div className="mt-6 border-t border-zinc-100 pt-6">
-        <p className="text-xs font-medium tracking-wide text-zinc-500 uppercase">Por WhatsApp</p>
-        <div className="mt-2 flex flex-col gap-1">
-          <Toggle
-            checked={draft.whatsappNewOrder}
-            onChange={toggle("whatsappNewOrder")}
-            label="Nueva orden"
-            description="Mensaje al número de contacto del evento."
-          />
-        </div>
-      </div>
+      {saveError ? <p className="mt-4 text-sm text-red-600">{saveError}</p> : null}
     </SectionCard>
   );
 }

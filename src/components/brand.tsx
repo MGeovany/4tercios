@@ -16,27 +16,19 @@ export function Brand({
     <Link
       href={href}
       className={cn(
-        "inline-flex items-center gap-2 rounded-xl",
+        "inline-flex items-center",
         "focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none",
         className
       )}
     >
       <Image
-        src="/brand/logo-4-3.png"
+        src="/brand/main-logo-hq.png"
         alt="4Tercios"
-        width={size === "sm" ? 24 : 28}
-        height={size === "sm" ? 24 : 28}
+        width={428}
+        height={86}
         priority
-        className="rounded-sm ring-1 ring-black/10"
+        className={size === "sm" ? "h-10 w-auto" : "h-11 w-auto"}
       />
-      <span
-        className={cn(
-          "font-semibold tracking-tight text-zinc-950",
-          size === "sm" ? "text-base" : "text-lg"
-        )}
-      >
-        4Tercios
-      </span>
     </Link>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ArrowRight,
   Building2,
@@ -107,11 +107,107 @@ const PRICING_BULLETS = [
   "Tú controlas el tiempo online",
 ];
 
+const PLACEHOLDER_BASE = "https://picsum.photos/seed";
+const buildRow = (prefix: string, count = 8) =>
+  Array.from({ length: count }, (_, i) => ({
+    id: `${prefix}-${i + 1}`,
+    src: `${PLACEHOLDER_BASE}/lensia-${prefix}-${i + 1}/480/360`,
+  }));
+
+const HERO_ROWS = [
+  { id: "row-top", direction: "left" as const, speed: 0.35, items: buildRow("a") },
+  { id: "row-mid", direction: "right" as const, speed: 0.55, items: buildRow("b") },
+  { id: "row-bot", direction: "left" as const, speed: 0.45, items: buildRow("c") },
+];
+
+function MarqueeRow({
+  items,
+  direction,
+  speed,
+}: {
+  items: { id: string; src: string }[];
+  direction: "left" | "right";
+  speed: number;
+}) {
+  const stripRef = useRef<HTMLDivElement>(null);
+
+  const loop = [
+    ...items.map((item) => ({ ...item, key: `${item.id}-a` })),
+    ...items.map((item) => ({ ...item, key: `${item.id}-b` })),
+  ];
+
+  useEffect(() => {
+    const strip = stripRef.current;
+    if (!strip) return;
+
+    if (
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      return;
+    }
+
+    let stripHalf = strip.scrollWidth / 2;
+    let frame = 0;
+
+    const apply = () => {
+      frame = 0;
+      if (stripHalf <= 0) return;
+      const distance = ((window.scrollY * speed) % stripHalf + stripHalf) % stripHalf;
+      const x = direction === "left" ? -distance : distance - stripHalf;
+      strip.style.transform = `translate3d(${x}px, 0, 0)`;
+    };
+
+    const onScroll = () => {
+      if (frame) return;
+      frame = requestAnimationFrame(apply);
+    };
+
+    const ro = new ResizeObserver(() => {
+      stripHalf = strip.scrollWidth / 2;
+      apply();
+    });
+    ro.observe(strip);
+
+    apply();
+    window.addEventListener("scroll", onScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      ro.disconnect();
+      if (frame) cancelAnimationFrame(frame);
+    };
+  }, [direction, speed]);
+
+  return (
+    <div className="mask-[linear-gradient(to_right,transparent,black_8%,black_92%,transparent)] overflow-hidden">
+      <div ref={stripRef} className="marquee-strip flex w-max gap-4">
+        {loop.map((item) => (
+          <div
+            key={item.key}
+            className="h-28 w-40 shrink-0 overflow-hidden rounded-xl bg-[#dce6ee] ring-1 ring-[#0b2545]/5 sm:h-32 sm:w-48 lg:h-36 lg:w-56"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={item.src}
+              alt=""
+              loading="lazy"
+              decoding="async"
+              aria-hidden
+              className="size-full object-cover"
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <div className="bg-background text-foreground min-h-screen">
+    <div className="landing-deep-blue bg-background text-foreground min-h-screen">
       {/* Nav */}
       <header className="border-border/60 bg-background/80 sticky top-0 z-50 border-b backdrop-blur-md">
         <nav className="mx-auto flex h-14 max-w-6xl items-center justify-between px-6">
@@ -176,7 +272,7 @@ export default function LandingPage() {
       <section className="mx-auto max-w-5xl px-6 pt-20 pb-16 sm:pt-28 sm:pb-24">
         <div className="mx-auto max-w-3xl text-center">
           <span className="border-border text-muted-foreground inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs">
-            <span className="size-1.5 rounded-full bg-emerald-500" />
+            <span className="bg-primary size-1.5 rounded-full" />
             Búsqueda por selfie · Resultados en segundos
           </span>
           <h1 className="mt-6 text-4xl font-semibold tracking-tight text-balance sm:text-5xl lg:text-6xl">
@@ -197,28 +293,21 @@ export default function LandingPage() {
               <Link href="#como-funciona">Cómo funciona</Link>
             </Button>
           </div>
-          <p className="text-muted-foreground mt-4 text-xs">
-            Sin tarjeta · Sin suscripción · 20% solo cuando vendes
+          <p className="text-muted-foreground mt-4 text-xs sm:text-sm">
+            Sin tarjeta · Sin suscripción · Solo 20% cuando vendes
           </p>
         </div>
 
-        {/* Hero visual */}
-        <div className="relative mx-auto mt-16 max-w-4xl">
-          <div className="border-border bg-card rounded-xl border p-2 shadow-sm">
-            <div className="bg-muted/70 aspect-video overflow-hidden rounded-lg">
-              <div className="grid h-full grid-cols-6 gap-2 p-6">
-                {Array.from({ length: 18 }, (_, i) => `ph-${i}`).map((id) => (
-                  <div key={id} className="bg-foreground/5 aspect-square rounded-md" />
-                ))}
-              </div>
-            </div>
-          </div>
-          <div className="absolute -bottom-5 left-1/2 -translate-x-1/2">
-            <div className="border-border bg-background flex items-center gap-2 rounded-full border px-3 py-1.5 shadow-sm">
-              <span className="size-1.5 rounded-full bg-emerald-500" />
-              <span className="text-xs font-medium">12 fotos encontradas</span>
-            </div>
-          </div>
+        {/* Hero visual — 3 carruseles infinitos, limpios sobre el fondo */}
+        <div className="mx-auto mt-20 w-full max-w-6xl space-y-4 sm:space-y-5">
+          {HERO_ROWS.map((row) => (
+            <MarqueeRow
+              key={row.id}
+              items={row.items}
+              direction={row.direction}
+              speed={row.speed}
+            />
+          ))}
         </div>
       </section>
 
@@ -351,7 +440,7 @@ export default function LandingPage() {
             <ul className="border-border mt-8 grid gap-3 border-t pt-6 sm:grid-cols-2">
               {PRICING_BULLETS.map((i) => (
                 <li key={i} className="flex items-center gap-2 text-sm">
-                  <Check className="size-4 text-emerald-600" />
+                  <Check className="text-primary size-4" />
                   <span>{i}</span>
                 </li>
               ))}

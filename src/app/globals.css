@@ -115,6 +115,27 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+/* Deep Blue Sea — landing only (Yale, Oxford, Prussian, Powder, Mint Cream) */
+.landing-deep-blue {
+  --background: #eef4ed;
+  --foreground: #0b2545;
+  --card: #f9fbfa;
+  --card-foreground: #0b2545;
+  --popover: #f9fbfa;
+  --popover-foreground: #0b2545;
+  --primary: #134074;
+  --primary-foreground: #eef4ed;
+  --secondary: #e2ebf2;
+  --secondary-foreground: #13315c;
+  --muted: #dce6ee;
+  --muted-foreground: #13315c;
+  --accent: #d4e0eb;
+  --accent-foreground: #134074;
+  --border: #c5d4e0;
+  --input: #c5d4e0;
+  --ring: #8da9c4;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -122,4 +143,9 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Hero scroll-driven marquees: hint the browser to optimize transforms */
+.marquee-strip {
+  will-change: transform;
 }

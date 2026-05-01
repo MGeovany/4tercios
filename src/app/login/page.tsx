@@ -5,10 +5,12 @@ import { useRouter } from "next/navigation";
 import { FormEvent, useMemo, useState } from "react";
 import { LogIn } from "lucide-react";
 
+import { Brand } from "@/components/brand";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { buildOnboardingPath, getOnboardingStepFromMetadata } from "@/lib/onboarding";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 export default function LoginPage() {
@@ -50,9 +52,10 @@ export default function LoginPage() {
       const { data: userData } = await supabase.auth.getUser();
       const meta = (userData.user?.user_metadata ?? {}) as Record<string, unknown>;
       const onboardingCompleted = meta.onboarding_completed === true;
+      const onboardingStep = getOnboardingStepFromMetadata(meta);
 
       setSuccess("Ingreso exitoso. Redirigiendo...");
-      router.replace(onboardingCompleted ? "/dashboard" : "/onboarding");
+      router.replace(onboardingCompleted ? "/dashboard" : buildOnboardingPath(onboardingStep));
     } catch (err) {
       const message = err instanceof Error ? err.message : "No se pudo iniciar sesión.";
       setError(message);
@@ -92,6 +95,9 @@ export default function LoginPage() {
   return (
     <div className="bg-background flex min-h-screen items-center justify-center px-6">
       <div className="w-full max-w-md">
+        <div className="mb-4 flex justify-center">
+          <Brand href="/" />
+        </div>
         <Card className="border-border/50">
           <CardHeader>
             <CardTitle>Iniciar sesión</CardTitle>

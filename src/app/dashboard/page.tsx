@@ -23,6 +23,7 @@ import {
   type OrderStatus,
   type ProcessingStatus,
 } from "@/lib/local-store";
+import { useAuthProfile } from "@/lib/auth-profile";
 import { cn } from "@/lib/utils";
 import { Topbar } from "@/components/shell/topbar";
 import { Button } from "@/components/ui/button";
@@ -68,6 +69,37 @@ function KpiStat({ label, value, hint }: { label: string; value: string; hint?: 
       {hint ? <p className="text-xs text-zinc-500">{hint}</p> : null}
     </div>
   );
+}
+
+function ContactItem({ label, value, href }: { label: string; value: string; href?: string }) {
+  const emptyMessage = "No hay data que mostrar por los momentos";
+
+  return (
+    <div className="rounded-lg border border-zinc-100 bg-zinc-50/60 px-3 py-2">
+      <p className="text-[11px] font-medium tracking-wide text-zinc-500 uppercase">{label}</p>
+      {value ? (
+        href ? (
+          <a
+            href={href}
+            target="_blank"
+            rel="noreferrer"
+            className="mt-1 block truncate text-sm text-zinc-900 underline-offset-4 hover:underline"
+          >
+            {value}
+          </a>
+        ) : (
+          <p className="mt-1 truncate text-sm text-zinc-900">{value}</p>
+        )
+      ) : (
+        <p className="mt-1 text-xs text-zinc-500">{emptyMessage}</p>
+      )}
+    </div>
+  );
+}
+
+function toExternalUrl(value: string) {
+  if (!value) return undefined;
+  return /^https?:\/\//i.test(value) ? value : `https://${value}`;
 }
 
 function EventRow({
@@ -161,10 +193,9 @@ function EventRow({
 }
 
 export default function DashboardPage() {
-  const { events, orders, users, session, actions } = useLensia();
+  const { events, orders, actions } = useLensia();
+  const { profile } = useAuthProfile();
   const [deleteId, setDeleteId] = React.useState<string | null>(null);
-
-  const me = users.find((u) => u.id === session.userId);
 
   const totals = React.useMemo(() => {
     return events.reduce(
@@ -195,7 +226,7 @@ export default function DashboardPage() {
     <>
       <Topbar
         title="Inicio"
-        subtitle={me ? `Hola, ${me.name.split(" ")[0]}` : undefined}
+        subtitle={profile.name ? `Hola, ${profile.name.split(" ")[0]}` : undefined}
         right={
           <Button size="sm" asChild>
             <Link href="/dashboard/events/new">
@@ -214,6 +245,25 @@ export default function DashboardPage() {
           <KpiStat label="Fotos" value={formatNumber(totals.photos)} />
           <KpiStat label="Órdenes" value={formatNumber(totals.orders)} />
           <KpiStat label="Neto" value={formatHnl(net)} hint={`Bruto ${formatHnl(totals.gross)}`} />
+        </section>
+
+        <section aria-labelledby="contact-heading" className="mt-12">
+          <h2 id="contact-heading" className="text-sm font-semibold tracking-tight text-zinc-950">
+            Información de contacto
+          </h2>
+          <div className="mt-3 grid gap-3 rounded-xl border border-zinc-200 bg-white p-4 sm:grid-cols-3">
+            <ContactItem label="Teléfono" value={profile.phone} />
+            <ContactItem
+              label="Sitio web"
+              value={profile.website}
+              href={toExternalUrl(profile.website)}
+            />
+            <ContactItem
+              label="Instagram"
+              value={profile.instagram ? `@${profile.instagram}` : ""}
+              href={profile.instagram ? `https://instagram.com/${profile.instagram}` : undefined}
+            />
+          </div>
         </section>
 
         <section aria-labelledby="events-heading" className="mt-12">

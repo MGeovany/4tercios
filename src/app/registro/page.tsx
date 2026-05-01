@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { FormEvent, useMemo, useState } from "react";
 import { LogIn } from "lucide-react";
 
+import { Brand } from "@/components/brand";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -98,6 +99,9 @@ export default function RegistroPage() {
   return (
     <div className="bg-background flex min-h-screen items-center justify-center px-6">
       <div className="w-full max-w-md">
+        <div className="mb-4 flex justify-center">
+          <Brand href="/" />
+        </div>
         <Card className="border-border/50">
           <CardHeader>
             <CardTitle>Crear cuenta</CardTitle>

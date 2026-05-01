@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 import { cn } from "@/lib/utils";
 
@@ -15,20 +16,19 @@ export function Brand({
     <Link
       href={href}
       className={cn(
-        "inline-flex items-center gap-2 rounded-xl",
+        "inline-flex items-center rounded-xl",
         "focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none",
         className
       )}
     >
-      <span
-        className={cn(
-          "font-semibold tracking-tight text-zinc-950",
-          size === "sm" && "text-sm",
-          size === "md" && "text-base"
-        )}
-      >
-        4Tercios
-      </span>
+      <Image
+        src="/brand/logo-4-3.png"
+        alt="4Tercios"
+        width={size === "sm" ? 34 : 44}
+        height={size === "sm" ? 34 : 44}
+        priority
+        className="rounded-md ring-1 ring-black/10"
+      />
     </Link>
   );
 }

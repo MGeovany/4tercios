@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { Brand } from "@/components/brand";
+
 export function Footer({ variant = "default" }: { variant?: "default" | "dashboard" }) {
   const year = new Date().getFullYear();
 
@@ -7,7 +9,10 @@ export function Footer({ variant = "default" }: { variant?: "default" | "dashboa
     return (
       <footer className="border-t border-zinc-100 bg-white">
         <div className="flex w-full flex-col items-center justify-between gap-2 px-6 py-4 text-xs text-zinc-500 sm:flex-row">
-          <p>© {year} 4Tercios</p>
+          <div className="flex items-center gap-2">
+            <Brand href="/" size="sm" />
+            <p>© {year} 4Tercios</p>
+          </div>
           <div className="flex items-center gap-4">
             <Link href="/privacidad" className="hover:text-zinc-900">
               Privacidad
@@ -31,7 +36,7 @@ export function Footer({ variant = "default" }: { variant?: "default" | "dashboa
       <div className={`${containerClassName} py-14 lg:py-16`}>
         <div className="grid gap-10 lg:grid-cols-12">
           <div className="lg:col-span-5">
-            <p className="text-lg font-semibold tracking-tight">4Tercios</p>
+            <Brand href="/" />
             <p className="mt-3 text-sm font-medium text-white">Una selfie. Sus fotos.</p>
             <p className="mt-4 max-w-md text-sm leading-6 text-white">
               Búsqueda por selfie para fotos de eventos. Publica tu galería, comparte un link o QR y

@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 
+import { buildOnboardingPath, getOnboardingStepFromMetadata } from "@/lib/onboarding";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 function stripSensitiveHash() {
@@ -29,18 +30,20 @@ export default function AuthCallbackPage() {
 
     async function resolveAuthCallback() {
       let onboardingCompleted = false;
+      let onboardingPath = buildOnboardingPath("business");
       try {
         const supabase = getSupabaseBrowserClient();
         const { data } = await supabase.auth.getUser();
         const meta = (data.user?.user_metadata ?? {}) as Record<string, unknown>;
         onboardingCompleted = meta.onboarding_completed === true;
+        onboardingPath = buildOnboardingPath(getOnboardingStepFromMetadata(meta));
       } finally {
         stripSensitiveHash();
       }
 
       if (!mounted) return;
       const next = searchParams.get("next") || "/dashboard";
-      router.replace(onboardingCompleted ? next : "/onboarding");
+      router.replace(onboardingCompleted ? next : onboardingPath);
     }
 
     void resolveAuthCallback();

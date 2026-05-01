@@ -1,11 +1,17 @@
 "use client";
 
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, Check, PartyPopper } from "lucide-react";
 
+import { Brand } from "@/components/brand";
 import { Button } from "@/components/ui/button";
+import {
+  buildOnboardingPath,
+  getOnboardingStepFromMetadata,
+  isOnboardingStepId,
+  type OnboardingStepId,
+} from "@/lib/onboarding";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 import { OnboardingProgress } from "./_components/progress";
@@ -24,6 +30,8 @@ import {
 
 export default function OnboardingPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const initialStepRef = useRef<string | null>(searchParams.get("step"));
   const [stepIndex, setStepIndex] = useState(0);
   const [state, setState] = useState<OnboardingState>(DEFAULT_ONBOARDING_STATE);
   const [authChecked, setAuthChecked] = useState(false);
@@ -62,6 +70,13 @@ export default function OnboardingPage() {
           return;
         }
 
+        const stepFromUrl = initialStepRef.current;
+        const resolvedStep = isOnboardingStepId(stepFromUrl)
+          ? stepFromUrl
+          : getOnboardingStepFromMetadata(meta);
+        const resolvedIndex = ONBOARDING_STEPS.findIndex((step) => step.id === resolvedStep);
+        setStepIndex(resolvedIndex >= 0 ? resolvedIndex : 0);
+
         setState((prev) => ({
           ...prev,
           business: {
@@ -71,6 +86,41 @@ export default function OnboardingPage() {
               ? (meta.photography_types as OnboardingState["business"]["photographyTypes"])
               : prev.business.photographyTypes,
             bio: typeof meta.bio === "string" ? meta.bio : prev.business.bio,
+          },
+          contact: {
+            phone: typeof meta.phone === "string" ? meta.phone : prev.contact.phone,
+            website: typeof meta.website === "string" ? meta.website : prev.contact.website,
+            instagram: typeof meta.instagram === "string" ? meta.instagram : prev.contact.instagram,
+          },
+          brand: {
+            primaryColor:
+              typeof meta.brand_color === "string" ? meta.brand_color : prev.brand.primaryColor,
+            welcomeMessage:
+              typeof meta.welcome_message === "string"
+                ? meta.welcome_message
+                : prev.brand.welcomeMessage,
+          },
+          payments: {
+            country:
+              typeof meta.payments_country === "string"
+                ? meta.payments_country
+                : prev.payments.country,
+            method:
+              typeof meta.payments_method === "string"
+                ? (meta.payments_method as OnboardingState["payments"]["method"])
+                : prev.payments.method,
+          },
+          notifications: {
+            sales:
+              typeof meta.notif_sales === "boolean" ? meta.notif_sales : prev.notifications.sales,
+            matches:
+              typeof meta.notif_matches === "boolean"
+                ? meta.notif_matches
+                : prev.notifications.matches,
+            weeklyDigest:
+              typeof meta.notif_weekly_digest === "boolean"
+                ? meta.notif_weekly_digest
+                : prev.notifications.weeklyDigest,
           },
         }));
         setAuthChecked(true);
@@ -97,10 +147,17 @@ export default function OnboardingPage() {
 
   function goBack() {
     setError(null);
-    setStepIndex((i) => Math.max(0, i - 1));
+    setStepIndex((i) => {
+      const prevIndex = Math.max(0, i - 1);
+      const prevStep = ONBOARDING_STEPS[prevIndex]?.id;
+      if (prevStep) {
+        router.replace(buildOnboardingPath(prevStep));
+      }
+      return prevIndex;
+    });
   }
 
-  async function persist(payload: OnboardingState, markCompleted: boolean) {
+  async function persist(payload: OnboardingState, markCompleted: boolean, stepToSave: OnboardingStepId) {
     const supabase = getSupabaseBrowserClient();
     const { error: updErr } = await supabase.auth.updateUser({
       data: {
@@ -117,6 +174,7 @@ export default function OnboardingPage() {
         notif_sales: payload.notifications.sales,
         notif_matches: payload.notifications.matches,
         notif_weekly_digest: payload.notifications.weeklyDigest,
+        onboarding_step: stepToSave,
         ...(markCompleted ? { onboarding_completed: true } : {}),
       },
     });
@@ -132,13 +190,26 @@ export default function OnboardingPage() {
     setError(null);
 
     if (!isLastStep) {
-      setStepIndex((i) => Math.min(total - 1, i + 1));
+      const nextIndex = Math.min(total - 1, stepIndex + 1);
+      const nextStep = ONBOARDING_STEPS[nextIndex]?.id;
+      if (!nextStep) return;
+
+      setSaving(true);
+      try {
+        await persist(state, false, nextStep);
+        setStepIndex(nextIndex);
+        router.replace(buildOnboardingPath(nextStep));
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "No se pudo guardar tu avance.");
+      } finally {
+        setSaving(false);
+      }
       return;
     }
 
     setSaving(true);
     try {
-      await persist(state, true);
+      await persist(state, true, "notifications");
       setCompleted(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "No se pudo guardar tu información.");
@@ -170,9 +241,7 @@ export default function OnboardingPage() {
     <div className="bg-background min-h-screen">
       <header className="border-border/60 border-b">
         <div className="mx-auto flex h-14 max-w-3xl items-center justify-between px-6">
-          <Link href="/" className="text-[15px] font-semibold tracking-tight">
-            4Tercios
-          </Link>
+          <Brand href="/" size="sm" />
           <span className="text-muted-foreground text-xs">Configuración inicial</span>
         </div>
       </header>

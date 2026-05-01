@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import {
   ArrowRight,
@@ -107,17 +108,73 @@ const PRICING_BULLETS = [
   "Tú controlas el tiempo online",
 ];
 
-const PLACEHOLDER_BASE = "https://picsum.photos/seed";
-const buildRow = (prefix: string, count = 8) =>
-  Array.from({ length: count }, (_, i) => ({
+const LANDING_LOGO_SRC = "/brand/logo-landing.png";
+
+const LANDING_PHOTOS = [
+  "/landing/fotos-webp/006.webp",
+  "/landing/fotos-webp/010.webp",
+  "/landing/fotos-webp/026.webp",
+  "/landing/fotos-webp/DSC01013.webp",
+  "/landing/fotos-webp/DSC01833.webp",
+  "/landing/fotos-webp/DSC01955.webp",
+  "/landing/fotos-webp/DSC02049.webp",
+  "/landing/fotos-webp/DSC02128.webp",
+  "/landing/fotos-webp/DSC02596-Edit.webp",
+  "/landing/fotos-webp/DSC02911.webp",
+  "/landing/fotos-webp/DSC02952.webp",
+  "/landing/fotos-webp/DSC03069.webp",
+  "/landing/fotos-webp/DSC03200.webp",
+  "/landing/fotos-webp/DSC03351.webp",
+  "/landing/fotos-webp/DSC04068.webp",
+  "/landing/fotos-webp/DSC04256.webp",
+  "/landing/fotos-webp/DSC04612.webp",
+  "/landing/fotos-webp/DSC04708.webp",
+  "/landing/fotos-webp/P1046125.webp",
+  "/landing/fotos-webp/P1046317.webp",
+  "/landing/fotos-webp/P1056759.webp",
+  "/landing/fotos-webp/P1056924.webp",
+  "/landing/fotos-webp/P1057106.webp",
+  "/landing/fotos-webp/P1057123.webp",
+  "/landing/fotos-webp/P1057168.webp",
+  "/landing/fotos-webp/P1057441.webp",
+  "/landing/fotos-webp/P1067578.webp",
+  "/landing/fotos-webp/P1067975.webp",
+  "/landing/fotos-webp/P1193250.webp",
+  "/landing/fotos-webp/P1193349-2.webp",
+  "/landing/fotos-webp/P1193505.webp",
+  "/landing/fotos-webp/P1193954.webp",
+  "/landing/fotos-webp/P1194056.webp",
+  "/landing/fotos-webp/P1204437.webp",
+  "/landing/fotos-webp/P1229717.webp",
+  "/landing/fotos-webp/P1229728.webp",
+  "/landing/fotos-webp/P1230078.webp",
+  "/landing/fotos-webp/P1230214.webp",
+  "/landing/fotos-webp/P1230966.webp",
+  "/landing/fotos-webp/P1230983.webp",
+  "/landing/fotos-webp/P1231134.webp",
+  "/landing/fotos-webp/P1231504.webp",
+  "/landing/fotos-webp/P1253094.webp",
+  "/landing/fotos-webp/P1253116.webp",
+  "/landing/fotos-webp/P1253229.webp",
+  "/landing/fotos-webp/P1253254.webp",
+  "/landing/fotos-webp/P1253263.webp",
+  "/landing/fotos-webp/P1253465.webp",
+  "/landing/fotos-webp/P1253566.webp",
+  "/landing/fotos-webp/P1275434.webp",
+  "/landing/fotos-webp/P1275648.webp",
+  "/landing/fotos-webp/P1286035.webp",
+  "/landing/fotos-webp/P1296893.webp",
+];
+const buildRow = (prefix: string, offset: number) =>
+  LANDING_PHOTOS.filter((_, i) => i % 3 === offset).map((src, i) => ({
     id: `${prefix}-${i + 1}`,
-    src: `${PLACEHOLDER_BASE}/4tercios-${prefix}-${i + 1}/480/360`,
+    src,
   }));
 
 const HERO_ROWS = [
-  { id: "row-top", direction: "left" as const, speed: 0.35, items: buildRow("a") },
-  { id: "row-mid", direction: "right" as const, speed: 0.55, items: buildRow("b") },
-  { id: "row-bot", direction: "left" as const, speed: 0.45, items: buildRow("c") },
+  { id: "row-top", direction: "left" as const, speed: 0.35, items: buildRow("a", 0) },
+  { id: "row-mid", direction: "right" as const, speed: 0.55, items: buildRow("b", 1) },
+  { id: "row-bot", direction: "left" as const, speed: 0.45, items: buildRow("c", 2) },
 ];
 
 function MarqueeRow({
@@ -211,8 +268,19 @@ export default function LandingPage() {
       {/* Nav */}
       <header className="border-border/60 bg-background/80 sticky top-0 z-50 border-b backdrop-blur-md">
         <nav className="mx-auto flex h-14 max-w-6xl items-center justify-between px-6">
-          <Link href="/" className="text-[15px] font-semibold tracking-tight">
-            4Tercios
+          <Link
+            href="/"
+            className="inline-flex rounded-xl focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none"
+            aria-label="4Tercios"
+          >
+            <Image
+              src={LANDING_LOGO_SRC}
+              alt="4Tercios"
+              width={84}
+              height={28}
+              priority
+              className="h-7 w-auto"
+            />
           </Link>
 
           <div className="hidden items-center gap-7 md:flex">
@@ -485,7 +553,19 @@ export default function LandingPage() {
       <footer className="border-border/60 border-t">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 py-8 sm:flex-row">
           <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold">4Tercios</span>
+            <Link
+              href="/"
+              className="inline-flex rounded-xl focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none"
+              aria-label="4Tercios"
+            >
+              <Image
+                src={LANDING_LOGO_SRC}
+                alt="4Tercios"
+                width={84}
+                height={28}
+                className="h-6 w-auto"
+              />
+            </Link>
             <span className="text-muted-foreground text-xs">· Una selfie. Sus fotos.</span>
           </div>
           <div className="text-muted-foreground flex gap-6 text-xs">

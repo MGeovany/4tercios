@@ -5,8 +5,8 @@ import { useRouter, usePathname } from "next/navigation";
 import { useState } from "react";
 import { CalendarIcon, GearIcon, HomeIcon, PlusIcon, ReaderIcon } from "@radix-ui/react-icons";
 
+import { useAuthProfile } from "@/lib/auth-profile";
 import { cn } from "@/lib/utils";
-import { useLensia } from "@/lib/local-store";
 import { Brand } from "@/components/brand";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
@@ -84,11 +84,9 @@ function NavLink({ item, active }: { item: NavItem; active: boolean }) {
 }
 
 function UserPill() {
-  const { session, users } = useLensia();
-  const me = users.find((u) => u.id === session.userId);
-  if (!me) return null;
+  const { profile } = useAuthProfile();
 
-  const initials = me.name
+  const initials = (profile.name || "ND")
     .split(" ")
     .flatMap((p) => (p[0] ? [p[0]] : []))
     .slice(0, 2)
@@ -104,8 +102,12 @@ function UserPill() {
         {initials}
       </span>
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-medium text-zinc-950">{me.name}</p>
-        <p className="truncate text-xs text-zinc-500">{me.email}</p>
+        <p className="truncate text-sm font-medium text-zinc-950">
+          {profile.name || "No hay data que mostrar por los momentos"}
+        </p>
+        <p className="truncate text-xs text-zinc-500">
+          {profile.email || "No hay data que mostrar por los momentos"}
+        </p>
       </div>
     </Link>
   );

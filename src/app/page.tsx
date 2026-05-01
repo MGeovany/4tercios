@@ -21,6 +21,8 @@ import {
 
 import { Button } from "@/components/ui/button";
 
+const LANDING_LOGO_SRC = "/brand/logo-landing.png";
+
 const NAV_LINKS = [
   { href: "#como-funciona", label: "Cómo funciona" },
   { href: "#por-que", label: "Por qué 4Tercios" },
@@ -107,8 +109,6 @@ const PRICING_BULLETS = [
   "Retiros cuando los pidas",
   "Tú controlas el tiempo online",
 ];
-
-const LANDING_LOGO_SRC = "/brand/logo-4-3.png";
 
 const LANDING_PHOTOS = [
   "/landing/fotos-webp/006.webp",
@@ -279,8 +279,8 @@ export default function LandingPage() {
               width={1024}
               height={576}
               priority
-              className="h-8 w-16 rounded-sm object-cover object-center ring-1 ring-black/10"
-            />
+              className="h-8 w-auto rounded-sm"
+            />aaaa
           </Link>
 
           <div className="hidden items-center gap-7 md:flex">
@@ -563,7 +563,7 @@ export default function LandingPage() {
                 alt="4Tercios"
                 width={1024}
                 height={576}
-                className="h-7 w-14 rounded-sm object-cover object-center ring-1 ring-black/10"
+                className="h-7 w-auto rounded-sm"
               />
             </Link>
             <span className="text-muted-foreground text-xs">· Una selfie. Sus fotos.</span>

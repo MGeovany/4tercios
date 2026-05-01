@@ -23,6 +23,8 @@
 # misc
 .DS_Store
 *.pem
+/.agents/skills
+/.kiro
 
 # debug
 npm-debug.log*

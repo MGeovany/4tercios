@@ -70,7 +70,9 @@ export function useAuthProfile() {
         const meta = (data.user?.user_metadata ?? {}) as Record<string, unknown>;
         const identities = user?.identities ?? [];
         const provider = readText(user?.app_metadata?.provider);
-        const googleIdentity = identities.find((identity) => readText(identity.provider) === "google");
+        const googleIdentity = identities.find(
+          (identity) => readText(identity.provider) === "google"
+        );
         const googleIdentityData = (googleIdentity?.identity_data ?? {}) as Record<string, unknown>;
         const avatarUrl =
           readText(meta.avatar_url) ||
@@ -90,9 +92,12 @@ export function useAuthProfile() {
           brandColor: readText(meta.brand_color) || EMPTY_PROFILE.brandColor,
           paymentsCountry: readText(meta.payments_country),
           paymentsMethod: readText(meta.payments_method),
-          notifSales: typeof meta.notif_sales === "boolean" ? meta.notif_sales : EMPTY_PROFILE.notifSales,
+          notifSales:
+            typeof meta.notif_sales === "boolean" ? meta.notif_sales : EMPTY_PROFILE.notifSales,
           notifMatches:
-            typeof meta.notif_matches === "boolean" ? meta.notif_matches : EMPTY_PROFILE.notifMatches,
+            typeof meta.notif_matches === "boolean"
+              ? meta.notif_matches
+              : EMPTY_PROFILE.notifMatches,
           notifWeeklyDigest:
             typeof meta.notif_weekly_digest === "boolean"
               ? meta.notif_weekly_digest

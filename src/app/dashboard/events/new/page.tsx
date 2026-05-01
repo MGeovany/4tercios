@@ -18,14 +18,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { DatePicker } from "@/components/forms/date-picker";
+import { useAuthProfile } from "@/lib/auth-profile";
+import { CITY_SUGGESTIONS } from "@/lib/cities";
 import { cn } from "@/lib/utils";
-import {
-  commissionHnl,
-  formatDateISO,
-  formatHnl,
-  useLensia,
-  type EventType,
-} from "@/lib/local-store";
+import { commissionHnl, formatDateISO, formatHnl, type EventType } from "@/lib/local-store";
+import { createEventAction } from "./actions";
 
 const EVENT_TYPES: { value: EventType; label: string }[] = [
   { value: "Carrera", label: "Carrera" },
@@ -85,7 +82,9 @@ function Hint({ children }: { children: React.ReactNode }) {
 
 export default function NewEventPage() {
   const router = useRouter();
-  const { actions } = useLensia();
+  const { profile } = useAuthProfile();
+  const [submitting, setSubmitting] = React.useState(false);
+  const [submitError, setSubmitError] = React.useState<string | null>(null);
 
   const [name, setName] = React.useState("");
   const [type, setType] = React.useState<EventType>("Carrera");
@@ -100,14 +99,15 @@ export default function NewEventPage() {
   const [city, setCity] = React.useState("");
   const [venue, setVenue] = React.useState("");
   const [description, setDescription] = React.useState("");
-  const [coverHint, setCoverHint] = React.useState("");
 
   const [slugTouched, setSlugTouched] = React.useState(false);
   const [slug, setSlug] = React.useState("");
 
   const [price, setPrice] = React.useState<number>(80);
   const [onlineDays, setOnlineDays] = React.useState<number>(14);
+  const [whatsappTouched, setWhatsappTouched] = React.useState(false);
   const [whatsapp, setWhatsapp] = React.useState("");
+  const effectiveWhatsapp = whatsappTouched ? whatsapp : whatsapp || profile.phone;
 
   const autoSlug = React.useMemo(() => slugify(name || "nuevo-evento"), [name]);
   const effectiveSlug = slugTouched && slug ? slugify(slug) : autoSlug;
@@ -119,23 +119,29 @@ export default function NewEventPage() {
   const receives = priceValid ? Math.max(0, price - commissionHnl(price)) : 0;
   const availableUntil = daysValid ? addDaysIso(date, onlineDays) : null;
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!canSubmit) return;
-    const id = actions.createEvent({
+    if (!canSubmit || submitting) return;
+    setSubmitting(true);
+    setSubmitError(null);
+    const result = await createEventAction({
       name: name.trim(),
       type,
       date,
-      city: city.trim() || "Tegucigalpa",
+      city: city.trim() || undefined,
       venue: venue.trim() || undefined,
       description: description.trim() || undefined,
       pricePerPhotoHnl: price,
       onlineDays,
-      whatsapp: whatsapp.trim() || "+504 9999-1234",
-      coverHint: coverHint.trim(),
-      slug: effectiveSlug || undefined,
+      whatsapp: effectiveWhatsapp.trim() || undefined,
+      slug: effectiveSlug,
     });
-    router.push(`/dashboard/events/${id}/upload`);
+    if (!result.ok) {
+      setSubmitting(false);
+      setSubmitError(result.error);
+      return;
+    }
+    router.push(`/dashboard/events/${result.eventId}/upload`);
   };
 
   return (
@@ -192,7 +198,12 @@ export default function NewEventPage() {
                   </Select>
                 </div>
                 <div>
-                  <DatePicker label="Fecha del evento" value={date} onChange={setDate} />
+                  <DatePicker
+                    id="event-date"
+                    label="Fecha del evento"
+                    value={date}
+                    onChange={setDate}
+                  />
                 </div>
                 <div>
                   <Label htmlFor="city">Ciudad</Label>
@@ -200,6 +211,7 @@ export default function NewEventPage() {
                     id="city"
                     placeholder="Ej: Tegucigalpa"
                     className="mt-2"
+                    list="city-suggestions"
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
                   />
@@ -217,6 +229,11 @@ export default function NewEventPage() {
                   />
                 </div>
               </div>
+              <datalist id="city-suggestions">
+                {CITY_SUGGESTIONS.map((option) => (
+                  <option key={option} value={option} />
+                ))}
+              </datalist>
             </Section>
 
             <Section
@@ -263,20 +280,6 @@ export default function NewEventPage() {
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                   />
-                </div>
-
-                <div>
-                  <Label htmlFor="cover">
-                    Sugerencia de portada <span className="text-zinc-400">· opcional</span>
-                  </Label>
-                  <Input
-                    id="cover"
-                    placeholder="Ej: atletas cruzando la meta"
-                    className="mt-2"
-                    value={coverHint}
-                    onChange={(e) => setCoverHint(e.target.value)}
-                  />
-                  <Hint>Te ayuda a elegir la foto destacada cuando subas las imágenes.</Hint>
                 </div>
               </div>
             </Section>
@@ -347,20 +350,28 @@ export default function NewEventPage() {
                     id="whatsapp"
                     placeholder="+504 9999-1234"
                     className="mt-2"
-                    value={whatsapp}
-                    onChange={(e) => setWhatsapp(e.target.value)}
+                    value={effectiveWhatsapp}
+                    onChange={(e) => {
+                      setWhatsappTouched(true);
+                      setWhatsapp(e.target.value);
+                    }}
                   />
                   <Hint>A dónde llegan las solicitudes de compra.</Hint>
                 </div>
               </div>
             </Section>
 
+            {submitError ? (
+              <p className="mt-6 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700">
+                {submitError}
+              </p>
+            ) : null}
             <div className="mt-8 flex items-center justify-between gap-2 border-t border-zinc-100 pt-6">
               <Button type="button" variant="ghost" asChild>
                 <Link href="/dashboard">Cancelar</Link>
               </Button>
-              <Button type="submit" disabled={!canSubmit}>
-                Crear evento
+              <Button type="submit" disabled={!canSubmit || submitting}>
+                {submitting ? "Creando..." : "Crear evento"}
                 <ArrowRightIcon />
               </Button>
             </div>

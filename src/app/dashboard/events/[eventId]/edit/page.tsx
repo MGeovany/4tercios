@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { DatePicker } from "@/components/forms/date-picker";
+import { CITY_SUGGESTIONS } from "@/lib/cities";
 import { cn } from "@/lib/utils";
 import {
   commissionHnl,
@@ -212,6 +213,7 @@ function EditEventForm({ eventId }: { eventId: string }) {
                 <Input
                   id="city"
                   className="mt-2"
+                  list="city-suggestions"
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
                 />
@@ -229,6 +231,11 @@ function EditEventForm({ eventId }: { eventId: string }) {
                 />
               </div>
             </div>
+            <datalist id="city-suggestions">
+              {CITY_SUGGESTIONS.map((option) => (
+                <option key={option} value={option} />
+              ))}
+            </datalist>
           </Section>
 
           <Section eyebrow="02" title="Página pública">

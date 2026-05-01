@@ -45,7 +45,7 @@ export function DatePicker({
   const selected = isoToDate(value);
 
   return (
-    <div className="grid gap-2">
+    <div>
       {label ? <Label htmlFor={id}>{label}</Label> : null}
       <Popover>
         <PopoverTrigger asChild>
@@ -55,6 +55,7 @@ export function DatePicker({
             variant="outline"
             className={cn(
               "w-full justify-between",
+              label ? "mt-2" : undefined,
               !selected ? "text-muted-foreground" : undefined
             )}
           >

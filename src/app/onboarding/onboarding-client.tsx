@@ -354,6 +354,7 @@ function CompletionView({ onContinue }: { onContinue: () => void }) {
 
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (prefersReducedMotion) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setShowConfetti(false);
       return;
     }

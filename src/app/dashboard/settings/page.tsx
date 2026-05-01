@@ -191,12 +191,14 @@ function ProfileSection() {
   const [bio, setBio] = React.useState("");
 
   React.useEffect(() => {
+    /* eslint-disable react-hooks/set-state-in-effect */
     setName(profile.name);
     setEmail(profile.email);
     setPhone(profile.phone);
     setWebsiteUrl(profile.website);
     setInstagram(profile.instagram);
     setBio(profile.bio);
+    /* eslint-enable react-hooks/set-state-in-effect */
   }, [profile.bio, profile.email, profile.instagram, profile.name, profile.phone, profile.website]);
 
   const initials = name
@@ -237,7 +239,9 @@ function ProfileSection() {
           if (profileError) throw profileError;
 
           if (normalizedEmail && normalizedEmail !== profile.email) {
-            const { error: emailError } = await supabase.auth.updateUser({ email: normalizedEmail });
+            const { error: emailError } = await supabase.auth.updateUser({
+              email: normalizedEmail,
+            });
             if (emailError) throw emailError;
           }
 
@@ -264,7 +268,9 @@ function ProfileSection() {
           </span>
         )}
         <div className="text-xs text-zinc-500">
-          <p>{hasGoogleAvatar ? "Usando foto de Google." : "El avatar se genera con tus iniciales."}</p>
+          <p>
+            {hasGoogleAvatar ? "Usando foto de Google." : "El avatar se genera con tus iniciales."}
+          </p>
           <p className="mt-0.5">Datos sincronizados con lo que configuras en onboarding.</p>
         </div>
       </div>
@@ -322,7 +328,7 @@ function ProfileSection() {
             />
           </Field>
         </div>
-        {saveError ? <p className="sm:col-span-2 text-sm text-red-600">{saveError}</p> : null}
+        {saveError ? <p className="text-sm text-red-600 sm:col-span-2">{saveError}</p> : null}
       </div>
     </SectionCard>
   );
@@ -379,6 +385,7 @@ function BrandSection() {
   const [primaryColor, setPrimaryColor] = React.useState(profile.brandColor);
 
   React.useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setPrimaryColor(profile.brandColor || "#2563eb");
   }, [profile.brandColor]);
 
@@ -450,8 +457,10 @@ function PayoutSection() {
   );
 
   React.useEffect(() => {
+    /* eslint-disable react-hooks/set-state-in-effect */
     setCountry(profile.paymentsCountry);
     setMethod((profile.paymentsMethod as OnboardingPayoutMethod) || "");
+    /* eslint-enable react-hooks/set-state-in-effect */
   }, [profile.paymentsCountry, profile.paymentsMethod]);
 
   return (
@@ -498,7 +507,10 @@ function PayoutSection() {
           </Select>
         </Field>
         <Field label="Método preferido">
-          <Select value={method} onValueChange={(value) => setMethod(value as OnboardingPayoutMethod)}>
+          <Select
+            value={method}
+            onValueChange={(value) => setMethod(value as OnboardingPayoutMethod)}
+          >
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Selecciona método" />
             </SelectTrigger>
@@ -528,9 +540,11 @@ function NotificationsSection() {
   const [weeklyDigest, setWeeklyDigest] = React.useState(profile.notifWeeklyDigest);
 
   React.useEffect(() => {
+    /* eslint-disable react-hooks/set-state-in-effect */
     setSales(profile.notifSales);
     setMatches(profile.notifMatches);
     setWeeklyDigest(profile.notifWeeklyDigest);
+    /* eslint-enable react-hooks/set-state-in-effect */
   }, [profile.notifMatches, profile.notifSales, profile.notifWeeklyDigest]);
 
   return (
@@ -556,7 +570,9 @@ function NotificationsSection() {
           if (error) throw error;
           trigger();
         } catch (error) {
-          setSaveError(error instanceof Error ? error.message : "No se pudo guardar notificaciones.");
+          setSaveError(
+            error instanceof Error ? error.message : "No se pudo guardar notificaciones."
+          );
         } finally {
           setIsSaving(false);
         }

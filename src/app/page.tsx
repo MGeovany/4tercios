@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
 import {
   ArrowRight,
   Building2,
@@ -111,6 +112,13 @@ const PRICING_BULLETS = [
   "Retiros cuando los pidas",
   "Tú controlas el tiempo online",
 ];
+
+const IN_VIEW_ANIMATION = {
+  initial: { opacity: 0, y: 16 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, amount: 0.25 },
+  transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] as const },
+};
 
 const LANDING_PHOTOS = [
   "/landing/fotos-webp/006.webp",
@@ -394,8 +402,12 @@ export default function LandingPage() {
           </div>
 
           <div className="mt-12 grid gap-10 sm:grid-cols-3">
-            {STEPS.map((s) => (
-              <div key={s.step}>
+            {STEPS.map((s, idx) => (
+              <motion.div
+                key={s.step}
+                {...IN_VIEW_ANIMATION}
+                transition={{ ...IN_VIEW_ANIMATION.transition, delay: idx * 0.06 }}
+              >
                 <div className="flex items-center gap-3">
                   <span className="text-muted-foreground font-mono text-xs tracking-wider">
                     {s.step}
@@ -409,7 +421,7 @@ export default function LandingPage() {
                 <p className="text-muted-foreground mt-2 text-sm leading-relaxed">
                   {s.description}
                 </p>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -427,9 +439,12 @@ export default function LandingPage() {
         </div>
 
         <div className="mt-12 grid gap-4 sm:grid-cols-2">
-          {BENEFITS.map((b) => (
-            <div
+          {BENEFITS.map((b, idx) => (
+            <motion.div
               key={b.title}
+              {...IN_VIEW_ANIMATION}
+              transition={{ ...IN_VIEW_ANIMATION.transition, delay: idx * 0.06 }}
+              whileHover={{ y: -4 }}
               className="border-border/70 bg-card hover:border-border rounded-xl border p-6 transition-colors"
             >
               <div className="bg-muted flex size-9 items-center justify-center rounded-lg">
@@ -437,7 +452,7 @@ export default function LandingPage() {
               </div>
               <h3 className="mt-4 font-semibold">{b.title}</h3>
               <p className="text-muted-foreground mt-2 text-sm leading-relaxed">{b.description}</p>
-            </div>
+            </motion.div>
           ))}
         </div>
       </section>
@@ -455,9 +470,12 @@ export default function LandingPage() {
           </div>
 
           <div className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            {EVENT_TYPES.map((e) => (
-              <div
+            {EVENT_TYPES.map((e, idx) => (
+              <motion.div
                 key={e.name}
+                {...IN_VIEW_ANIMATION}
+                transition={{ ...IN_VIEW_ANIMATION.transition, delay: idx * 0.06 }}
+                whileHover={{ y: -4 }}
                 className="border-border/70 bg-card hover:border-border rounded-xl border p-5 transition-colors"
               >
                 <div className="bg-muted flex size-9 items-center justify-center rounded-lg">
@@ -465,7 +483,7 @@ export default function LandingPage() {
                 </div>
                 <p className="mt-4 leading-tight font-semibold">{e.name}</p>
                 <p className="text-muted-foreground mt-2 text-sm leading-relaxed">{e.tagline}</p>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>

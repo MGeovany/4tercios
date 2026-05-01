@@ -267,9 +267,7 @@ export function StepBrand({
 
       <div className="space-y-6">
         <div className="space-y-3">
-          <Label className="flex items-center gap-2">
- Color principal
-          </Label>
+          <Label className="flex items-center gap-2">Color principal</Label>
           <div className="flex flex-wrap gap-3">
             {BRAND_COLORS.map((c) => {
               const active = value.primaryColor.toLowerCase() === c.value.toLowerCase();
@@ -303,7 +301,6 @@ export function StepBrand({
             Tus invitados verán este color en botones y acentos de la galería.
           </p>
         </div>
-
       </div>
     </div>
   );

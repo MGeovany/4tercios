@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import {
   ArrowRightIcon,
   ChevronRightIcon,
@@ -63,11 +64,16 @@ function formatNumber(n: number) {
 
 function KpiStat({ label, value, hint }: { label: string; value: string; hint?: string }) {
   return (
-    <div className="flex flex-col gap-1 py-1">
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+      className="flex flex-col gap-1 py-1"
+    >
       <p className="text-xs font-medium tracking-wide text-zinc-500 uppercase">{label}</p>
       <p className="text-2xl font-semibold tracking-tight text-zinc-950 tabular-nums">{value}</p>
       {hint ? <p className="text-xs text-zinc-500">{hint}</p> : null}
-    </div>
+    </motion.div>
   );
 }
 
@@ -251,7 +257,13 @@ export default function DashboardPage() {
           <h2 id="contact-heading" className="text-sm font-semibold tracking-tight text-zinc-950">
             Información de contacto
           </h2>
-          <div className="mt-3 grid gap-3 rounded-xl border border-zinc-200 bg-white p-4 sm:grid-cols-3">
+          <motion.div
+            initial={{ opacity: 0, y: 14 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            className="mt-3 grid gap-3 rounded-xl border border-zinc-200 bg-white p-4 sm:grid-cols-3"
+          >
             <ContactItem label="Teléfono" value={profile.phone} />
             <ContactItem
               label="Sitio web"
@@ -263,7 +275,7 @@ export default function DashboardPage() {
               value={profile.instagram ? `@${profile.instagram}` : ""}
               href={profile.instagram ? `https://instagram.com/${profile.instagram}` : undefined}
             />
-          </div>
+          </motion.div>
         </section>
 
         <section aria-labelledby="events-heading" className="mt-12">
@@ -279,7 +291,13 @@ export default function DashboardPage() {
             </Link>
           </div>
 
-          <div className="mt-3 overflow-hidden rounded-xl border border-zinc-200 bg-white">
+          <motion.div
+            initial={{ opacity: 0, y: 14 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            className="mt-3 overflow-hidden rounded-xl border border-zinc-200 bg-white"
+          >
             {recentEvents.length === 0 ? (
               <div className="flex flex-col items-center justify-center gap-3 px-6 py-12 text-center">
                 <p className="text-sm text-zinc-700">Aún no tienes eventos.</p>
@@ -296,7 +314,7 @@ export default function DashboardPage() {
                 ))}
               </ul>
             )}
-          </div>
+          </motion.div>
         </section>
 
         <section aria-labelledby="orders-heading" className="mt-12">
@@ -311,7 +329,13 @@ export default function DashboardPage() {
             ) : null}
           </div>
 
-          <div className="mt-3 overflow-hidden rounded-xl border border-zinc-200 bg-white">
+          <motion.div
+            initial={{ opacity: 0, y: 14 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            className="mt-3 overflow-hidden rounded-xl border border-zinc-200 bg-white"
+          >
             {recentOrders.length === 0 ? (
               <div className="px-6 py-8 text-center text-sm text-zinc-500">
                 Cuando tus clientes compren fotos, aparecerán aquí.
@@ -349,7 +373,7 @@ export default function DashboardPage() {
                 ))}
               </ul>
             )}
-          </div>
+          </motion.div>
         </section>
       </div>
 

@@ -37,6 +37,16 @@ export function AuthCallbackClient() {
       let onboardingPath = buildOnboardingPath("business");
       try {
         const supabase = getSupabaseBrowserClient();
+
+        // When using OAuth code flow (PKCE), the browser must exchange the `code`
+        // for a session, otherwise client-side requests (like Storage uploads)
+        // will run as anon and fail RLS.
+        const code = searchParams.get("code");
+        if (code) {
+          const { error } = await supabase.auth.exchangeCodeForSession(window.location.href);
+          if (error) throw error;
+        }
+
         const { data } = await supabase.auth.getUser();
         const meta = (data.user?.user_metadata ?? {}) as Record<string, unknown>;
         onboardingCompleted = meta.onboarding_completed === true;

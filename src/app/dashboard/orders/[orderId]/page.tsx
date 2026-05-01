@@ -1,50 +1,66 @@
-"use client";
-
-import * as React from "react";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import {
   ArrowLeftIcon,
   ChatBubbleIcon,
-  DownloadIcon,
   CheckCircledIcon,
+  DownloadIcon,
 } from "@radix-ui/react-icons";
 
-import { formatHnl, useLensia } from "@/lib/local-store";
-import { photoGradient } from "@/lib/photo";
+import { requirePhotographer } from "@/lib/server/auth";
+import { getOrderWithEvent, listPhotosForOrder } from "@/lib/server/orders";
+import { thumbPublicUrl } from "@/lib/storage/paths";
+import { getSupabaseEnv } from "@/lib/supabase/env";
+import { formatHnl } from "@/lib/local-store";
 import { Topbar } from "@/components/shell/topbar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { OrderStatusActions } from "./status-actions";
+import type { OrderStatus } from "@/lib/db/types";
 
-export default function OrderDetailPage({ params }: { params: Promise<{ orderId: string }> }) {
-  const { orderId } = React.use(params);
-  const { orders, events, actions } = useLensia();
-  const order = orders.find((o) => o.id === orderId) ?? null;
-  const event = order ? (events.find((e) => e.id === order.eventId) ?? null) : null;
+const STATUS_VARIANT: Record<OrderStatus, "success" | "info" | "danger" | "warning" | "neutral"> = {
+  paid: "success",
+  pending: "warning",
+  delivered: "neutral",
+  cancelled: "danger",
+};
 
-  if (!order) {
-    return (
-      <div className="mx-auto max-w-3xl px-4 py-20">
-        <p className="text-lg font-semibold text-zinc-950">Orden no encontrada</p>
-        <p className="mt-2 text-sm text-zinc-700">ID: {orderId}</p>
-        <div className="mt-6">
-          <Button asChild variant="secondary">
-            <Link href="/dashboard">
-              <ArrowLeftIcon /> Volver al dashboard
-            </Link>
-          </Button>
-        </div>
-      </div>
-    );
-  }
+const STATUS_LABEL: Record<OrderStatus, string> = {
+  paid: "Pagada",
+  pending: "Pendiente",
+  delivered: "Entregada",
+  cancelled: "Cancelada",
+};
+
+export default async function OrderDetailPage({
+  params,
+}: {
+  params: Promise<{ orderId: string }>;
+}) {
+  const { orderId } = await params;
+  await requirePhotographer();
+
+  const order = await getOrderWithEvent(orderId);
+  if (!order) notFound();
+
+  const env = getSupabaseEnv();
+  const photos = await listPhotosForOrder(order.photo_ids);
+  const thumbsByPhoto = new Map(
+    photos.map((p) => [p.id, p.thumb_path ? thumbPublicUrl(env.url, p.thumb_path) : null])
+  );
+
+  const event = order.events;
+
+  const waPhone = (order.customer_whatsapp || "").replace(/[^0-9]/g, "");
 
   return (
     <>
       <Topbar
-        title={`Orden ${order.id}`}
+        title={`Orden ${order.id.slice(0, 8)}…`}
         right={
           <Button asChild variant="secondary">
-            <Link href="/dashboard">
+            <Link href="/dashboard/orders">
               <ArrowLeftIcon /> Volver
             </Link>
           </Button>
@@ -57,44 +73,46 @@ export default function OrderDetailPage({ params }: { params: Promise<{ orderId:
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <CardTitle>Cliente</CardTitle>
-                  <p className="mt-1 text-sm text-zinc-700">{order.clientName}</p>
-                  <p className="mt-1 text-sm text-zinc-700">{order.whatsapp}</p>
-                  {event ? (
-                    <p className="mt-2 text-sm text-zinc-700">
-                      Evento: <span className="font-medium text-zinc-950">{event.name}</span>
-                    </p>
+                  <p className="mt-1 text-sm text-zinc-700">{order.customer_name}</p>
+                  <p className="mt-1 text-sm text-zinc-700">{order.customer_whatsapp}</p>
+                  {order.customer_email ? (
+                    <p className="mt-1 text-sm text-zinc-700">{order.customer_email}</p>
                   ) : null}
+                  <p className="mt-2 text-sm text-zinc-700">
+                    Evento: <span className="font-medium text-zinc-950">{event.name}</span>
+                  </p>
                 </div>
-                <Badge
-                  variant={
-                    order.status === "Pagado"
-                      ? "success"
-                      : order.status === "Entregado"
-                        ? "neutral"
-                        : "warning"
-                  }
-                >
-                  {order.status}
-                </Badge>
+                <Badge variant={STATUS_VARIANT[order.status]}>{STATUS_LABEL[order.status]}</Badge>
               </div>
             </CardHeader>
             <CardContent>
-              <p className="text-sm font-medium text-zinc-900">Fotos seleccionadas</p>
+              <p className="text-sm font-medium text-zinc-900">
+                {order.photo_ids.length} foto{order.photo_ids.length === 1 ? "" : "s"} seleccionada
+                {order.photo_ids.length === 1 ? "" : "s"}
+              </p>
               <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {order.photoIds.map((pid) => (
-                  <div
-                    key={pid}
-                    className="overflow-hidden rounded-2xl border border-zinc-200 bg-white"
-                  >
-                    <div className="aspect-[4/3]" style={{ backgroundImage: photoGradient(pid) }} />
-                    <div className="p-3">
-                      <p className="text-sm font-semibold text-zinc-950">
-                        Foto {pid.toUpperCase()}
-                      </p>
-                      <p className="mt-1 text-xs text-zinc-500">Seleccion del cliente</p>
+                {order.photo_ids.map((pid) => {
+                  const thumb = thumbsByPhoto.get(pid);
+                  return (
+                    <div
+                      key={pid}
+                      className="overflow-hidden rounded-2xl border border-zinc-200 bg-white"
+                    >
+                      <div className="aspect-[4/3] bg-zinc-100">
+                        {thumb ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={thumb}
+                            alt="Foto"
+                            loading="lazy"
+                            className="h-full w-full object-cover"
+                          />
+                        ) : null}
+                      </div>
+                      <div className="p-2 text-xs text-zinc-500">{pid.slice(0, 8)}…</div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </CardContent>
           </Card>
@@ -108,38 +126,36 @@ export default function OrderDetailPage({ params }: { params: Promise<{ orderId:
                 <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4">
                   <p className="text-xs text-zinc-500">Total</p>
                   <p className="mt-1 text-2xl font-semibold tracking-tight text-zinc-950">
-                    {formatHnl(order.grossTotalHnl)}
+                    {formatHnl(order.total_hnl)}
                   </p>
-                  <p className="mt-1 text-sm text-zinc-700">{order.photoIds.length} fotos</p>
+                  <p className="mt-1 text-sm text-zinc-700">
+                    {order.photo_ids.length} fotos · {formatHnl(event.price_per_photo_hnl)} c/u
+                  </p>
+                  <p className="mt-1 text-xs text-zinc-500">
+                    Pago: {order.payment_provider === "clinpays" ? "Clinpays" : "WhatsApp manual"}
+                  </p>
                 </div>
 
-                <Button asChild className="w-full">
-                  <Link
-                    href={`https://wa.me/${order.whatsapp.replace(/[^0-9]/g, "")}`}
-                    target="_blank"
-                  >
-                    <ChatBubbleIcon /> Abrir WhatsApp
-                  </Link>
-                </Button>
+                {order.payment_url ? (
+                  <Button asChild className="w-full" variant="secondary">
+                    <Link href={order.payment_url} target="_blank" rel="noreferrer">
+                      Ver link de pago
+                    </Link>
+                  </Button>
+                ) : null}
 
-                <Button
-                  variant="secondary"
-                  className="w-full"
-                  onClick={() => {
-                    actions.updateOrder(order.id, { status: "Pagado" });
-                  }}
-                >
-                  <CheckCircledIcon /> Marcar como pagado
-                </Button>
-                <Button
-                  variant="secondary"
-                  className="w-full"
-                  onClick={() => {
-                    actions.updateOrder(order.id, { status: "Entregado" });
-                  }}
-                >
-                  <DownloadIcon /> Marcar como entregado
-                </Button>
+                {waPhone ? (
+                  <Button asChild className="w-full">
+                    <Link href={`https://wa.me/${waPhone}`} target="_blank" rel="noreferrer">
+                      <ChatBubbleIcon /> Abrir WhatsApp
+                    </Link>
+                  </Button>
+                ) : null}
+
+                <OrderStatusActions orderId={order.id} status={order.status}>
+                  <CheckCircledIcon /> Marcar como pagada
+                  <DownloadIcon /> Marcar como entregada
+                </OrderStatusActions>
               </CardContent>
             </Card>
           </div>

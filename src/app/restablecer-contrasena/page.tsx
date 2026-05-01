@@ -10,6 +10,21 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
+function stripSensitiveHash() {
+  if (typeof window === "undefined" || !window.location.hash) return;
+
+  const hash = window.location.hash.replace(/^#/, "");
+  if (!hash) return;
+
+  const hasAuthTokens =
+    hash.includes("access_token=") ||
+    hash.includes("refresh_token=") ||
+    hash.includes("provider_token=");
+
+  if (!hasAuthTokens) return;
+  window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
+}
+
 export default function RestablecerContrasenaPage() {
   const router = useRouter();
   const [password, setPassword] = useState("");
@@ -40,6 +55,7 @@ export default function RestablecerContrasenaPage() {
         data: { session },
         error: sessionError,
       } = await supabase.auth.getSession();
+      stripSensitiveHash();
       if (!mounted) return;
       if (sessionError) {
         setError(sessionError.message);

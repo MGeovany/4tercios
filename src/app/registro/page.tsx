@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useMemo, useState } from "react";
+import { LogIn } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,6 +17,7 @@ export default function RegistroPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 
@@ -63,9 +65,37 @@ export default function RegistroPage() {
     }
   }
 
+  async function onGoogleSignIn() {
+    setError(null);
+    setMessage(null);
+    setGoogleLoading(true);
+
+    try {
+      const supabase = getSupabaseBrowserClient();
+      const redirectTo =
+        typeof window !== "undefined"
+          ? `${window.location.origin}/auth/callback?next=/dashboard`
+          : undefined;
+
+      const { error: oauthError } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: { redirectTo },
+      });
+
+      if (oauthError) {
+        setError(oauthError.message);
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "No se pudo continuar con Google.";
+      setError(msg);
+    } finally {
+      setGoogleLoading(false);
+    }
+  }
+
   return (
-    <div className="bg-background min-h-screen">
-      <div className="mx-auto max-w-md px-6 py-16">
+    <div className="bg-background flex min-h-screen items-center justify-center px-6">
+      <div className="w-full max-w-md">
         <Card className="border-border/50">
           <CardHeader>
             <CardTitle>Crear cuenta</CardTitle>
@@ -123,6 +153,24 @@ export default function RegistroPage() {
                 {loading ? "Creando cuenta..." : "Registrarme"}
               </Button>
             </form>
+
+            <div className="relative py-1">
+              <div className="border-border absolute inset-0 top-1/2 border-t" />
+              <span className="bg-card text-muted-foreground relative mx-auto block w-fit px-2 text-xs">
+                o
+              </span>
+            </div>
+
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full"
+              onClick={onGoogleSignIn}
+              disabled={googleLoading || !supabaseReady}
+            >
+              <LogIn className="size-4" />
+              {googleLoading ? "Redirigiendo..." : "Continuar con Google"}
+            </Button>
 
             <p className="text-muted-foreground text-sm">
               ¿Ya tienes cuenta?{" "}

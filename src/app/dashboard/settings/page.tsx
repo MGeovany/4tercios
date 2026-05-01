@@ -689,8 +689,7 @@ function DangerSection() {
         <div>
           <p className="text-sm font-medium text-red-900">Restablecer datos locales</p>
           <p className="mt-1 text-xs text-red-700/80">
-            Vuelve al estado demo con los eventos y órdenes de ejemplo. Se borran tus cambios
-            guardados en este navegador.
+            Limpia datos locales guardados en este navegador y vuelve al estado inicial vacío.
           </p>
         </div>
         {confirming ? (

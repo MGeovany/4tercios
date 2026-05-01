@@ -132,7 +132,7 @@ function defaultSettings(): LensiaSettings {
   };
 }
 
-const STORAGE_KEY = "lensia:state:v1";
+const STORAGE_KEY = "lensia:state:v2";
 const COMMISSION_RATE = 0.2;
 
 function nowIso() {
@@ -162,150 +162,18 @@ function slugify(input: string) {
 }
 
 function seedState(): LensiaState {
-  const t = nowIso();
   const user: LensiaUser = {
     id: "usr_photographer_01",
-    name: "Sula Photo Studio",
-    email: "hola@4tercios.thefndrs.com",
+    name: "",
+    email: "",
   };
-
-  const events: LensiaEvent[] = [
-    {
-      id: "evt_sps_10k_2026",
-      slug: "carrera-10k-san-pedro-sula",
-      name: "Carrera 10K San Pedro Sula",
-      type: "Carrera",
-      date: "2026-02-16",
-      city: "San Pedro Sula",
-      pricePerPhotoHnl: 80,
-      onlineDays: 14,
-      whatsapp: "+504 9999-1234",
-      coverHint: "atletas en meta",
-      status: "Listo",
-      photosUploaded: 1842,
-      photosProcessed: 1842,
-      facesDetected: 6120,
-      selfieSearches: 438,
-      orders: 96,
-      revenueGrossHnl: 105300,
-      createdAt: t,
-      updatedAt: t,
-    },
-    {
-      id: "evt_unitec_grad_2026",
-      slug: "graduacion-unitec-2026",
-      name: "Graduacion Unitec 2026",
-      type: "Graduacion",
-      date: "2026-03-22",
-      city: "Tegucigalpa",
-      pricePerPhotoHnl: 120,
-      onlineDays: 21,
-      whatsapp: "+504 9999-1234",
-      coverHint: "toga y birrete",
-      status: "Procesando",
-      photosUploaded: 980,
-      photosProcessed: 611,
-      facesDetected: 1980,
-      selfieSearches: 212,
-      orders: 44,
-      revenueGrossHnl: 44550,
-      createdAt: t,
-      updatedAt: t,
-    },
-    {
-      id: "evt_intercolegial_tgu",
-      slug: "torneo-intercolegial-tegucigalpa",
-      name: "Torneo Intercolegial Tegucigalpa",
-      type: "Torneo",
-      date: "2026-01-10",
-      city: "Tegucigalpa",
-      pricePerPhotoHnl: 60,
-      onlineDays: 10,
-      whatsapp: "+504 9999-1234",
-      coverHint: "equipo celebrando",
-      status: "Listo",
-      photosUploaded: 612,
-      photosProcessed: 612,
-      facesDetected: 1244,
-      selfieSearches: 129,
-      orders: 21,
-      revenueGrossHnl: 11850,
-      createdAt: t,
-      updatedAt: t,
-    },
-    {
-      id: "evt_boda_ana_luis",
-      slug: "boda-ana-y-luis",
-      name: "Boda Ana & Luis",
-      type: "Boda",
-      date: "2026-04-05",
-      city: "Comayagua",
-      pricePerPhotoHnl: 150,
-      onlineDays: 30,
-      whatsapp: "+504 9999-1234",
-      coverHint: "primer baile",
-      status: "Borrador",
-      photosUploaded: 0,
-      photosProcessed: 0,
-      facesDetected: 0,
-      selfieSearches: 0,
-      orders: 0,
-      revenueGrossHnl: 0,
-      createdAt: t,
-      updatedAt: t,
-    },
-    {
-      id: "evt_maraton_ceiba",
-      slug: "maraton-la-ceiba",
-      name: "Maraton La Ceiba",
-      type: "Carrera",
-      date: "2026-03-02",
-      city: "La Ceiba",
-      pricePerPhotoHnl: 75,
-      onlineDays: 14,
-      whatsapp: "+504 9999-1234",
-      coverHint: "atardecer en malecon",
-      status: "Con errores",
-      photosUploaded: 1240,
-      photosProcessed: 1179,
-      facesDetected: 3880,
-      selfieSearches: 301,
-      orders: 58,
-      revenueGrossHnl: 53400,
-      createdAt: t,
-      updatedAt: t,
-    },
-  ];
-
-  const orders: LensiaOrder[] = [
-    {
-      id: "ord_1042",
-      eventId: "evt_sps_10k_2026",
-      clientName: "Karla Mejia",
-      whatsapp: "+504 9888-2211",
-      createdAt: "2026-02-16T18:32:00.000Z",
-      status: "Pagado",
-      photoIds: ["p_01", "p_04", "p_09"],
-      grossTotalHnl: 240,
-    },
-    {
-      id: "ord_1091",
-      eventId: "evt_unitec_grad_2026",
-      clientName: "Juan Pablo Rivera",
-      whatsapp: "+504 9777-1122",
-      createdAt: "2026-03-23T09:10:00.000Z",
-      status: "Pendiente",
-      photoIds: ["p_02", "p_07"],
-      grossTotalHnl: 240,
-    },
-  ];
 
   return {
     session: { userId: user.id },
     users: [user],
-    events,
+    events: [],
     photos: [],
-    orders,
+    orders: [],
     settings: defaultSettings(),
   };
 }

@@ -1,4 +1,4 @@
--- Huella / Lensia — initial schema
+-- 4tercios — initial schema
 -- Domain: photographers upload event photos, attendees find themselves via selfie search.
 -- Face matching uses 512-d embeddings (ArcFace-style) stored in pgvector.
 

@@ -3,6 +3,13 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+import {
+  type BrandFontId,
+  type BrandPaletteId,
+  normalizeHexColor,
+  type WatermarkFontId,
+  type WatermarkStyle,
+} from "@/lib/branding";
 
 export type AuthProfile = {
   name: string;
@@ -14,6 +21,11 @@ export type AuthProfile = {
   avatarUrl: string;
   provider: string;
   brandColor: string;
+  brandPalette: BrandPaletteId;
+  brandFont: BrandFontId;
+  watermarkStyle: WatermarkStyle;
+  watermarkColor: string;
+  watermarkFont: WatermarkFontId;
   paymentsCountry: string;
   paymentsMethod: string;
   notifSales: boolean;
@@ -31,6 +43,11 @@ const EMPTY_PROFILE: AuthProfile = {
   avatarUrl: "",
   provider: "",
   brandColor: "#2563eb",
+  brandPalette: "deep-blue",
+  brandFont: "inter",
+  watermarkStyle: "subtle",
+  watermarkColor: "#ffffff",
+  watermarkFont: "sans",
   paymentsCountry: "",
   paymentsMethod: "",
   notifSales: true,
@@ -89,7 +106,18 @@ export function useAuthProfile() {
           bio: readText(meta.bio),
           avatarUrl,
           provider,
-          brandColor: readText(meta.brand_color) || EMPTY_PROFILE.brandColor,
+          brandColor: normalizeHexColor(readText(meta.brand_color), EMPTY_PROFILE.brandColor),
+          brandPalette:
+            (readText(meta.brand_palette) as BrandPaletteId) || EMPTY_PROFILE.brandPalette,
+          brandFont: (readText(meta.brand_font) as BrandFontId) || EMPTY_PROFILE.brandFont,
+          watermarkStyle:
+            (readText(meta.watermark_style) as WatermarkStyle) || EMPTY_PROFILE.watermarkStyle,
+          watermarkColor: normalizeHexColor(
+            readText(meta.watermark_color),
+            EMPTY_PROFILE.watermarkColor
+          ),
+          watermarkFont:
+            (readText(meta.watermark_font) as WatermarkFontId) || EMPTY_PROFILE.watermarkFont,
           paymentsCountry: readText(meta.payments_country),
           paymentsMethod: readText(meta.payments_method),
           notifSales:

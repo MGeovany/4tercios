@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { DotsHorizontalIcon, Pencil1Icon, TrashIcon } from "@radix-ui/react-icons";
+import { DotsHorizontalIcon, ImageIcon, Pencil1Icon, TrashIcon } from "@radix-ui/react-icons";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -61,6 +61,12 @@ export function EventRowActions({ eventId }: { eventId: string }) {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-44">
+          <DropdownMenuItem asChild>
+            <Link href={`/dashboard/events/${eventId}/gallery`}>
+              <ImageIcon />
+              Galería
+            </Link>
+          </DropdownMenuItem>
           <DropdownMenuItem asChild>
             <Link href={`/dashboard/events/${eventId}/edit`}>
               <Pencil1Icon />

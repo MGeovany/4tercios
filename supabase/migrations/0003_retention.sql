@@ -14,7 +14,7 @@ $$;
 
 -- Auto-archive job: cron-equivalent via SQL function. Call from a daily Edge Function
 -- or pg_cron schedule once enabled in your Supabase project:
---   select cron.schedule('lensia_archive_expired', '0 4 * * *', $$ select public.archive_expired_events(); $$);
+--   select cron.schedule('4tercios_archive_expired', '0 4 * * *', $$ select public.archive_expired_events(); $$);
 create or replace function public.archive_expired_events() returns int
 language plpgsql security definer as $$
 declare

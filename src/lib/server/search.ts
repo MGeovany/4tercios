@@ -22,7 +22,7 @@ export type SelfieSearchResult = {
   totalCandidates: number;
 };
 
-const MIN_SCORE = Number(process.env.LENSIA_SELFIE_MIN_SCORE) || 0.45;
+const MIN_SCORE = Number(process.env.SELFIE_MIN_SCORE) || 0.45;
 const MAX_RESULTS = 60;
 
 export async function searchEventBySelfie(opts: {

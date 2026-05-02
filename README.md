@@ -1,4 +1,4 @@
-# Huella / Lensia
+# 4tercios
 
 Plataforma para fotógrafos de eventos en Honduras. Subes fotos, la IA detecta rostros, y los asistentes encuentran las suyas con una selfie.
 
@@ -28,7 +28,7 @@ Plataforma para fotógrafos de eventos en Honduras. Subes fotos, la IA detecta r
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
    - `SUPABASE_SERVICE_ROLE_KEY`
 
-   Para reconocimiento facial no necesitas nada más: por defecto se usa el provider local. Los modelos ONNX (~16MB) se descargan automáticamente al primer uso a `$TMPDIR/lensia-face-models`.
+   Para reconocimiento facial no necesitas nada más: por defecto se usa el provider local. Los modelos ONNX (~16MB) se descargan automáticamente al primer uso a `$TMPDIR/4tercios-face-models`.
 
 3. Instala y arranca:
    ```bash
@@ -40,9 +40,9 @@ Plataforma para fotógrafos de eventos en Honduras. Subes fotos, la IA detecta r
 
 | Provider          | Cuándo                                                                   | Cómo activarlo                                                                                  |
 | ----------------- | ------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------- |
-| `local` (default) | MVP y producción de bajo volumen. CPU del server, ~150-300ms por foto.   | No requiere config. O `LENSIA_FACE_PROVIDER=local`.                                             |
-| `replicate`       | Volumen alto (>1000 fotos/min) o quieres GPU.                            | `LENSIA_FACE_PROVIDER=replicate`, `REPLICATE_API_TOKEN`, `REPLICATE_FACE_MODEL=<owner>/<name>`. |
-| `mock`            | Tests y dev sin descargar modelos. Embeddings deterministas pero falsos. | `LENSIA_FACE_PROVIDER=mock`.                                                                    |
+| `local` (default) | MVP y producción de bajo volumen. CPU del server, ~150-300ms por foto.   | No requiere config. O `TERCIOS_FACE_PROVIDER=local`.                                             |
+| `replicate`       | Volumen alto (>1000 fotos/min) o quieres GPU.                            | `TERCIOS_FACE_PROVIDER=replicate`, `REPLICATE_API_TOKEN`, `REPLICATE_FACE_MODEL=<owner>/<name>`. |
+| `mock`            | Tests y dev sin descargar modelos. Embeddings deterministas pero falsos. | `TERCIOS_FACE_PROVIDER=mock`.                                                                    |
 
 El embedding es siempre de 512 dimensiones (compatible con la columna `vector(512)` en pgvector). Modelos de menor dimensión se padean con ceros, conservando la similitud coseno.
 
@@ -76,7 +76,7 @@ El embedding es siempre de 512 dimensiones (compatible con la columna `vector(51
 
 - **Galerías:** máximo 60 días (configurable por evento, enforced en DB).
 - **Selfies:** se eliminan del storage al finalizar la búsqueda; queries con `expires_at` < now() se borran por el cron.
-- **Auto-archivo:** activa pg_cron y agenda `select cron.schedule('lensia_archive_expired', '0 4 * * *', $$ select public.archive_expired_events(); $$);` (incluido en migración `0003_retention.sql`).
+- **Auto-archivo:** activa pg_cron y agenda `select cron.schedule('4tercios_archive_expired', '0 4 * * *', $$ select public.archive_expired_events(); $$);` (incluido en migración `0003_retention.sql`).
 
 A 100 eventos/mes (~184k fotos, ~600k caras detectadas, ~10k búsquedas) con provider local:
 

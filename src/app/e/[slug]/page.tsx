@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { CSSProperties } from "react";
 
 import { Brand } from "@/components/brand";
 import { Footer } from "@/components/footer";
@@ -6,12 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { SelfieSearch } from "@/components/search/selfie-search";
-import { getPublicEventBySlug } from "@/lib/server/events";
+import { buildThemeCssVars } from "@/lib/branding";
+import { getPublicEventPresentationBySlug } from "@/lib/server/events";
 import { formatHnl } from "@/lib/currency";
 
 export default async function PublicEventPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const event = await getPublicEventBySlug(slug);
+  const event = await getPublicEventPresentationBySlug(slug);
 
   if (!event) {
     return (
@@ -34,8 +36,21 @@ export default async function PublicEventPage({ params }: { params: Promise<{ sl
     day: "numeric",
   }).format(new Date(`${event.date}T00:00:00`));
 
+  const themeVars = buildThemeCssVars({
+    paletteId: event.photographers?.theme_palette,
+    primaryColor: event.photographers?.brand_color,
+  });
+  const brandFont = event.photographers?.theme_font ?? "inter";
+  const watermarkStyle = event.photographers?.watermark_style ?? "subtle";
+  const watermarkColor = event.photographers?.watermark_color ?? "#ffffff";
+  const watermarkLabel = event.photographers?.business_name || "4Tercios";
+
   return (
-    <div className="flex min-h-full flex-col bg-zinc-50">
+    <div
+      className="flex min-h-full flex-col bg-background text-foreground"
+      style={themeVars as CSSProperties}
+      data-brand-font={brandFont}
+    >
       <header className="border-b border-zinc-200/80 bg-white/90 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 lg:px-8">
           <Brand />
@@ -46,15 +61,15 @@ export default async function PublicEventPage({ params }: { params: Promise<{ sl
       </header>
 
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10 lg:px-8">
-        <section className="overflow-hidden rounded-3xl border border-zinc-200 bg-white shadow-sm">
-          <div className="bg-linear-to-r from-zinc-950 via-zinc-900 to-zinc-800 px-6 py-8 text-white sm:px-8">
+        <section className="overflow-hidden rounded-3xl border border-border bg-card shadow-sm">
+          <div className="bg-primary px-6 py-8 text-primary-foreground sm:px-8">
             <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-end">
               <div>
                 <Badge className="border-white/20 bg-white/10 text-white">Galería pública</Badge>
                 <h1 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
                   {event.name}
                 </h1>
-                <p className="mt-2 text-sm text-zinc-200">
+                <p className="mt-2 text-sm text-primary-foreground/80">
                   {dateStr}
                   {event.city ? ` · ${event.city}` : ""}
                   {event.venue ? ` · ${event.venue}` : ""}
@@ -92,6 +107,9 @@ export default async function PublicEventPage({ params }: { params: Promise<{ sl
             pricePerPhotoHnl={event.price_per_photo_hnl}
             whatsapp={event.whatsapp ?? ""}
             eventName={event.name}
+            watermarkStyle={watermarkStyle as "none" | "subtle" | "bold"}
+            watermarkColor={watermarkColor}
+            watermarkLabel={watermarkLabel}
           />
         </div>
 

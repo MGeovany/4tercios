@@ -20,18 +20,15 @@ let cached: Promise<LoadedModels> | null = null;
 export function loadModels(): Promise<LoadedModels> {
   if (cached) return cached;
   cached = (async () => {
-    const cacheDir = process.env.LENSIA_FACE_MODELS_DIR ?? join(tmpdir(), "lensia-face-models");
+    const cacheDir = process.env.FACE_MODELS_DIR ?? join(tmpdir(), "4tercios-face-models");
     await mkdir(cacheDir, { recursive: true });
 
     const detectionPath = join(cacheDir, "detection.onnx");
     const recognitionPath = join(cacheDir, "recognition.onnx");
 
     await Promise.all([
-      ensureFile(detectionPath, process.env.LENSIA_FACE_DETECTION_URL ?? DEFAULT_DETECTION_URL),
-      ensureFile(
-        recognitionPath,
-        process.env.LENSIA_FACE_RECOGNITION_URL ?? DEFAULT_RECOGNITION_URL
-      ),
+      ensureFile(detectionPath, process.env.FACE_DETECTION_URL ?? DEFAULT_DETECTION_URL),
+      ensureFile(recognitionPath, process.env.FACE_RECOGNITION_URL ?? DEFAULT_RECOGNITION_URL),
     ]);
 
     const sessionOpts: ort.InferenceSession.SessionOptions = {

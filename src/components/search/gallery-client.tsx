@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { formatHnl } from "@/lib/currency";
+import { type WatermarkStyle } from "@/lib/branding";
 
 export type GalleryPhoto = {
   photoId: string;
@@ -22,11 +23,22 @@ type Props = {
   eventName: string;
   pricePerPhotoHnl: number;
   whatsapp: string;
+  watermarkStyle?: WatermarkStyle;
+  watermarkColor?: string;
+  watermarkLabel?: string;
 };
 
 type ViewFilter = "all" | "withFaces" | "selected";
 
-export function GalleryClient({ photos, eventSlug, pricePerPhotoHnl, whatsapp }: Props) {
+export function GalleryClient({
+  photos,
+  eventSlug,
+  pricePerPhotoHnl,
+  whatsapp,
+  watermarkStyle = "subtle",
+  watermarkColor = "#ffffff",
+  watermarkLabel = "4Tercios",
+}: Props) {
   const [selected, setSelected] = React.useState<Record<string, boolean>>({});
   const [name, setName] = React.useState("");
   const [phone, setPhone] = React.useState("");
@@ -142,6 +154,9 @@ export function GalleryClient({ photos, eventSlug, pricePerPhotoHnl, whatsapp }:
               onToggle={() => toggle(p.photoId)}
               onPreview={() => setPreviewId(p.photoId)}
               pricePerPhotoHnl={pricePerPhotoHnl}
+              watermarkStyle={watermarkStyle}
+              watermarkColor={watermarkColor}
+              watermarkLabel={watermarkLabel}
             />
           ))}
         </div>
@@ -281,12 +296,18 @@ function PhotoTile({
   onToggle,
   onPreview,
   pricePerPhotoHnl,
+  watermarkStyle,
+  watermarkColor,
+  watermarkLabel,
 }: {
   photo: GalleryPhoto;
   selected: boolean;
   onToggle: () => void;
   onPreview: () => void;
   pricePerPhotoHnl: number;
+  watermarkStyle: WatermarkStyle;
+  watermarkColor: string;
+  watermarkLabel: string;
 }) {
   return (
     <div
@@ -310,6 +331,17 @@ function PhotoTile({
           loading="lazy"
           className="h-full w-full object-cover transition group-hover:scale-105"
         />
+        {watermarkStyle !== "none" ? (
+          <span
+            className={cn(
+              "pointer-events-none absolute rounded-full border border-white/30 bg-black/45 px-2 py-0.5 text-[10px] backdrop-blur",
+              watermarkStyle === "bold" ? "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" : "right-2 bottom-2"
+            )}
+            style={{ color: watermarkColor }}
+          >
+            {watermarkLabel}
+          </span>
+        ) : null}
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-linear-to-t from-black/35 to-transparent opacity-0 transition group-hover:opacity-100" />
         {selected ? (
           <span className="absolute top-2 right-2 grid h-7 w-7 place-items-center rounded-full bg-zinc-950 text-white shadow">

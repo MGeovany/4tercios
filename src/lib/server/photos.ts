@@ -137,7 +137,7 @@ export async function processPhoto(photoId: string): Promise<PhotoRow> {
       .select("business_name")
       .eq("id", row.events.photographer_id)
       .maybeSingle();
-    const brandLabel = (photographer?.business_name as string | undefined) || "Lensia";
+    const brandLabel = (photographer?.business_name as string | undefined) || "4tercios";
     const thumb = await buildWatermarkedThumb(buf, brandLabel);
 
     const tPath = thumbPath(row.event_id, row.id);

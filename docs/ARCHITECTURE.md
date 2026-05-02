@@ -1,6 +1,6 @@
 # Arquitectura
 
-> Última revisión: 2026-05. Este documento describe cómo está construida Huella/Lensia y por qué se tomaron las decisiones que se tomaron.
+> Última revisión: 2026-05. Este documento describe cómo está construida 4tercios y por qué se tomaron las decisiones que se tomaron.
 
 ## Resumen en 30 segundos
 
@@ -386,9 +386,9 @@ JPEG/PNG/HEIC bytes
 Si llegas a >1000 fotos/min sostenidas, el provider local saturará el CPU del runtime de Vercel. Switch:
 
 ```bash
-LENSIA_FACE_PROVIDER=replicate
+TERCIOS_FACE_PROVIDER=replicate
 REPLICATE_API_TOKEN=r8_xxx
-REPLICATE_FACE_MODEL=tu_usuario/lensia-faces  # cog-deployed con InsightFace
+REPLICATE_FACE_MODEL=tu_usuario/4tercios-faces  # cog-deployed con InsightFace
 ```
 
 El parser de `replicate-provider.ts` acepta múltiples shapes de output comunes.
@@ -400,11 +400,11 @@ El parser de `replicate-provider.ts` acepta múltiples shapes de output comunes.
 | `NEXT_PUBLIC_SUPABASE_URL` | — | Requerido |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | — | Requerido |
 | `SUPABASE_SERVICE_ROLE_KEY` | — | Requerido. **Server-only**, jamás expuesto al cliente |
-| `LENSIA_FACE_PROVIDER` | auto | `local` \| `replicate` \| `mock` |
-| `LENSIA_FACE_MODELS_DIR` | `$TMPDIR/lensia-face-models` | Cache de los ONNX |
-| `LENSIA_FACE_DETECTION_URL` | HF mirror | Override del modelo de detección |
-| `LENSIA_FACE_RECOGNITION_URL` | HF mirror | Override del modelo de embedding |
-| `LENSIA_SELFIE_MIN_SCORE` | `0.45` | Cosine score mínimo para mostrar match |
+| `TERCIOS_FACE_PROVIDER` | auto | `local` \| `replicate` \| `mock` |
+| `TERCIOS_FACE_MODELS_DIR` | `$TMPDIR/4tercios-face-models` | Cache de los ONNX |
+| `TERCIOS_FACE_DETECTION_URL` | HF mirror | Override del modelo de detección |
+| `TERCIOS_FACE_RECOGNITION_URL` | HF mirror | Override del modelo de embedding |
+| `TERCIOS_SELFIE_MIN_SCORE` | `0.45` | Cosine score mínimo para mostrar match |
 | `REPLICATE_API_TOKEN` | — | Solo si usas Replicate |
 | `REPLICATE_FACE_MODEL` | — | `owner/name[:version]` |
 | `REPLICATE_FACE_DIMENSION` | `512` | Override si tu modelo retorna otra dim |
@@ -417,12 +417,12 @@ El parser de `replicate-provider.ts` acepta múltiples shapes de output comunes.
 - Funciona out-of-the-box. `runtime: 'nodejs'` en route handlers permite usar `sharp` + `onnxruntime-node`.
 - Cold start: ~3s la primera invocación post-deploy mientras descarga los modelos a `/tmp`. Subsiguientes peticiones reutilizan el cache.
 - `maxDuration: 60` en `/api/photos/[id]/process` (suficiente para una foto). Para procesamiento masivo, mover a Inngest o Trigger.dev.
-- Para pre-cachear los modelos: hacer `LENSIA_FACE_MODELS_DIR=/var/task/.next/cache/face-models` y descargarlos en build (custom build step).
+- Para pre-cachear los modelos: hacer `TERCIOS_FACE_MODELS_DIR=/var/task/.next/cache/face-models` y descargarlos en build (custom build step).
 
 ### Self-host (Fly.io / Railway / VPS)
 
 - `pnpm build && pnpm start` con Node 20.9+.
-- Persiste `/tmp/lensia-face-models` (o monta volumen) para evitar re-descarga en restart.
+- Persiste `/tmp/4tercios-face-models` (o monta volumen) para evitar re-descarga en restart.
 - Sin diferencias de código.
 
 ### Costos a 100 eventos/mes
@@ -457,7 +457,7 @@ Para activar el cron en Supabase:
 -- una vez por proyecto, en SQL editor:
 create extension if not exists pg_cron;
 select cron.schedule(
-  'lensia_archive_expired',
+  '4tercios_archive_expired',
   '0 4 * * *',
   $$ select public.archive_expired_events(); $$
 );

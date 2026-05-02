@@ -1,4 +1,4 @@
--- Storage buckets and policies for Huella / Lensia
+-- Storage buckets and policies for Huella / 4tercios
 -- Buckets:
 --   photos-original  (private)  — full-resolution originals, signed URLs only
 --   photo-thumbs     (public)   — 1024px watermarked thumbnails

@@ -1,4 +1,4 @@
-// Shared shape of rows in the Lensia/Huella database.
+// Shared shape of rows in the 4tercios database.
 // Keep in sync with supabase/migrations/0001_initial_schema.sql.
 
 export type EventType = "Carrera" | "Graduacion" | "Boda" | "Torneo" | "Corporativo" | "Otro";
@@ -19,6 +19,11 @@ export type Photographer = {
   business_name: string;
   whatsapp: string | null;
   brand_color: string | null;
+  theme_palette: string | null;
+  theme_font: string | null;
+  watermark_style: string | null;
+  watermark_color: string | null;
+  watermark_font: string | null;
   payout_country: string | null;
   payout_method: string | null;
   created_at: string;

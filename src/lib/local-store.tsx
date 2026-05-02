@@ -6,7 +6,7 @@ export type EventType = "Carrera" | "Graduacion" | "Boda" | "Torneo" | "Corporat
 
 export type ProcessingStatus = "Borrador" | "Subiendo" | "Procesando" | "Listo" | "Con errores";
 
-export type LensiaUser = {
+export type AppUser = {
   id: string;
   name: string;
   email: string;
@@ -19,7 +19,7 @@ export type PayoutMethod = "none" | "bank" | "mobile-money" | "paypal";
 export type WatermarkStyle = "none" | "subtle" | "bold";
 export type SupportedLocale = "es-HN" | "es-MX" | "es-ES" | "en-US";
 
-export type LensiaSettings = {
+export type AppSettings = {
   brand: {
     primaryColor: string;
     watermarkStyle: WatermarkStyle;
@@ -49,7 +49,7 @@ export type LensiaSettings = {
   };
 };
 
-export type LensiaEvent = {
+export type AppEvent = {
   id: string;
   slug: string;
   name: string;
@@ -75,7 +75,7 @@ export type LensiaEvent = {
   updatedAt: string;
 };
 
-export type LensiaPhoto = {
+export type AppPhoto = {
   id: string;
   eventId: string;
   filename: string;
@@ -86,7 +86,7 @@ export type LensiaPhoto = {
 
 export type OrderStatus = "Pendiente" | "Pagado" | "Entregado";
 
-export type LensiaOrder = {
+export type AppOrder = {
   id: string;
   eventId: string;
   clientName: string;
@@ -97,18 +97,18 @@ export type LensiaOrder = {
   grossTotalHnl: number;
 };
 
-export type LensiaState = {
+export type AppState = {
   session: {
     userId: string;
   };
-  users: LensiaUser[];
-  events: LensiaEvent[];
-  photos: LensiaPhoto[];
-  orders: LensiaOrder[];
-  settings: LensiaSettings;
+  users: AppUser[];
+  events: AppEvent[];
+  photos: AppPhoto[];
+  orders: AppOrder[];
+  settings: AppSettings;
 };
 
-function defaultSettings(): LensiaSettings {
+function defaultSettings(): AppSettings {
   return {
     brand: {
       primaryColor: "#18181b",
@@ -132,7 +132,7 @@ function defaultSettings(): LensiaSettings {
   };
 }
 
-const STORAGE_KEY = "lensia:state:v2";
+const STORAGE_KEY = "4tercios:state:v2";
 const COMMISSION_RATE = 0.2;
 
 function nowIso() {
@@ -161,8 +161,8 @@ function slugify(input: string) {
     .replace(/-+/g, "-");
 }
 
-function seedState(): LensiaState {
-  const user: LensiaUser = {
+function seedState(): AppState {
+  const user: AppUser = {
     id: "usr_photographer_01",
     name: "",
     email: "",
@@ -178,19 +178,19 @@ function seedState(): LensiaState {
   };
 }
 
-function readStorage(): LensiaState | null {
+function readStorage(): AppState | null {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
-    return JSON.parse(raw) as LensiaState;
+    return JSON.parse(raw) as AppState;
   } catch {
     return null;
   }
 }
 
-function migrate(stored: Partial<LensiaState>): LensiaState {
+function migrate(stored: Partial<AppState>): AppState {
   const seed = seedState();
-  const s = stored.settings ?? ({} as Partial<LensiaSettings>);
+  const s = stored.settings ?? ({} as Partial<AppSettings>);
   return {
     session: stored.session ?? seed.session,
     users: stored.users ?? seed.users,
@@ -206,7 +206,7 @@ function migrate(stored: Partial<LensiaState>): LensiaState {
   };
 }
 
-function writeStorage(state: LensiaState) {
+function writeStorage(state: AppState) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   } catch {
@@ -214,11 +214,11 @@ function writeStorage(state: LensiaState) {
   }
 }
 
-type LensiaActions = {
+type AppActions = {
   reset(): void;
   createEvent(
     input: Omit<
-      LensiaEvent,
+      AppEvent,
       | "id"
       | "slug"
       | "createdAt"
@@ -232,7 +232,7 @@ type LensiaActions = {
       | "revenueGrossHnl"
     > & { slug?: string }
   ): string;
-  updateEvent(eventId: string, patch: Partial<Omit<LensiaEvent, "id" | "createdAt">>): void;
+  updateEvent(eventId: string, patch: Partial<Omit<AppEvent, "id" | "createdAt">>): void;
   deleteEvent(eventId: string): void;
   addPhotos(eventId: string, files: FileList | File[]): void;
   markProcessed(eventId: string): void;
@@ -245,19 +245,21 @@ type LensiaActions = {
   }): string;
   updateOrder(
     orderId: string,
-    patch: Partial<Omit<LensiaOrder, "id" | "eventId" | "createdAt">>
+    patch: Partial<Omit<AppOrder, "id" | "eventId" | "createdAt">>
   ): void;
-  updateUser(patch: Partial<Omit<LensiaUser, "id">>): void;
-  updateSettings<K extends keyof LensiaSettings>(
+  updateUser(patch: Partial<Omit<AppUser, "id">>): void;
+  updateSettings<K extends keyof AppSettings>(
     section: K,
-    patch: Partial<LensiaSettings[K]>
+    patch: Partial<AppSettings[K]>
   ): void;
 };
 
-const LensiaContext = React.createContext<(LensiaState & { actions: LensiaActions }) | null>(null);
+const AppStoreContext = React.createContext<(AppState & { actions: AppActions }) | null>(
+  null
+);
 
-export function LensiaProvider({ children }: { children: React.ReactNode }) {
-  const [state, setState] = React.useState<LensiaState>(() => {
+export function AppStoreProvider({ children }: { children: React.ReactNode }) {
+  const [state, setState] = React.useState<AppState>(() => {
     const stored = readStorage();
     if (!stored) {
       const seeded = seedState();
@@ -273,7 +275,7 @@ export function LensiaProvider({ children }: { children: React.ReactNode }) {
     writeStorage(state);
   }, [state]);
 
-  const actions = React.useMemo<LensiaActions>(() => {
+  const actions = React.useMemo<AppActions>(() => {
     return {
       reset() {
         const next = seedState();
@@ -343,7 +345,7 @@ export function LensiaProvider({ children }: { children: React.ReactNode }) {
       addPhotos(eventId, files) {
         const list = Array.isArray(files) ? files : Array.from(files);
         const t = nowIso();
-        const newPhotos: LensiaPhoto[] = list.map((f) => ({
+        const newPhotos: AppPhoto[] = list.map((f) => ({
           id: safeUUID("p"),
           eventId,
           filename: f.name || "foto.jpg",
@@ -369,7 +371,7 @@ export function LensiaProvider({ children }: { children: React.ReactNode }) {
       },
       markProcessed(eventId) {
         setState((s) => {
-          const photos: LensiaPhoto[] = s.photos.map((p): LensiaPhoto => {
+          const photos: AppPhoto[] = s.photos.map((p): AppPhoto => {
             if (p.eventId !== eventId) return p;
             if (p.status === "Processed") return p;
             const faces = Math.max(0, Math.round(1 + Math.random() * 4));
@@ -471,12 +473,14 @@ export function LensiaProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  return <LensiaContext.Provider value={{ ...state, actions }}>{children}</LensiaContext.Provider>;
+  return (
+    <AppStoreContext.Provider value={{ ...state, actions }}>{children}</AppStoreContext.Provider>
+  );
 }
 
-export function useLensia() {
-  const ctx = React.useContext(LensiaContext);
-  if (!ctx) throw new Error("useLensia must be used within LensiaProvider");
+export function useAppStore() {
+  const ctx = React.useContext(AppStoreContext);
+  if (!ctx) throw new Error("useAppStore must be used within AppStoreProvider");
   return ctx;
 }
 

@@ -44,6 +44,6 @@ export function getSupabaseServiceClient() {
   const { serviceRoleKey } = getSupabaseServiceEnv();
   return createClient(url, serviceRoleKey, {
     auth: { persistSession: false, autoRefreshToken: false },
-    global: { headers: { "x-application": "lensia-server" } },
+    global: { headers: { "x-application": "4tercios-server" } },
   });
 }

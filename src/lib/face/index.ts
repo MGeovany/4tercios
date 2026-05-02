@@ -18,7 +18,7 @@ export function getFaceProvider(): FaceProvider {
 
 function pickProvider(): FaceProvider {
   // Explicit override always wins.
-  const explicit = (process.env.LENSIA_FACE_PROVIDER || "").toLowerCase();
+  const explicit = (process.env.FACE_PROVIDER || "").toLowerCase();
   if (explicit === "local") return localFaceProvider;
   if (explicit === "mock") return mockFaceProvider;
   if (explicit === "replicate") return makeReplicateOrThrow();
@@ -40,7 +40,7 @@ function makeReplicateOrThrow(): FaceProvider {
   const model = process.env.REPLICATE_FACE_MODEL;
   if (!apiToken || !model) {
     throw new Error(
-      "LENSIA_FACE_PROVIDER=replicate requires REPLICATE_API_TOKEN and REPLICATE_FACE_MODEL"
+      "FACE_PROVIDER=replicate requires REPLICATE_API_TOKEN and REPLICATE_FACE_MODEL"
     );
   }
   const provider = makeReplicateProvider({ apiToken, model });

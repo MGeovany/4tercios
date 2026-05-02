@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import { formatHnl } from "@/lib/currency";
+import { type WatermarkStyle } from "@/lib/branding";
 
 type Match = {
   photoId: string;
@@ -33,11 +34,17 @@ export function SelfieSearch({
   pricePerPhotoHnl,
   whatsapp,
   eventName,
+  watermarkStyle = "subtle",
+  watermarkColor = "#ffffff",
+  watermarkLabel = "4Tercios",
 }: {
   slug: string;
   pricePerPhotoHnl: number;
   whatsapp: string;
   eventName: string;
+  watermarkStyle?: WatermarkStyle;
+  watermarkColor?: string;
+  watermarkLabel?: string;
 }) {
   const [selfie, setSelfie] = React.useState<SelfieResult | null>(null);
   const [phase, setPhase] = React.useState<Phase>("idle");
@@ -165,7 +172,12 @@ export function SelfieSearch({
               <div className="rounded-2xl border border-zinc-200/80 bg-zinc-50/70 p-4">
                 <div className="mb-2 flex items-center justify-between gap-2">
                   <Badge variant="success">Paso 2 · Coincidencias</Badge>
-                  <p className="text-xs text-zinc-500">Selecciona tus fotos favoritas</p>
+                  <p className="text-xs text-zinc-500">
+                    Watermark:{" "}
+                    <span className="font-medium" style={{ color: watermarkColor }}>
+                      {watermarkStyle}
+                    </span>
+                  </p>
                 </div>
                 <p className="text-sm text-zinc-700">
                   Encontramos <strong>{result.matches.length}</strong> foto
@@ -184,6 +196,8 @@ export function SelfieSearch({
                     match={m}
                     selected={!!selected[m.photoId]}
                     onToggle={() => setSelected((s) => ({ ...s, [m.photoId]: !s[m.photoId] }))}
+                    watermarkStyle={watermarkStyle}
+                    watermarkLabel={watermarkLabel}
                   />
                 ))}
               </div>
@@ -265,10 +279,14 @@ function MatchCard({
   match,
   selected,
   onToggle,
+  watermarkStyle,
+  watermarkLabel,
 }: {
   match: Match;
   selected: boolean;
   onToggle: () => void;
+  watermarkStyle: WatermarkStyle;
+  watermarkLabel: string;
 }) {
   const pct = Math.round(match.score * 100);
   const tier =
@@ -297,6 +315,16 @@ function MatchCard({
           loading="lazy"
           className="h-full w-full object-cover"
         />
+        {watermarkStyle !== "none" ? (
+          <span
+            className={cn(
+              "pointer-events-none absolute rounded-full border border-white/30 bg-black/45 px-2 py-0.5 text-[10px] text-white/90 backdrop-blur",
+              watermarkStyle === "bold" ? "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" : "right-2 bottom-2"
+            )}
+          >
+            {watermarkLabel}
+          </span>
+        ) : null}
         {selected ? (
           <span className="absolute top-2 right-2 grid h-7 w-7 place-items-center rounded-full bg-zinc-950 text-white">
             <CheckIcon />

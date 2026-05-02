@@ -2,15 +2,20 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { ArrowLeftIcon, CheckIcon, ExternalLinkIcon, InfoCircledIcon } from "@radix-ui/react-icons";
+import { ArrowLeftIcon, CheckIcon, ExternalLinkIcon } from "@radix-ui/react-icons";
 
+import { useTerciosStore, type SupportedLocale } from "@/lib/local-store";
 import {
-  useLensia,
-  type LensiaSettings,
-  type PayoutMethod,
-  type SupportedLocale,
+  BRAND_FONTS,
+  BRAND_PALETTES,
+  normalizeHexColor,
+  WATERMARK_FONTS,
+  WATERMARK_STYLES,
+  type BrandFontId,
+  type BrandPaletteId,
+  type WatermarkFontId,
   type WatermarkStyle,
-} from "@/lib/local-store";
+} from "@/lib/branding";
 import { useAuthProfile } from "@/lib/auth-profile";
 import { cn } from "@/lib/utils";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
@@ -383,18 +388,36 @@ function BrandSection() {
   const [saveError, setSaveError] = React.useState<string | null>(null);
 
   const [primaryColor, setPrimaryColor] = React.useState(profile.brandColor);
+  const [palette, setPalette] = React.useState<BrandPaletteId>(profile.brandPalette);
+  const [brandFont, setBrandFont] = React.useState<BrandFontId>(profile.brandFont);
+  const [watermarkStyle, setWatermarkStyle] = React.useState<WatermarkStyle>(profile.watermarkStyle);
+  const [watermarkColor, setWatermarkColor] = React.useState(profile.watermarkColor);
+  const [watermarkFont, setWatermarkFont] = React.useState<WatermarkFontId>(profile.watermarkFont);
 
   React.useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+    /* eslint-disable react-hooks/set-state-in-effect */
     setPrimaryColor(profile.brandColor || "#2563eb");
-  }, [profile.brandColor]);
+    setPalette(profile.brandPalette);
+    setBrandFont(profile.brandFont);
+    setWatermarkStyle(profile.watermarkStyle);
+    setWatermarkColor(profile.watermarkColor);
+    setWatermarkFont(profile.watermarkFont);
+    /* eslint-enable react-hooks/set-state-in-effect */
+  }, [
+    profile.brandColor,
+    profile.brandFont,
+    profile.brandPalette,
+    profile.watermarkColor,
+    profile.watermarkFont,
+    profile.watermarkStyle,
+  ]);
 
   return (
     <SectionCard
       id="marca"
       eyebrow="02"
       title="Marca"
-      description="Color principal configurado desde onboarding."
+      description="Personaliza paleta, fuente y marca de agua para tu landing y galería."
       saved={saved}
       canSave={!loading && !isSaving}
       onSubmit={async () => {
@@ -402,12 +425,39 @@ function BrandSection() {
         setIsSaving(true);
         try {
           const supabase = getSupabaseBrowserClient();
+          const safePrimary = normalizeHexColor(primaryColor, "#2563eb");
+          const safeWatermark = normalizeHexColor(watermarkColor, "#ffffff");
+
+          const { data: userRes, error: userError } = await supabase.auth.getUser();
+          if (userError) throw userError;
+          if (!userRes.user) throw new Error("No encontramos tu sesión.");
+
           const { error } = await supabase.auth.updateUser({
             data: {
-              brand_color: primaryColor.trim() || "#2563eb",
+              brand_color: safePrimary,
+              brand_palette: palette,
+              brand_font: brandFont,
+              watermark_style: watermarkStyle,
+              watermark_color: safeWatermark,
+              watermark_font: watermarkFont,
             },
           });
           if (error) throw error;
+
+          const { error: photographerError } = await supabase.from("photographers").upsert(
+            {
+              id: userRes.user.id,
+              brand_color: safePrimary,
+              theme_palette: palette,
+              theme_font: brandFont,
+              watermark_style: watermarkStyle,
+              watermark_color: safeWatermark,
+              watermark_font: watermarkFont,
+            },
+            { onConflict: "id" }
+          );
+          if (photographerError) throw photographerError;
+
           trigger();
         } catch (error) {
           setSaveError(error instanceof Error ? error.message : "No se pudo guardar la marca.");
@@ -417,6 +467,37 @@ function BrandSection() {
       }}
     >
       <div className="grid gap-4 sm:grid-cols-2">
+        <Field label="Paleta de color" hint="Define el look base de la plataforma.">
+          <Select value={palette} onValueChange={(v) => setPalette(v as BrandPaletteId)}>
+            <SelectTrigger className="w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {BRAND_PALETTES.map((option) => (
+                <SelectItem key={option.id} value={option.id}>
+                  {option.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <p className="mt-1.5 text-xs text-zinc-500">
+            {BRAND_PALETTES.find((option) => option.id === palette)?.description}
+          </p>
+        </Field>
+        <Field label="Fuente" hint="Tipografía principal para dashboard y páginas públicas.">
+          <Select value={brandFont} onValueChange={(v) => setBrandFont(v as BrandFontId)}>
+            <SelectTrigger className="w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {BRAND_FONTS.map((option) => (
+                <SelectItem key={option.id} value={option.id}>
+                  {option.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </Field>
         <Field label="Color principal" hint="Botones y acentos de la galería pública.">
           <div className="flex items-center gap-3">
             <input
@@ -434,9 +515,70 @@ function BrandSection() {
             />
           </div>
         </Field>
-        <div className="flex items-end">
-          <p className="text-xs text-zinc-500">
-            Este valor se sincroniza con `brand_color` en tu onboarding.
+        <Field label="Estilo de marca de agua">
+          <Select
+            value={watermarkStyle}
+            onValueChange={(v) => setWatermarkStyle(v as WatermarkStyle)}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {WATERMARK_STYLES.map((option) => (
+                <SelectItem key={option.id} value={option.id}>
+                  {option.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <p className="mt-1.5 text-xs text-zinc-500">
+            {WATERMARK_STYLES.find((option) => option.id === watermarkStyle)?.description}
+          </p>
+        </Field>
+        <Field label="Color del watermark">
+          <div className="flex items-center gap-3">
+            <input
+              type="color"
+              value={watermarkColor}
+              onChange={(e) => setWatermarkColor(e.target.value)}
+              className="size-10 cursor-pointer rounded-md border border-zinc-200"
+              aria-label="Color de watermark"
+            />
+            <Input
+              value={watermarkColor}
+              onChange={(e) => setWatermarkColor(e.target.value)}
+              className="font-mono"
+              maxLength={7}
+            />
+          </div>
+        </Field>
+        <Field label="Fuente del watermark">
+          <Select
+            value={watermarkFont}
+            onValueChange={(value) => setWatermarkFont(value as WatermarkFontId)}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {WATERMARK_FONTS.map((option) => (
+                <SelectItem key={option.id} value={option.id}>
+                  {option.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </Field>
+        <div className="sm:col-span-2 rounded-lg border border-zinc-200 bg-zinc-50 p-3">
+          <p className="text-sm text-zinc-800">
+            Vista previa:{" "}
+            <span className="font-semibold" style={{ color: normalizeHexColor(primaryColor, "#2563eb") }}>
+              {BRAND_PALETTES.find((option) => option.id === palette)?.name}
+            </span>{" "}
+            · Watermark{" "}
+            <span style={{ color: normalizeHexColor(watermarkColor, "#ffffff") }}>
+              {WATERMARK_STYLES.find((option) => option.id === watermarkStyle)?.name}
+            </span>
           </p>
         </div>
       </div>
@@ -622,7 +764,7 @@ const TIMEZONES = [
 ];
 
 function PreferencesSection() {
-  const { settings, actions } = useLensia();
+  const { settings, actions } = useTerciosStore();
   const { saved, trigger } = useSavedIndicator();
 
   const [locale, setLocale] = React.useState<SupportedLocale>(settings.preferences.locale);
@@ -691,7 +833,7 @@ function PreferencesSection() {
 }
 
 function DangerSection() {
-  const { actions } = useLensia();
+  const { actions } = useTerciosStore();
   const [confirming, setConfirming] = React.useState(false);
 
   return (
@@ -788,7 +930,7 @@ function SideNav() {
 }
 
 export default function SettingsPage() {
-  const { session, users } = useLensia();
+  const { session, users } = useTerciosStore();
   const me = users.find((u) => u.id === session.userId);
 
   return (

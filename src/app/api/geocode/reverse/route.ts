@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
       headers: {
         "accept-language": "es",
         // Nominatim requests a valid user agent.
-        "user-agent": "lensia-web/1.0 (reverse geocoding)",
+        "user-agent": "4tercios-web/1.0 (reverse geocoding)",
       },
       cache: "no-store",
     });

@@ -4,7 +4,7 @@ import { ChevronRightIcon } from "@radix-ui/react-icons";
 import { listOrdersForPhotographer } from "@/lib/server/orders";
 import { listEventsForPhotographer } from "@/lib/server/events";
 import { requirePhotographer } from "@/lib/server/auth";
-import { formatHnl } from "@/lib/local-store";
+import { formatHnl } from "@/lib/currency";
 import { cn } from "@/lib/utils";
 import { Topbar } from "@/components/shell/topbar";
 import type { OrderStatus } from "@/lib/db/types";

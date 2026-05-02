@@ -11,7 +11,7 @@ import { requirePhotographer } from "@/lib/server/auth";
 import { getOrderWithEvent, listPhotosForOrder } from "@/lib/server/orders";
 import { thumbPublicUrl } from "@/lib/storage/paths";
 import { getSupabaseEnv } from "@/lib/supabase/env";
-import { formatHnl } from "@/lib/local-store";
+import { formatHnl } from "@/lib/currency";
 import { Topbar } from "@/components/shell/topbar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -98,7 +98,7 @@ export default async function OrderDetailPage({
                       key={pid}
                       className="overflow-hidden rounded-2xl border border-zinc-200 bg-white"
                     >
-                      <div className="aspect-[4/3] bg-zinc-100">
+                      <div className="aspect-4/3 bg-zinc-100">
                         {thumb ? (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img

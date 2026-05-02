@@ -5,6 +5,9 @@ import { ArrowLeftIcon } from "@radix-ui/react-icons";
 import { requirePhotographer } from "@/lib/server/auth";
 import { getEventByIdForPhotographer } from "@/lib/server/events";
 import { listPhotosForEvent } from "@/lib/server/photos";
+import { getSupabaseEnv } from "@/lib/supabase/env";
+import { getSupabaseServiceClient } from "@/lib/supabase/server";
+import { STORAGE_BUCKETS, thumbPublicUrl } from "@/lib/storage/paths";
 import { Topbar } from "@/components/shell/topbar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -26,6 +29,22 @@ export default async function UploadPage({ params }: { params: Promise<{ eventId
 
   const photos = await listPhotosForEvent(eventId);
   if (photos == null) redirect("/dashboard");
+  const photosForPreview = photos.slice(0, 12);
+
+  const env = getSupabaseEnv();
+  const admin = getSupabaseServiceClient();
+  const previewEntries = await Promise.all(
+    photosForPreview.map(async (photo) => {
+      if (photo.thumb_path) {
+        return [photo.id, thumbPublicUrl(env.url, photo.thumb_path)] as const;
+      }
+      const signed = await admin.storage
+        .from(STORAGE_BUCKETS.originals)
+        .createSignedUrl(photo.storage_path, 3600);
+      return [photo.id, signed.data?.signedUrl ?? null] as const;
+    })
+  );
+  const previewUrls = Object.fromEntries(previewEntries);
 
   const totals = {
     uploaded: photos.length,
@@ -71,7 +90,7 @@ export default async function UploadPage({ params }: { params: Promise<{ eventId
                     Aún no hay fotos. Sube algunas para empezar a detectar rostros.
                   </p>
                 ) : (
-                  <PhotosListActions photos={photos.slice(0, 12)} />
+                  <PhotosListActions photos={photosForPreview} previewUrls={previewUrls} />
                 )}
               </CardContent>
             </Card>

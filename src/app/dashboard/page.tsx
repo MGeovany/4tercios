@@ -3,7 +3,7 @@ import { ArrowRightIcon, ChevronRightIcon, PlusIcon } from "@radix-ui/react-icon
 
 import { requirePhotographer } from "@/lib/server/auth";
 import { listEventsForPhotographer, getPhotographerStats } from "@/lib/server/events";
-import { formatHnl } from "@/lib/local-store";
+import { formatHnl } from "@/lib/currency";
 import { cn } from "@/lib/utils";
 import { Topbar } from "@/components/shell/topbar";
 import { Button } from "@/components/ui/button";

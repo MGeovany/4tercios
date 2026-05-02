@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { Topbar } from "@/components/shell/topbar";
 import { Button } from "@/components/ui/button";
 import type { EventStatus } from "@/lib/db/types";
+import { EventRowActions } from "./event-row-actions";
 
 const STATUS_DOT: Record<EventStatus, string> = {
   Listo: "bg-emerald-500",
@@ -97,6 +98,7 @@ export default async function EventsListPage() {
                     >
                       <ExternalLinkIcon className="size-4" />
                     </Link>
+                    <EventRowActions eventId={event.id} />
                   </div>
                 </li>
               ))}

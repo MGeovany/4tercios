@@ -19,14 +19,17 @@ import { DeletePhotoButton } from "./delete-photo-button";
 
 type PhotosListActionsProps = {
   photos: PhotoRow[];
+  previewUrls: Record<string, string | null>;
 };
 
-export function PhotosListActions({ photos }: PhotosListActionsProps) {
+export function PhotosListActions({ photos, previewUrls }: PhotosListActionsProps) {
   const router = useRouter();
   const [selectedIds, setSelectedIds] = React.useState<string[]>([]);
   const [confirmOpen, setConfirmOpen] = React.useState(false);
   const [deleting, setDeleting] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+  const [previewOpen, setPreviewOpen] = React.useState(false);
+  const [previewPhoto, setPreviewPhoto] = React.useState<PhotoRow | null>(null);
 
   const selectedCount = selectedIds.length;
   const allSelected = photos.length > 0 && selectedCount === photos.length;
@@ -119,6 +122,24 @@ export function PhotosListActions({ photos }: PhotosListActionsProps) {
                 aria-label={`Seleccionar ${p.filename}`}
               />
               <div className="min-w-0">
+                {previewUrls[p.id] ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPreviewPhoto(p);
+                      setPreviewOpen(true);
+                    }}
+                    className="mb-2 block overflow-hidden rounded-lg border border-zinc-200 bg-zinc-100"
+                    aria-label={`Vista previa de ${p.filename}`}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={previewUrls[p.id] as string}
+                      alt={p.filename}
+                      className="h-16 w-24 object-cover"
+                    />
+                  </button>
+                ) : null}
                 <p className="truncate text-sm font-medium text-zinc-950">{p.filename}</p>
                 <p className="mt-0.5 text-xs text-zinc-500">
                   {p.faces_count} rostro{p.faces_count === 1 ? "" : "s"} ·{" "}
@@ -176,6 +197,37 @@ export function PhotosListActions({ photos }: PhotosListActionsProps) {
               {deleting ? "Borrando..." : "Sí, borrar"}
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={previewOpen}
+        onOpenChange={(next) => {
+          setPreviewOpen(next);
+          if (!next) setPreviewPhoto(null);
+        }}
+      >
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>{previewPhoto?.filename ?? "Vista previa"}</DialogTitle>
+            <DialogDescription>
+              {previewPhoto
+                ? `${previewPhoto.faces_count} rostro${previewPhoto.faces_count === 1 ? "" : "s"}`
+                : ""}
+            </DialogDescription>
+          </DialogHeader>
+          {previewPhoto && previewUrls[previewPhoto.id] ? (
+            <div className="overflow-hidden rounded-xl border border-zinc-200 bg-zinc-50">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={previewUrls[previewPhoto.id] as string}
+                alt={previewPhoto.filename}
+                className="max-h-[70vh] w-full object-contain"
+              />
+            </div>
+          ) : (
+            <p className="text-sm text-zinc-600">No hay vista previa disponible para esta foto.</p>
+          )}
         </DialogContent>
       </Dialog>
     </>

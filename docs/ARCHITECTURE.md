@@ -28,17 +28,17 @@ Todo corre como una sola app Next.js + Supabase. **Sin servidor Python, sin cola
 
 ## Stack
 
-| Capa | Tecnología | Por qué |
-| --- | --- | --- |
-| Frontend + servidor | Next.js 16 (App Router) + React 19 | Una sola app — server components para data, client components para interactividad. Turbopack dev/prod. |
-| DB | Supabase Postgres + `pgvector` | Embeddings nativos, búsqueda ANN con índice IVFFlat. Sin un vector DB aparte. |
-| Auth | Supabase Auth (cookies + SSR) | OAuth Google + email/password. Cookie-aware client en server components. |
-| Storage | Supabase Storage | 3 buckets con RLS: originales privados, thumbs públicos, selfies privadas y efímeras. |
-| Reconocimiento facial | InsightFace (SCRFD + ArcFace) vía `onnxruntime-node` | Modelos públicos del mirror `immich-app/buffalo_s`. Corre en CPU del servidor. **$0 por inferencia**. |
-| Imágenes | `sharp` | Thumbnails 1280px webp con watermark SVG compositado. |
-| UI | Tailwind v4 + Radix UI | shadcn-style components ya en `src/components/ui/`. |
-| Pagos | Clinpays (Honduras) | Adapter detrás de interface. WhatsApp manual como fallback. |
-| Mapa de evento | Leaflet + OpenStreetMap | Picker de ubicación + reverse geocoding via Nominatim. |
+| Capa                  | Tecnología                                           | Por qué                                                                                                |
+| --------------------- | ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| Frontend + servidor   | Next.js 16 (App Router) + React 19                   | Una sola app — server components para data, client components para interactividad. Turbopack dev/prod. |
+| DB                    | Supabase Postgres + `pgvector`                       | Embeddings nativos, búsqueda ANN con índice IVFFlat. Sin un vector DB aparte.                          |
+| Auth                  | Supabase Auth (cookies + SSR)                        | OAuth Google + email/password. Cookie-aware client en server components.                               |
+| Storage               | Supabase Storage                                     | 3 buckets con RLS: originales privados, thumbs públicos, selfies privadas y efímeras.                  |
+| Reconocimiento facial | InsightFace (SCRFD + ArcFace) vía `onnxruntime-node` | Modelos públicos del mirror `immich-app/buffalo_s`. Corre en CPU del servidor. **$0 por inferencia**.  |
+| Imágenes              | `sharp`                                              | Thumbnails 1280px webp con watermark SVG compositado.                                                  |
+| UI                    | Tailwind v4 + Radix UI                               | shadcn-style components ya en `src/components/ui/`.                                                    |
+| Pagos                 | Clinpays (Honduras)                                  | Adapter detrás de interface. WhatsApp manual como fallback.                                            |
+| Mapa de evento        | Leaflet + OpenStreetMap                              | Picker de ubicación + reverse geocoding via Nominatim.                                                 |
 
 ## Estructura del repo
 
@@ -210,16 +210,16 @@ Una foto con varias personas siendo tú-y-amigos rankea por la cara que más se 
 
 Toda tabla con RLS habilitado. Reglas clave:
 
-| Tabla | Policy | Quién |
-| --- | --- | --- |
-| `events` | `photographer_id = auth.uid()` (ALL) | Fotógrafo dueño |
-| `events` | `is_public AND status IN ('Procesando','Listo')` (SELECT) | Anon (página pública) |
-| `photos` | dueño del evento (ALL) | Fotógrafo |
-| `photos` | `status='ready'` y evento público (SELECT) | Anon |
-| `faces` | dueño del evento (SELECT) | Fotógrafo (lectura analítica) |
-| `selfie_queries` | dueño del evento (SELECT) | Fotógrafo |
-| `orders` | dueño del evento (ALL) | Fotógrafo |
-| `orders` (INSERT desde anónimo) | bypass via service role | Server route handler |
+| Tabla                           | Policy                                                    | Quién                         |
+| ------------------------------- | --------------------------------------------------------- | ----------------------------- |
+| `events`                        | `photographer_id = auth.uid()` (ALL)                      | Fotógrafo dueño               |
+| `events`                        | `is_public AND status IN ('Procesando','Listo')` (SELECT) | Anon (página pública)         |
+| `photos`                        | dueño del evento (ALL)                                    | Fotógrafo                     |
+| `photos`                        | `status='ready'` y evento público (SELECT)                | Anon                          |
+| `faces`                         | dueño del evento (SELECT)                                 | Fotógrafo (lectura analítica) |
+| `selfie_queries`                | dueño del evento (SELECT)                                 | Fotógrafo                     |
+| `orders`                        | dueño del evento (ALL)                                    | Fotógrafo                     |
+| `orders` (INSERT desde anónimo) | bypass via service role                                   | Server route handler          |
 
 Las inserciones desde clientes anónimos (crear orden, registrar selfie query) **siempre pasan por el service role en el server**. La browser session anónima nunca toca la DB directamente para esto.
 
@@ -383,10 +383,10 @@ JPEG/PNG/HEIC bytes
 
 ### Cuándo cambiar a Replicate
 
-Si llegas a >1000 fotos/min sostenidas, el provider local saturará el CPU del runtime de Vercel. Switch:
+Si llegamos a >1000 fotos/min sostenidas, el provider local saturará el CPU del runtime de Vercel. Switch:
 
 ```bash
-TERCIOS_FACE_PROVIDER=replicate
+FACE_PROVIDER=replicate
 REPLICATE_API_TOKEN=r8_xxx
 REPLICATE_FACE_MODEL=tu_usuario/4tercios-faces  # cog-deployed con InsightFace
 ```
@@ -395,20 +395,20 @@ El parser de `replicate-provider.ts` acepta múltiples shapes de output comunes.
 
 ## Variables de entorno
 
-| Variable | Default | Notas |
-| --- | --- | --- |
-| `NEXT_PUBLIC_SUPABASE_URL` | — | Requerido |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | — | Requerido |
-| `SUPABASE_SERVICE_ROLE_KEY` | — | Requerido. **Server-only**, jamás expuesto al cliente |
-| `TERCIOS_FACE_PROVIDER` | auto | `local` \| `replicate` \| `mock` |
-| `TERCIOS_FACE_MODELS_DIR` | `$TMPDIR/4tercios-face-models` | Cache de los ONNX |
-| `TERCIOS_FACE_DETECTION_URL` | HF mirror | Override del modelo de detección |
-| `TERCIOS_FACE_RECOGNITION_URL` | HF mirror | Override del modelo de embedding |
-| `TERCIOS_SELFIE_MIN_SCORE` | `0.45` | Cosine score mínimo para mostrar match |
-| `REPLICATE_API_TOKEN` | — | Solo si usas Replicate |
-| `REPLICATE_FACE_MODEL` | — | `owner/name[:version]` |
-| `REPLICATE_FACE_DIMENSION` | `512` | Override si tu modelo retorna otra dim |
-| `CLINPAYS_*` | — | Vacío = orders quedan en `pending`, pago manual por WhatsApp |
+| Variable                        | Default                        | Notas                                                        |
+| ------------------------------- | ------------------------------ | ------------------------------------------------------------ |
+| `NEXT_PUBLIC_SUPABASE_URL`      | —                              | Requerido                                                    |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | —                              | Requerido                                                    |
+| `SUPABASE_SERVICE_ROLE_KEY`     | —                              | Requerido. **Server-only**, jamás expuesto al cliente        |
+| `FACE_PROVIDER`                 | auto                           | `local` \| `replicate` \| `mock`                             |
+| `FACE_MODELS_DIR`               | `$TMPDIR/4tercios-face-models` | Cache de los ONNX                                            |
+| `FACE_DETECTION_URL`            | HF mirror                      | Override del modelo de detección                             |
+| `FACE_RECOGNITION_URL`          | HF mirror                      | Override del modelo de embedding                             |
+| `SELFIE_MIN_SCORE`              | `0.45`                         | Cosine score mínimo para mostrar match                       |
+| `REPLICATE_API_TOKEN`           | —                              | Solo si usamos Replicate                                       |
+| `REPLICATE_FACE_MODEL`          | —                              | `owner/name[:version]`                                       |
+| `REPLICATE_FACE_DIMENSION`      | `512`                          | Override si el modelo retorna otra dim                       |
+| `CLINPAYS_*`                    | —                              | Vacío = orders quedan en `pending`, pago manual por WhatsApp |
 
 ## Despliegue
 
@@ -417,7 +417,7 @@ El parser de `replicate-provider.ts` acepta múltiples shapes de output comunes.
 - Funciona out-of-the-box. `runtime: 'nodejs'` en route handlers permite usar `sharp` + `onnxruntime-node`.
 - Cold start: ~3s la primera invocación post-deploy mientras descarga los modelos a `/tmp`. Subsiguientes peticiones reutilizan el cache.
 - `maxDuration: 60` en `/api/photos/[id]/process` (suficiente para una foto). Para procesamiento masivo, mover a Inngest o Trigger.dev.
-- Para pre-cachear los modelos: hacer `TERCIOS_FACE_MODELS_DIR=/var/task/.next/cache/face-models` y descargarlos en build (custom build step).
+- Para pre-cachear los modelos: hacer `FACE_MODELS_DIR=/var/task/.next/cache/face-models` y descargarlos en build (custom build step).
 
 ### Self-host (Fly.io / Railway / VPS)
 
@@ -444,12 +444,12 @@ El parser de `replicate-provider.ts` acepta múltiples shapes de output comunes.
 
 ## Retención
 
-| Recurso | TTL | Mecanismo |
-| --- | --- | --- |
-| Galería de evento | `online_days` (1-60) | `archive_expired_events()` corre por pg_cron diario. Marca `is_public=false` y `status=Archivado` |
-| Selfie original | inmediato | Borrada del bucket en `searchEventBySelfie` post-respuesta |
-| Selfie query (embedding) | 24h | `expires_at` + cron limpia |
-| Faces / photos | mientras exista el evento | Cascade delete cuando borras el evento |
+| Recurso                  | TTL                       | Mecanismo                                                                                         |
+| ------------------------ | ------------------------- | ------------------------------------------------------------------------------------------------- |
+| Galería de evento        | `online_days` (1-60)      | `archive_expired_events()` corre por pg_cron diario. Marca `is_public=false` y `status=Archivado` |
+| Selfie original          | inmediato                 | Borrada del bucket en `searchEventBySelfie` post-respuesta                                        |
+| Selfie query (embedding) | 24h                       | `expires_at` + cron limpia                                                                        |
+| Faces / photos           | mientras exista el evento | Cascade delete cuando borras el evento                                                            |
 
 Para activar el cron en Supabase:
 

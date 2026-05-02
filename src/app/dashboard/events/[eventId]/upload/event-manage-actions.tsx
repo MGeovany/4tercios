@@ -3,15 +3,9 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { DotsHorizontalIcon, Pencil1Icon, TrashIcon } from "@radix-ui/react-icons";
+import { Pencil1Icon, TrashIcon } from "@radix-ui/react-icons";
 
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
   Dialog,
   DialogContent,
@@ -21,7 +15,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-export function EventRowActions({ eventId }: { eventId: string }) {
+export function EventManageActions({ eventId }: { eventId: string }) {
   const router = useRouter();
   const [confirmOpen, setConfirmOpen] = React.useState(false);
   const [deleting, setDeleting] = React.useState(false);
@@ -35,12 +29,12 @@ export function EventRowActions({ eventId }: { eventId: string }) {
       const res = await fetch(`/api/events/id/${eventId}`, { method: "DELETE" });
       const body = (await res.json().catch(() => ({}))) as { error?: string };
       if (!res.ok) {
-        throw new Error(body.error || "No se pudo borrar el evento");
+        throw new Error(body.error || "No se pudo borrar el evento.");
       }
-      setConfirmOpen(false);
+      router.push("/dashboard/events");
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "No se pudo borrar el evento");
+      setError(err instanceof Error ? err.message : "No se pudo borrar el evento.");
     } finally {
       setDeleting(false);
     }
@@ -48,34 +42,16 @@ export function EventRowActions({ eventId }: { eventId: string }) {
 
   return (
     <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="size-8 text-zinc-500 hover:text-zinc-900"
-            aria-label="Acciones del evento"
-          >
-            <DotsHorizontalIcon />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-44">
-          <DropdownMenuItem asChild>
-            <Link href={`/dashboard/events/${eventId}/edit`}>
-              <Pencil1Icon />
-              Editar
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            className="text-red-600 focus:text-red-700"
-            onClick={() => setConfirmOpen(true)}
-          >
-            <TrashIcon />
-            Eliminar
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <div className="grid gap-2 sm:grid-cols-2">
+        <Button asChild variant="secondary">
+          <Link href={`/dashboard/events/${eventId}/edit`}>
+            <Pencil1Icon /> Editar evento
+          </Link>
+        </Button>
+        <Button variant="destructive" onClick={() => setConfirmOpen(true)}>
+          <TrashIcon /> Eliminar evento
+        </Button>
+      </div>
 
       <Dialog
         open={confirmOpen}
@@ -88,7 +64,7 @@ export function EventRowActions({ eventId }: { eventId: string }) {
           <DialogHeader>
             <DialogTitle>¿Eliminar evento?</DialogTitle>
             <DialogDescription>
-              Se borrarán también sus fotos, rostros y órdenes asociadas. Esta acción no se puede
+              Se borrarán también las fotos, rostros y órdenes asociadas. Esta acción no se puede
               deshacer.
             </DialogDescription>
           </DialogHeader>

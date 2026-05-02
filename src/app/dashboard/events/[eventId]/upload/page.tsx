@@ -16,6 +16,7 @@ import { UploadStation } from "./upload-station";
 import { PhotosListActions } from "./photos-list-actions";
 import { publishEventAction, saveEventAsDraftAction } from "./actions";
 import { PublishEventButton, SaveDraftButton } from "./publish-buttons";
+import { EventManageActions } from "./event-manage-actions";
 
 export default async function UploadPage({ params }: { params: Promise<{ eventId: string }> }) {
   const { eventId } = await params;
@@ -137,6 +138,9 @@ export default async function UploadPage({ params }: { params: Promise<{ eventId
                   <form action={saveEventAsDraftAction.bind(null, event.id)}>
                     <SaveDraftButton disabled={!isPublished} />
                   </form>
+                  <div className="border-t border-zinc-100 pt-2">
+                    <EventManageActions eventId={event.id} />
+                  </div>
                 </div>
               </CardContent>
             </Card>

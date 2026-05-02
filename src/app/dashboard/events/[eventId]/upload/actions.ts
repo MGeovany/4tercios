@@ -35,4 +35,3 @@ export async function saveEventAsDraftAction(eventId: string) {
   revalidatePath("/dashboard/events");
   revalidatePath("/dashboard");
 }
-

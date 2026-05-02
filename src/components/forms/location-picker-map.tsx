@@ -16,4 +16,3 @@ const LocationPickerMapInner = dynamic(() => import("./location-picker-map-inner
 export function LocationPickerMap({ value, onChange }: LocationPickerMapProps) {
   return <LocationPickerMapInner value={value} onChange={onChange} />;
 }
-

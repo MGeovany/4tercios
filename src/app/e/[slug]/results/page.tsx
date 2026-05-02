@@ -124,9 +124,7 @@ export default async function ResultsPage({ params }: { params: Promise<{ slug: 
         <div className="mt-8">
           {gallery.length === 0 ? (
             <div className="rounded-3xl border border-dashed border-zinc-300 bg-white p-12 text-center">
-              <p className="text-base font-medium text-zinc-950">
-                Aún no hay fotos publicadas
-              </p>
+              <p className="text-base font-medium text-zinc-950">Aún no hay fotos publicadas</p>
               <p className="mt-1 text-sm text-zinc-600">
                 Vuelve a intentar pronto o usa la búsqueda con selfie.
               </p>
@@ -156,7 +154,7 @@ export default async function ResultsPage({ params }: { params: Promise<{ slug: 
 function KpiTile({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-2xl border border-white/15 bg-white/10 px-4 py-3 backdrop-blur">
-      <p className="text-[11px] uppercase tracking-wide text-zinc-300">{label}</p>
+      <p className="text-[11px] tracking-wide text-zinc-300 uppercase">{label}</p>
       <p className="mt-1 text-base font-semibold text-white tabular-nums">{value}</p>
     </div>
   );

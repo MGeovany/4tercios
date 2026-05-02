@@ -33,7 +33,11 @@ export function PhotosListActions({ photos }: PhotosListActionsProps) {
 
   function toggleSelection(photoId: string, checked: boolean) {
     setSelectedIds((current) =>
-      checked ? (current.includes(photoId) ? current : [...current, photoId]) : current.filter((id) => id !== photoId)
+      checked
+        ? current.includes(photoId)
+          ? current
+          : [...current, photoId]
+        : current.filter((id) => id !== photoId)
     );
   }
 
@@ -66,7 +70,9 @@ export function PhotosListActions({ photos }: PhotosListActionsProps) {
       setSelectedIds([]);
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "No se pudieron borrar las fotos seleccionadas.");
+      setError(
+        err instanceof Error ? err.message : "No se pudieron borrar las fotos seleccionadas."
+      );
     } finally {
       setDeleting(false);
     }
@@ -122,7 +128,9 @@ export function PhotosListActions({ photos }: PhotosListActionsProps) {
             </div>
             <div className="flex items-center gap-1 self-end sm:self-auto">
               <Badge
-                variant={p.status === "ready" ? "success" : p.status === "error" ? "danger" : "info"}
+                variant={
+                  p.status === "ready" ? "success" : p.status === "error" ? "danger" : "info"
+                }
               >
                 {labelForStatus(p.status)}
               </Badge>
@@ -150,10 +158,20 @@ export function PhotosListActions({ photos }: PhotosListActionsProps) {
           {error ? <p className="text-sm text-red-600">{error}</p> : null}
 
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setConfirmOpen(false)} disabled={deleting}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setConfirmOpen(false)}
+              disabled={deleting}
+            >
               Cancelar
             </Button>
-            <Button type="button" variant="destructive" onClick={onBulkDelete} disabled={deleting || selectedCount === 0}>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={onBulkDelete}
+              disabled={deleting || selectedCount === 0}
+            >
               <Trash2 className="size-4" />
               {deleting ? "Borrando..." : "Sí, borrar"}
             </Button>

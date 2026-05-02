@@ -52,17 +52,14 @@ export async function GET(request: NextRequest) {
       "";
 
     const venue =
-      [
-        address.attraction,
-        address.amenity,
-        address.building,
-        address.leisure,
-        address.road,
-      ].find(Boolean) || payload.display_name?.split(",").slice(0, 2).join(", ").trim() || "";
+      [address.attraction, address.amenity, address.building, address.leisure, address.road].find(
+        Boolean
+      ) ||
+      payload.display_name?.split(",").slice(0, 2).join(", ").trim() ||
+      "";
 
     return NextResponse.json({ city, venue });
   } catch {
     return NextResponse.json({ error: "Reverse geocoding unavailable" }, { status: 502 });
   }
 }
-

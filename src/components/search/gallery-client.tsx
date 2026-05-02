@@ -162,9 +162,7 @@ export function GalleryClient({ photos, eventSlug, pricePerPhotoHnl, whatsapp }:
             <p className="mt-0.5 text-3xl font-semibold tracking-tight text-zinc-950 tabular-nums">
               {formatHnl(total)}
             </p>
-            <p className="text-xs text-zinc-500">
-              Precio por foto: {formatHnl(pricePerPhotoHnl)}
-            </p>
+            <p className="text-xs text-zinc-500">Precio por foto: {formatHnl(pricePerPhotoHnl)}</p>
           </div>
 
           <div className="grid w-full gap-3 sm:max-w-md sm:grid-cols-2">
@@ -325,9 +323,7 @@ function PhotoTile({
         ) : null}
       </button>
       <div className="flex items-center justify-between gap-2 p-2.5">
-        <span className="text-xs font-medium text-zinc-700">
-          {formatHnl(pricePerPhotoHnl)}
-        </span>
+        <span className="text-xs font-medium text-zinc-700">{formatHnl(pricePerPhotoHnl)}</span>
         <Button
           type="button"
           size="sm"
@@ -377,11 +373,7 @@ function PreviewLightbox({
       >
         <div className="relative aspect-4/3 bg-black">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={photo.thumbUrl}
-            alt="Vista previa"
-            className="h-full w-full object-contain"
-          />
+          <img src={photo.thumbUrl} alt="Vista previa" className="h-full w-full object-contain" />
         </div>
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/10 bg-zinc-950/95 p-4 text-white">
           <div>

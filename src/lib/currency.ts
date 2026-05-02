@@ -5,4 +5,3 @@ export function formatHnl(amount: number) {
     maximumFractionDigits: 0,
   }).format(amount);
 }
-

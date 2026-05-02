@@ -103,7 +103,10 @@ export default async function UploadPage({ params }: { params: Promise<{ eventId
                 </div>
                 <div className="space-y-2 pt-2">
                   <form action={publishEventAction.bind(null, event.id, event.slug)}>
-                    <PublishEventButton disabled={!canPublish || isPublished} isPublished={isPublished} />
+                    <PublishEventButton
+                      disabled={!canPublish || isPublished}
+                      isPublished={isPublished}
+                    />
                   </form>
                   <p className="text-xs text-zinc-500">
                     {isPublished

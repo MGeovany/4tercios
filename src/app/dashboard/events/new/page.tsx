@@ -116,7 +116,7 @@ export default function NewEventPage() {
   const effectiveSlug = slugTouched && slug ? slugify(slug) : autoSlug;
 
   const priceValid = Number.isFinite(price) && price > 0;
-  const daysValid = Number.isFinite(onlineDays) && onlineDays > 0;
+  const daysValid = Number.isFinite(onlineDays) && onlineDays > 0 && onlineDays <= 60;
   const canSubmit = name.trim().length > 0 && priceValid && daysValid;
 
   const receives = priceValid ? Math.max(0, price - commissionHnl(price)) : 0;
@@ -258,9 +258,7 @@ export default function NewEventPage() {
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
                   />
-                  {resolvingLocation ? (
-                    <Hint>Actualizando ciudad desde el pin...</Hint>
-                  ) : null}
+                  {resolvingLocation ? <Hint>Actualizando ciudad desde el pin...</Hint> : null}
                 </div>
                 <div>
                   <Label htmlFor="venue">
@@ -273,9 +271,7 @@ export default function NewEventPage() {
                     value={venue}
                     onChange={(e) => setVenue(e.target.value)}
                   />
-                  {resolvingLocation ? (
-                    <Hint>Actualizando lugar desde el pin...</Hint>
-                  ) : null}
+                  {resolvingLocation ? <Hint>Actualizando lugar desde el pin...</Hint> : null}
                 </div>
                 <div className="sm:col-span-2">
                   <Label>
@@ -400,6 +396,7 @@ export default function NewEventPage() {
                     type="number"
                     inputMode="numeric"
                     min={1}
+                    max={60}
                     placeholder="14"
                     className="mt-2"
                     value={Number.isFinite(onlineDays) ? String(onlineDays) : ""}
@@ -413,10 +410,10 @@ export default function NewEventPage() {
                         <span className="font-medium text-zinc-900">
                           {formatDateISO(availableUntil)}
                         </span>
-                        .
+                        . Máximo 60 días para mantener costos de almacenamiento bajos.
                       </>
                     ) : (
-                      <>Podrás cerrar antes desde el dashboard.</>
+                      <>Máximo 60 días. Podrás cerrar antes desde el dashboard.</>
                     )}
                   </Hint>
                 </div>

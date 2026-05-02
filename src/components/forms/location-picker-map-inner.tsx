@@ -5,7 +5,7 @@ import type { LatLngExpression } from "leaflet";
 import L from "leaflet";
 import { MapContainer, Marker, TileLayer, useMapEvents } from "react-leaflet";
 
-const DEFAULT_CENTER: LatLngExpression = [14.7, -86.5];
+const DEFAULT_CENTER: [number, number] = [14.7, -86.5];
 const DEFAULT_ZOOM = 8;
 
 // Ensure marker icons work when rendering in Next.js.
@@ -24,7 +24,8 @@ type LocationPickerMapInnerProps = {
 
 export default function LocationPickerMapInner({ value, onChange }: LocationPickerMapInnerProps) {
   const center = React.useMemo<LatLngExpression>(
-    () => (value ? [value.lat, value.lng] : DEFAULT_CENTER),
+    () =>
+      value ? ([value.lat, value.lng] as LatLngExpression) : (DEFAULT_CENTER as LatLngExpression),
     [value]
   );
 
@@ -48,9 +49,7 @@ function DraggablePin({
   value: Coordinates | null;
   onChange: (coords: Coordinates) => void;
 }) {
-  const markerPosition: [number, number] = value
-    ? [value.lat, value.lng]
-    : [DEFAULT_CENTER[0] as number, DEFAULT_CENTER[1] as number];
+  const markerPosition: [number, number] = value ? [value.lat, value.lng] : DEFAULT_CENTER;
 
   useMapEvents({
     click(event) {
@@ -82,4 +81,3 @@ function DraggablePin({
 function roundCoord(value: number) {
   return Math.round(value * 1_000_000) / 1_000_000;
 }
-

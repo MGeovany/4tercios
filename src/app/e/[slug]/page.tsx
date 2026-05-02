@@ -51,7 +51,9 @@ export default async function PublicEventPage({ params }: { params: Promise<{ sl
             <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-end">
               <div>
                 <Badge className="border-white/20 bg-white/10 text-white">Galería pública</Badge>
-                <h1 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">{event.name}</h1>
+                <h1 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
+                  {event.name}
+                </h1>
                 <p className="mt-2 text-sm text-zinc-200">
                   {dateStr}
                   {event.city ? ` · ${event.city}` : ""}
@@ -61,12 +63,16 @@ export default async function PublicEventPage({ params }: { params: Promise<{ sl
               <Card className="border-white/20 bg-white/10 text-white shadow-none backdrop-blur">
                 <CardContent className="flex items-center gap-5 p-4">
                   <div className="min-w-28">
-                    <p className="text-[11px] uppercase tracking-wide text-zinc-300">Precio por foto</p>
-                    <p className="mt-1 text-base font-semibold">{formatHnl(event.price_per_photo_hnl)}</p>
+                    <p className="text-[11px] tracking-wide text-zinc-300 uppercase">
+                      Precio por foto
+                    </p>
+                    <p className="mt-1 text-base font-semibold">
+                      {formatHnl(event.price_per_photo_hnl)}
+                    </p>
                   </div>
                   <div className="h-8 w-px bg-white/20" />
                   <div className="min-w-20">
-                    <p className="text-[11px] uppercase tracking-wide text-zinc-300">Estado</p>
+                    <p className="text-[11px] tracking-wide text-zinc-300 uppercase">Estado</p>
                     <p className="mt-1 text-base font-semibold">{event.status}</p>
                   </div>
                 </CardContent>

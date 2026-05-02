@@ -283,8 +283,10 @@ function MatchCard({
       type="button"
       onClick={onToggle}
       className={cn(
-        "group relative overflow-hidden rounded-2xl border bg-white text-left transition shadow-sm",
-        selected ? "border-zinc-950 ring-2 ring-zinc-950" : "border-zinc-200/80 hover:border-zinc-300"
+        "group relative overflow-hidden rounded-2xl border bg-white text-left shadow-sm transition",
+        selected
+          ? "border-zinc-950 ring-2 ring-zinc-950"
+          : "border-zinc-200/80 hover:border-zinc-300"
       )}
     >
       <div className="relative aspect-4/3 bg-zinc-100">
@@ -302,7 +304,12 @@ function MatchCard({
         ) : null}
       </div>
       <div className="flex items-center justify-between gap-2 p-3">
-        <span className={cn("inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium", tier.className)}>
+        <span
+          className={cn(
+            "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium",
+            tier.className
+          )}
+        >
           {tier.label} · {pct}%
         </span>
         <span className="text-xs text-zinc-500">

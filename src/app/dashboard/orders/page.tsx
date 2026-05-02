@@ -7,7 +7,16 @@ import { requirePhotographer } from "@/lib/server/auth";
 import { formatHnl } from "@/lib/currency";
 import { cn } from "@/lib/utils";
 import { Topbar } from "@/components/shell/topbar";
+import { ListFilters } from "@/components/dashboard/list-filters";
 import type { OrderStatus } from "@/lib/db/types";
+
+const ORDER_STATUS_OPTIONS: { value: OrderStatus | "all"; label: string }[] = [
+  { value: "all", label: "Todas" },
+  { value: "pending", label: "Pendiente" },
+  { value: "paid", label: "Pagada" },
+  { value: "delivered", label: "Entregada" },
+  { value: "cancelled", label: "Cancelada" },
+];
 
 const ORDER_BADGE: Record<OrderStatus, string> = {
   paid: "bg-emerald-50 text-emerald-700 ring-emerald-600/10",
@@ -32,13 +41,28 @@ function formatDateTime(iso: string) {
   }).format(new Date(iso));
 }
 
-export default async function OrdersListPage() {
+export default async function OrdersListPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   await requirePhotographer();
+  const sp = await searchParams;
+  const search = typeof sp.q === "string" ? sp.q : Array.isArray(sp.q) ? sp.q[0] : "";
+  const statusParam =
+    typeof sp.status === "string" ? sp.status : Array.isArray(sp.status) ? sp.status[0] : "all";
+  const statusFilter =
+    ORDER_STATUS_OPTIONS.find((opt) => opt.value === statusParam)?.value ?? "all";
+
   const [orders, events] = await Promise.all([
-    listOrdersForPhotographer(),
+    listOrdersForPhotographer({
+      search: search ?? null,
+      status: statusFilter === "all" ? null : (statusFilter as OrderStatus),
+    }),
     listEventsForPhotographer(),
   ]);
   const eventNameById = new Map(events.map((e) => [e.id, e.name]));
+  const hasActiveFilters = (search ?? "").trim().length > 0 || statusFilter !== "all";
 
   const totals = orders.reduce(
     (acc, o) => {
@@ -51,9 +75,19 @@ export default async function OrdersListPage() {
 
   return (
     <>
-      <Topbar title="Órdenes" subtitle={`${orders.length} en total`} />
+      <Topbar
+        title="Órdenes"
+        subtitle={`${orders.length} ${hasActiveFilters ? "filtradas" : "en total"}`}
+      />
 
-      <div className="mx-auto w-full max-w-5xl px-6 py-8">
+      <div className="mx-auto w-full max-w-5xl space-y-4 px-6 py-8">
+        <ListFilters
+          searchPlaceholder="Buscar por cliente, WhatsApp o referencia…"
+          statusOptions={ORDER_STATUS_OPTIONS}
+          initialSearch={search ?? ""}
+          initialStatus={statusFilter}
+        />
+
         {orders.length > 0 ? (
           <div className="grid grid-cols-2 gap-8 border-y border-zinc-100 py-4 sm:grid-cols-4">
             <Stat label="Órdenes" value={orders.length.toLocaleString("es-HN")} />
@@ -63,10 +97,12 @@ export default async function OrdersListPage() {
           </div>
         ) : null}
 
-        <div className="mt-4 overflow-hidden rounded-xl border border-zinc-200 bg-white">
+        <div className="overflow-hidden rounded-xl border border-zinc-200 bg-white">
           {orders.length === 0 ? (
             <div className="px-6 py-16 text-center text-sm text-zinc-500">
-              Cuando tus clientes compren fotos, aparecerán aquí.
+              {hasActiveFilters
+                ? "No hay órdenes con esos filtros."
+                : "Cuando tus clientes compren fotos, aparecerán aquí."}
             </div>
           ) : (
             <ul className="divide-y divide-zinc-100">

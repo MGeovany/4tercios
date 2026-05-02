@@ -3,7 +3,13 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { DotsHorizontalIcon, ImageIcon, Pencil1Icon, TrashIcon } from "@radix-ui/react-icons";
+import {
+  DotsHorizontalIcon,
+  ImageIcon,
+  Pencil1Icon,
+  ReloadIcon,
+  TrashIcon,
+} from "@radix-ui/react-icons";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -21,11 +27,20 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-export function EventRowActions({ eventId }: { eventId: string }) {
+export function EventRowActions({
+  eventId,
+  status,
+  purgedAt,
+}: {
+  eventId: string;
+  status: string;
+  purgedAt?: string | null;
+}) {
   const router = useRouter();
   const [confirmOpen, setConfirmOpen] = React.useState(false);
   const [deleting, setDeleting] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+  const [reopening, setReopening] = React.useState(false);
 
   async function onDelete() {
     if (deleting) return;
@@ -46,6 +61,22 @@ export function EventRowActions({ eventId }: { eventId: string }) {
     }
   }
 
+  async function onReopen() {
+    if (reopening) return;
+    setReopening(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/events/id/${eventId}/reopen`, { method: "POST" });
+      const body = (await res.json().catch(() => ({}))) as { error?: string };
+      if (!res.ok) throw new Error(body.error || "No se pudo reabrir el evento");
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "No se pudo reabrir el evento");
+    } finally {
+      setReopening(false);
+    }
+  }
+
   return (
     <>
       <DropdownMenu>
@@ -61,6 +92,12 @@ export function EventRowActions({ eventId }: { eventId: string }) {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-44">
+          {status === "Archivado" && !purgedAt ? (
+            <DropdownMenuItem onClick={onReopen} disabled={reopening}>
+              <ReloadIcon />
+              {reopening ? "Reabriendo..." : "Reabrir 30 días"}
+            </DropdownMenuItem>
+          ) : null}
           <DropdownMenuItem asChild>
             <Link href={`/dashboard/events/${eventId}/gallery`}>
               <ImageIcon />
@@ -119,4 +156,3 @@ export function EventRowActions({ eventId }: { eventId: string }) {
     </>
   );
 }
-

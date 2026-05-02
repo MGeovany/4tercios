@@ -41,13 +41,21 @@ export default async function PublicEventPage({ params }: { params: Promise<{ sl
     primaryColor: event.photographers?.brand_color,
   });
   const brandFont = event.photographers?.theme_font ?? "inter";
-  const watermarkStyle = event.photographers?.watermark_style ?? "subtle";
+  const watermarkStyle = (event.photographers?.watermark_style ?? "subtle") as
+    | "none"
+    | "subtle"
+    | "bold";
   const watermarkColor = event.photographers?.watermark_color ?? "#ffffff";
   const watermarkLabel = event.photographers?.business_name || "4Tercios";
+  const watermarkFont = (event.photographers?.watermark_font ?? "sans") as
+    | "sans"
+    | "serif"
+    | "mono"
+    | "display";
 
   return (
     <div
-      className="flex min-h-full flex-col bg-background text-foreground"
+      className="bg-background text-foreground flex min-h-full flex-col"
       style={themeVars as CSSProperties}
       data-brand-font={brandFont}
     >
@@ -61,15 +69,15 @@ export default async function PublicEventPage({ params }: { params: Promise<{ sl
       </header>
 
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10 lg:px-8">
-        <section className="overflow-hidden rounded-3xl border border-border bg-card shadow-sm">
-          <div className="bg-primary px-6 py-8 text-primary-foreground sm:px-8">
+        <section className="border-border bg-card overflow-hidden rounded-3xl border shadow-sm">
+          <div className="bg-primary text-primary-foreground px-6 py-8 sm:px-8">
             <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-end">
               <div>
                 <Badge className="border-white/20 bg-white/10 text-white">Galería pública</Badge>
                 <h1 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
                   {event.name}
                 </h1>
-                <p className="mt-2 text-sm text-primary-foreground/80">
+                <p className="text-primary-foreground/80 mt-2 text-sm">
                   {dateStr}
                   {event.city ? ` · ${event.city}` : ""}
                   {event.venue ? ` · ${event.venue}` : ""}
@@ -107,9 +115,10 @@ export default async function PublicEventPage({ params }: { params: Promise<{ sl
             pricePerPhotoHnl={event.price_per_photo_hnl}
             whatsapp={event.whatsapp ?? ""}
             eventName={event.name}
-            watermarkStyle={watermarkStyle as "none" | "subtle" | "bold"}
+            watermarkStyle={watermarkStyle}
             watermarkColor={watermarkColor}
             watermarkLabel={watermarkLabel}
+            watermarkFont={watermarkFont}
           />
         </div>
 

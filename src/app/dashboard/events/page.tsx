@@ -6,8 +6,19 @@ import { requirePhotographer } from "@/lib/server/auth";
 import { cn } from "@/lib/utils";
 import { Topbar } from "@/components/shell/topbar";
 import { Button } from "@/components/ui/button";
+import { ListFilters } from "@/components/dashboard/list-filters";
 import type { EventStatus } from "@/lib/db/types";
 import { EventRowActions } from "./event-row-actions";
+
+const EVENT_STATUS_OPTIONS: { value: EventStatus | "all"; label: string }[] = [
+  { value: "all", label: "Todos" },
+  { value: "Borrador", label: "Borrador" },
+  { value: "Subiendo", label: "Subiendo" },
+  { value: "Procesando", label: "Procesando" },
+  { value: "Listo", label: "Listo" },
+  { value: "Con errores", label: "Con errores" },
+  { value: "Archivado", label: "Archivado" },
+];
 
 const STATUS_DOT: Record<EventStatus, string> = {
   Listo: "bg-emerald-500",
@@ -30,15 +41,29 @@ function formatDate(iso: string) {
   }).format(new Date(`${iso}T00:00:00`));
 }
 
-export default async function EventsListPage() {
+export default async function EventsListPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   await requirePhotographer();
-  const events = await listEventsForPhotographer();
+  const sp = await searchParams;
+  const search = typeof sp.q === "string" ? sp.q : Array.isArray(sp.q) ? sp.q[0] : "";
+  const statusParam =
+    typeof sp.status === "string" ? sp.status : Array.isArray(sp.status) ? sp.status[0] : "all";
+  const statusFilter =
+    EVENT_STATUS_OPTIONS.find((opt) => opt.value === statusParam)?.value ?? "all";
+  const events = await listEventsForPhotographer({
+    search: search ?? null,
+    status: statusFilter === "all" ? null : (statusFilter as EventStatus),
+  });
+  const hasActiveFilters = (search ?? "").trim().length > 0 || statusFilter !== "all";
 
   return (
     <>
       <Topbar
         title="Eventos"
-        subtitle={`${events.length} en total`}
+        subtitle={`${events.length} ${hasActiveFilters ? "filtrados" : "en total"}`}
         right={
           <Button size="sm" asChild>
             <Link href="/dashboard/events/new">
@@ -48,14 +73,25 @@ export default async function EventsListPage() {
         }
       />
 
-      <div className="mx-auto w-full max-w-5xl px-6 py-8">
+      <div className="mx-auto w-full max-w-5xl space-y-4 px-6 py-8">
+        <ListFilters
+          searchPlaceholder="Buscar por nombre, ciudad, lugar o slug…"
+          statusOptions={EVENT_STATUS_OPTIONS}
+          initialSearch={search ?? ""}
+          initialStatus={statusFilter}
+        />
+
         <div className="overflow-hidden rounded-xl border border-zinc-200 bg-white">
           {events.length === 0 ? (
             <div className="flex flex-col items-center justify-center gap-3 px-6 py-16 text-center">
-              <p className="text-sm text-zinc-700">Aún no tienes eventos.</p>
-              <Button size="sm" asChild>
-                <Link href="/dashboard/events/new">Crear mi primer evento</Link>
-              </Button>
+              <p className="text-sm text-zinc-700">
+                {hasActiveFilters ? "No hay eventos con esos filtros." : "Aún no tienes eventos."}
+              </p>
+              {!hasActiveFilters ? (
+                <Button size="sm" asChild>
+                  <Link href="/dashboard/events/new">Crear mi primer evento</Link>
+                </Button>
+              ) : null}
             </div>
           ) : (
             <ul className="divide-y divide-zinc-100">
@@ -98,7 +134,11 @@ export default async function EventsListPage() {
                     >
                       <ExternalLinkIcon className="size-4" />
                     </Link>
-                    <EventRowActions eventId={event.id} />
+                    <EventRowActions
+                      eventId={event.id}
+                      status={event.status}
+                      purgedAt={(event as { purged_at?: string | null }).purged_at ?? null}
+                    />
                   </div>
                 </li>
               ))}

@@ -41,12 +41,7 @@ export function WatermarkOverlay({
           fontSize={isPreview ? 22 : 14}
           spacing={isPreview ? 240 : 180}
         />
-        <SignatureCorner
-          label={label}
-          color={color}
-          fontFamily={fontFamily}
-          large={isPreview}
-        />
+        <SignatureCorner label={label} color={color} fontFamily={fontFamily} large={isPreview} />
       </>
     );
   }
@@ -61,18 +56,8 @@ export function WatermarkOverlay({
         fontSize={isPreview ? 28 : 18}
         spacing={isPreview ? 180 : 140}
       />
-      <CenterStamp
-        label={label}
-        color={color}
-        fontFamily={fontFamily}
-        large={isPreview}
-      />
-      <SignatureCorner
-        label={label}
-        color={color}
-        fontFamily={fontFamily}
-        large={isPreview}
-      />
+      <CenterStamp label={label} color={color} fontFamily={fontFamily} large={isPreview} />
+      <SignatureCorner label={label} color={color} fontFamily={fontFamily} large={isPreview} />
     </>
   );
 }
@@ -134,10 +119,7 @@ function SignatureCorner({
         style={{ backgroundColor: color, opacity: 0.65 }}
       />
       <span
-        className={cn(
-          "tracking-[0.18em] uppercase",
-          large ? "text-[12px]" : "text-[9px]"
-        )}
+        className={cn("tracking-[0.18em] uppercase", large ? "text-[12px]" : "text-[9px]")}
         style={{
           color,
           fontFamily,

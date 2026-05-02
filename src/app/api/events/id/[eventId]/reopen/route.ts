@@ -1,9 +1,9 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 import { requirePhotographer } from "@/lib/server/auth";
-import { deleteEvent } from "@/lib/server/events";
+import { reopenEvent } from "@/lib/server/events";
 
-export async function DELETE(_request: NextRequest, ctx: { params: Promise<{ eventId: string }> }) {
+export async function POST(_request: NextRequest, ctx: { params: Promise<{ eventId: string }> }) {
   const { eventId } = await ctx.params;
   if (!eventId) {
     return NextResponse.json({ error: "eventId is required" }, { status: 400 });
@@ -11,8 +11,8 @@ export async function DELETE(_request: NextRequest, ctx: { params: Promise<{ eve
 
   try {
     await requirePhotographer();
-    await deleteEvent(eventId);
-    return NextResponse.json({ ok: true });
+    const res = await reopenEvent(eventId);
+    return NextResponse.json({ ok: true, ...res });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error";
     return NextResponse.json({ error: message }, { status: 400 });

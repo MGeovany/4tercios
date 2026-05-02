@@ -16,6 +16,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { DeletePhotoButton } from "./delete-photo-button";
+import { RetryPhotoButton } from "./retry-photo-button";
 
 type PhotosListActionsProps = {
   photos: PhotoRow[];
@@ -155,6 +156,7 @@ export function PhotosListActions({ photos, previewUrls }: PhotosListActionsProp
               >
                 {labelForStatus(p.status)}
               </Badge>
+              {p.status === "error" ? <RetryPhotoButton photoId={p.id} /> : null}
               <DeletePhotoButton photoId={p.id} />
             </div>
           </li>

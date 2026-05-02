@@ -280,14 +280,28 @@ async function uploadOriginalWithSignedUrl(
   token: string
 ) {
   if (!token) return { message: "Missing signed upload token" } as { message: string };
-  const uploaded = await supabase.storage
-    .from(STORAGE_BUCKETS.originals)
-    .uploadToSignedUrl(path, token, file, {
-      contentType: file.type || "image/jpeg",
-      cacheControl: "31536000",
-      upsert: false,
-    });
-  return uploaded.error ?? null;
+
+  const maxAttempts = 3;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    const uploaded = await supabase.storage
+      .from(STORAGE_BUCKETS.originals)
+      .uploadToSignedUrl(path, token, file, {
+        contentType: file.type || "image/jpeg",
+        cacheControl: "31536000",
+        upsert: false,
+      });
+
+    if (!uploaded.error) return null;
+
+    const status = (uploaded.error as unknown as { statusCode?: number }).statusCode;
+    const transient =
+      status != null ? status >= 500 : /timeout|network|fetch/i.test(uploaded.error.message);
+    if (!transient || attempt === maxAttempts) return uploaded.error;
+
+    await new Promise((r) => setTimeout(r, 500 * attempt * attempt));
+  }
+
+  return { message: "Upload failed" } as { message: string };
 }
 
 function stageLabel(stage: UploadStage) {

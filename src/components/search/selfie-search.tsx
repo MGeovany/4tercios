@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowRightIcon, CheckIcon } from "@radix-ui/react-icons";
 
@@ -11,7 +12,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import { formatHnl } from "@/lib/currency";
-import { type WatermarkStyle } from "@/lib/branding";
+import { type WatermarkFontId, type WatermarkStyle } from "@/lib/branding";
+import { WatermarkOverlay } from "@/components/photo/watermark-overlay";
 
 type Match = {
   photoId: string;
@@ -37,6 +39,7 @@ export function SelfieSearch({
   watermarkStyle = "subtle",
   watermarkColor = "#ffffff",
   watermarkLabel = "4Tercios",
+  watermarkFont = "sans",
 }: {
   slug: string;
   pricePerPhotoHnl: number;
@@ -45,6 +48,7 @@ export function SelfieSearch({
   watermarkStyle?: WatermarkStyle;
   watermarkColor?: string;
   watermarkLabel?: string;
+  watermarkFont?: WatermarkFontId;
 }) {
   const [selfie, setSelfie] = React.useState<SelfieResult | null>(null);
   const [phase, setPhase] = React.useState<Phase>("idle");
@@ -116,6 +120,8 @@ export function SelfieSearch({
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="overflow-hidden rounded-3xl border border-zinc-200 bg-black">
+                {/* Selfie preview is a local blob URL; keep <img> to avoid Next Image constraints. */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={selfie.previewUrl}
                   alt="Selfie"
@@ -172,12 +178,7 @@ export function SelfieSearch({
               <div className="rounded-2xl border border-zinc-200/80 bg-zinc-50/70 p-4">
                 <div className="mb-2 flex items-center justify-between gap-2">
                   <Badge variant="success">Paso 2 · Coincidencias</Badge>
-                  <p className="text-xs text-zinc-500">
-                    Watermark:{" "}
-                    <span className="font-medium" style={{ color: watermarkColor }}>
-                      {watermarkStyle}
-                    </span>
-                  </p>
+                  <p className="text-xs text-zinc-500">Selecciona tus fotos favoritas</p>
                 </div>
                 <p className="text-sm text-zinc-700">
                   Encontramos <strong>{result.matches.length}</strong> foto
@@ -197,7 +198,9 @@ export function SelfieSearch({
                     selected={!!selected[m.photoId]}
                     onToggle={() => setSelected((s) => ({ ...s, [m.photoId]: !s[m.photoId] }))}
                     watermarkStyle={watermarkStyle}
+                    watermarkColor={watermarkColor}
                     watermarkLabel={watermarkLabel}
+                    watermarkFont={watermarkFont}
                   />
                 ))}
               </div>
@@ -280,13 +283,17 @@ function MatchCard({
   selected,
   onToggle,
   watermarkStyle,
+  watermarkColor,
   watermarkLabel,
+  watermarkFont,
 }: {
   match: Match;
   selected: boolean;
   onToggle: () => void;
   watermarkStyle: WatermarkStyle;
+  watermarkColor: string;
   watermarkLabel: string;
+  watermarkFont: WatermarkFontId;
 }) {
   const pct = Math.round(match.score * 100);
   const tier =
@@ -308,23 +315,19 @@ function MatchCard({
       )}
     >
       <div className="relative aspect-4/3 bg-zinc-100">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        <Image
           src={match.thumbUrl}
           alt="Foto del evento"
-          loading="lazy"
-          className="h-full w-full object-cover"
+          fill
+          sizes="(min-width: 1280px) 33vw, (min-width: 640px) 50vw, 100vw"
+          className="object-cover"
         />
-        {watermarkStyle !== "none" ? (
-          <span
-            className={cn(
-              "pointer-events-none absolute rounded-full border border-white/30 bg-black/45 px-2 py-0.5 text-[10px] text-white/90 backdrop-blur",
-              watermarkStyle === "bold" ? "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" : "right-2 bottom-2"
-            )}
-          >
-            {watermarkLabel}
-          </span>
-        ) : null}
+        <WatermarkOverlay
+          label={watermarkLabel}
+          style={watermarkStyle}
+          color={watermarkColor}
+          font={watermarkFont}
+        />
         {selected ? (
           <span className="absolute top-2 right-2 grid h-7 w-7 place-items-center rounded-full bg-zinc-950 text-white">
             <CheckIcon />

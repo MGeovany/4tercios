@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
 import { ArrowRightIcon, CheckIcon } from "@radix-ui/react-icons";
 
 import { Badge } from "@/components/ui/badge";
@@ -9,7 +10,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { formatHnl } from "@/lib/currency";
-import { type WatermarkStyle } from "@/lib/branding";
+import { type WatermarkFontId, type WatermarkStyle } from "@/lib/branding";
+import { WatermarkOverlay } from "@/components/photo/watermark-overlay";
 
 export type GalleryPhoto = {
   photoId: string;
@@ -26,6 +28,7 @@ type Props = {
   watermarkStyle?: WatermarkStyle;
   watermarkColor?: string;
   watermarkLabel?: string;
+  watermarkFont?: WatermarkFontId;
 };
 
 type ViewFilter = "all" | "withFaces" | "selected";
@@ -38,6 +41,7 @@ export function GalleryClient({
   watermarkStyle = "subtle",
   watermarkColor = "#ffffff",
   watermarkLabel = "4Tercios",
+  watermarkFont = "sans",
 }: Props) {
   const [selected, setSelected] = React.useState<Record<string, boolean>>({});
   const [name, setName] = React.useState("");
@@ -157,6 +161,7 @@ export function GalleryClient({
               watermarkStyle={watermarkStyle}
               watermarkColor={watermarkColor}
               watermarkLabel={watermarkLabel}
+              watermarkFont={watermarkFont}
             />
           ))}
         </div>
@@ -255,6 +260,10 @@ export function GalleryClient({
           selected={!!selected[previewPhoto.photoId]}
           onToggle={() => toggle(previewPhoto.photoId)}
           pricePerPhotoHnl={pricePerPhotoHnl}
+          watermarkStyle={watermarkStyle}
+          watermarkColor={watermarkColor}
+          watermarkLabel={watermarkLabel}
+          watermarkFont={watermarkFont}
         />
       ) : null}
     </div>
@@ -299,6 +308,7 @@ function PhotoTile({
   watermarkStyle,
   watermarkColor,
   watermarkLabel,
+  watermarkFont,
 }: {
   photo: GalleryPhoto;
   selected: boolean;
@@ -308,6 +318,7 @@ function PhotoTile({
   watermarkStyle: WatermarkStyle;
   watermarkColor: string;
   watermarkLabel: string;
+  watermarkFont: WatermarkFontId;
 }) {
   return (
     <div
@@ -324,24 +335,19 @@ function PhotoTile({
         className="relative block aspect-4/3 w-full overflow-hidden bg-zinc-100"
         aria-label="Ver foto en grande"
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        <Image
           src={photo.thumbUrl}
           alt="Foto"
-          loading="lazy"
-          className="h-full w-full object-cover transition group-hover:scale-105"
+          fill
+          sizes="(min-width: 1280px) 25vw, (min-width: 640px) 33vw, 50vw"
+          className="object-cover transition group-hover:scale-105"
         />
-        {watermarkStyle !== "none" ? (
-          <span
-            className={cn(
-              "pointer-events-none absolute rounded-full border border-white/30 bg-black/45 px-2 py-0.5 text-[10px] backdrop-blur",
-              watermarkStyle === "bold" ? "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" : "right-2 bottom-2"
-            )}
-            style={{ color: watermarkColor }}
-          >
-            {watermarkLabel}
-          </span>
-        ) : null}
+        <WatermarkOverlay
+          label={watermarkLabel}
+          style={watermarkStyle}
+          color={watermarkColor}
+          font={watermarkFont}
+        />
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-linear-to-t from-black/35 to-transparent opacity-0 transition group-hover:opacity-100" />
         {selected ? (
           <span className="absolute top-2 right-2 grid h-7 w-7 place-items-center rounded-full bg-zinc-950 text-white shadow">
@@ -375,12 +381,20 @@ function PreviewLightbox({
   selected,
   onToggle,
   pricePerPhotoHnl,
+  watermarkStyle,
+  watermarkColor,
+  watermarkLabel,
+  watermarkFont,
 }: {
   photo: GalleryPhoto;
   onClose: () => void;
   selected: boolean;
   onToggle: () => void;
   pricePerPhotoHnl: number;
+  watermarkStyle: WatermarkStyle;
+  watermarkColor: string;
+  watermarkLabel: string;
+  watermarkFont: WatermarkFontId;
 }) {
   React.useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -403,9 +417,21 @@ function PreviewLightbox({
         className="relative w-full max-w-4xl overflow-hidden rounded-3xl bg-zinc-950 shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="relative aspect-4/3 bg-black">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={photo.thumbUrl} alt="Vista previa" className="h-full w-full object-contain" />
+        <div className="relative aspect-4/3 bg-zinc-950">
+          <Image
+            src={photo.thumbUrl}
+            alt="Vista previa"
+            fill
+            sizes="(min-width: 1024px) 900px, 100vw"
+            className="object-contain"
+          />
+          <WatermarkOverlay
+            label={watermarkLabel}
+            style={watermarkStyle}
+            color={watermarkColor}
+            font={watermarkFont}
+            density="preview"
+          />
         </div>
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/10 bg-zinc-950/95 p-4 text-white">
           <div>

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { CSSProperties } from "react";
 import { ArrowLeftIcon } from "@radix-ui/react-icons";
 
 import { Brand } from "@/components/brand";
@@ -6,7 +7,8 @@ import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { GalleryClient, type GalleryPhoto } from "@/components/search/gallery-client";
-import { getPublicEventBySlug } from "@/lib/server/events";
+import { buildThemeCssVars } from "@/lib/branding";
+import { getPublicEventPresentationBySlug } from "@/lib/server/events";
 import { getSupabaseServiceClient } from "@/lib/supabase/server";
 import { thumbPublicUrl } from "@/lib/storage/paths";
 import { getSupabaseEnv } from "@/lib/supabase/env";
@@ -18,9 +20,18 @@ const DATE_FORMATTER = new Intl.DateTimeFormat("es-HN", {
   day: "numeric",
 });
 
-export default async function ResultsPage({ params }: { params: Promise<{ slug: string }> }) {
+const PAGE_SIZE = 60;
+
+export default async function ResultsPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const { slug } = await params;
-  const event = await getPublicEventBySlug(slug);
+  const sp = await searchParams;
+  const event = await getPublicEventPresentationBySlug(slug);
 
   if (!event) {
     return (
@@ -37,15 +48,20 @@ export default async function ResultsPage({ params }: { params: Promise<{ slug: 
     );
   }
 
+  const pageRaw = typeof sp.page === "string" ? sp.page : Array.isArray(sp.page) ? sp.page[0] : "1";
+  const pageNum = Math.max(1, Number.parseInt(pageRaw ?? "1", 10) || 1);
+  const from = (pageNum - 1) * PAGE_SIZE;
+  const to = from + PAGE_SIZE - 1;
+
   const admin = getSupabaseServiceClient();
   const env = getSupabaseEnv();
-  const { data: photos } = await admin
+  const { data: photos, count: totalReady } = await admin
     .from("photos")
-    .select("id, thumb_path, faces_count")
+    .select("id, thumb_path, faces_count", { count: "exact" })
     .eq("event_id", event.id)
     .eq("status", "ready")
     .order("created_at", { ascending: false })
-    .limit(120);
+    .range(from, to);
 
   const gallery: GalleryPhoto[] = (photos ?? [])
     .filter((p) => p.thumb_path)
@@ -55,11 +71,35 @@ export default async function ResultsPage({ params }: { params: Promise<{ slug: 
       thumbUrl: thumbPublicUrl(env.url, p.thumb_path as string),
     }));
 
+  const totalPhotos = totalReady ?? gallery.length;
+  const totalPages = Math.max(1, Math.ceil(totalPhotos / PAGE_SIZE));
+  const currentPage = Math.min(pageNum, totalPages);
+
   const dateStr = DATE_FORMATTER.format(new Date(`${event.date}T00:00:00`));
   const totalFaces = gallery.reduce((acc, p) => acc + p.facesCount, 0);
+  const themeVars = buildThemeCssVars({
+    paletteId: event.photographers?.theme_palette,
+    primaryColor: event.photographers?.brand_color,
+  });
+  const brandFont = event.photographers?.theme_font ?? "inter";
+  const watermarkStyle = (event.photographers?.watermark_style ?? "subtle") as
+    | "none"
+    | "subtle"
+    | "bold";
+  const watermarkColor = event.photographers?.watermark_color ?? "#ffffff";
+  const watermarkLabel = event.photographers?.business_name || "4Tercios";
+  const watermarkFont = (event.photographers?.watermark_font ?? "sans") as
+    | "sans"
+    | "serif"
+    | "mono"
+    | "display";
 
   return (
-    <div className="flex min-h-full flex-col bg-zinc-50">
+    <div
+      className="bg-background text-foreground flex min-h-full flex-col"
+      style={themeVars as CSSProperties}
+      data-brand-font={brandFont}
+    >
       <header className="sticky top-0 z-30 border-b border-zinc-200/80 bg-white/85 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 lg:px-8">
           <div className="flex items-center gap-3">
@@ -70,7 +110,6 @@ export default async function ResultsPage({ params }: { params: Promise<{ slug: 
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Badge variant="info">Watermark</Badge>
             <Button asChild variant="secondary">
               <Link href={`/e/${event.slug}`}>
                 <ArrowLeftIcon /> Buscar con selfie
@@ -81,8 +120,8 @@ export default async function ResultsPage({ params }: { params: Promise<{ slug: 
       </header>
 
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8 lg:px-8">
-        <section className="overflow-hidden rounded-3xl border border-zinc-200 bg-white shadow-sm">
-          <div className="relative bg-linear-to-br from-zinc-950 via-zinc-900 to-zinc-800 px-6 py-8 text-white sm:px-8">
+        <section className="border-border bg-card overflow-hidden rounded-3xl border shadow-sm">
+          <div className="bg-primary text-primary-foreground relative px-6 py-8 sm:px-8">
             <div
               aria-hidden
               className="pointer-events-none absolute inset-0 opacity-30"
@@ -97,18 +136,18 @@ export default async function ResultsPage({ params }: { params: Promise<{ slug: 
                 <h1 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
                   {event.name}
                 </h1>
-                <p className="mt-2 text-sm text-zinc-200">
+                <p className="text-primary-foreground/80 mt-2 text-sm">
                   {dateStr}
                   {event.city ? ` · ${event.city}` : ""}
                   {event.venue ? ` · ${event.venue}` : ""}
                 </p>
-                <p className="mt-1 text-xs text-zinc-300">
+                <p className="text-primary-foreground/75 mt-1 text-xs">
                   Selecciona las fotos que quieras comprar o solicita por WhatsApp.
                 </p>
               </div>
 
               <div className="grid w-full gap-3 sm:grid-cols-3 lg:w-auto">
-                <KpiTile label="Fotos" value={gallery.length.toString()} />
+                <KpiTile label="Fotos" value={totalPhotos.toLocaleString("es-HN")} />
                 <KpiTile label="Rostros" value={totalFaces.toLocaleString("es-HN")} />
                 <KpiTile label="Precio / foto" value={formatHnl(event.price_per_photo_hnl)} />
               </div>
@@ -135,13 +174,28 @@ export default async function ResultsPage({ params }: { params: Promise<{ slug: 
               </div>
             </div>
           ) : (
-            <GalleryClient
-              photos={gallery}
-              eventSlug={event.slug}
-              eventName={event.name}
-              pricePerPhotoHnl={event.price_per_photo_hnl}
-              whatsapp={event.whatsapp ?? ""}
-            />
+            <>
+              <GalleryClient
+                photos={gallery}
+                eventSlug={event.slug}
+                eventName={event.name}
+                pricePerPhotoHnl={event.price_per_photo_hnl}
+                whatsapp={event.whatsapp ?? ""}
+                watermarkStyle={watermarkStyle}
+                watermarkColor={watermarkColor}
+                watermarkLabel={watermarkLabel}
+                watermarkFont={watermarkFont}
+              />
+              {totalPages > 1 ? (
+                <Pagination
+                  slug={event.slug}
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  totalPhotos={totalPhotos}
+                  pageSize={PAGE_SIZE}
+                />
+              ) : null}
+            </>
           )}
         </div>
       </main>
@@ -157,5 +211,63 @@ function KpiTile({ label, value }: { label: string; value: string }) {
       <p className="text-[11px] tracking-wide text-zinc-300 uppercase">{label}</p>
       <p className="mt-1 text-base font-semibold text-white tabular-nums">{value}</p>
     </div>
+  );
+}
+
+function Pagination({
+  slug,
+  currentPage,
+  totalPages,
+  totalPhotos,
+  pageSize,
+}: {
+  slug: string;
+  currentPage: number;
+  totalPages: number;
+  totalPhotos: number;
+  pageSize: number;
+}) {
+  const start = (currentPage - 1) * pageSize + 1;
+  const end = Math.min(totalPhotos, currentPage * pageSize);
+  const prev = currentPage > 1 ? `/e/${slug}/results?page=${currentPage - 1}` : null;
+  const next = currentPage < totalPages ? `/e/${slug}/results?page=${currentPage + 1}` : null;
+
+  return (
+    <nav
+      aria-label="Paginación"
+      className="mt-8 flex flex-col items-center justify-between gap-3 border-t border-zinc-200 pt-6 sm:flex-row"
+    >
+      <p className="text-xs text-zinc-600">
+        Mostrando{" "}
+        <span className="font-medium text-zinc-900">
+          {start}–{end}
+        </span>{" "}
+        de <span className="font-medium text-zinc-900">{totalPhotos.toLocaleString("es-HN")}</span>{" "}
+        fotos
+      </p>
+      <div className="flex items-center gap-2">
+        {prev ? (
+          <Button asChild variant="secondary" size="sm">
+            <Link href={prev}>← Anterior</Link>
+          </Button>
+        ) : (
+          <Button variant="secondary" size="sm" disabled>
+            ← Anterior
+          </Button>
+        )}
+        <span className="text-xs text-zinc-600">
+          Página {currentPage} / {totalPages}
+        </span>
+        {next ? (
+          <Button asChild variant="secondary" size="sm">
+            <Link href={next}>Siguiente →</Link>
+          </Button>
+        ) : (
+          <Button variant="secondary" size="sm" disabled>
+            Siguiente →
+          </Button>
+        )}
+      </div>
+    </nav>
   );
 }

@@ -17,6 +17,7 @@ import { PhotosListActions } from "./photos-list-actions";
 import { publishEventAction, saveEventAsDraftAction } from "./actions";
 import { PublishEventButton, SaveDraftButton } from "./publish-buttons";
 import { EventManageActions } from "./event-manage-actions";
+import { ReprocessFailedButton } from "./reprocess-failed-button";
 
 export default async function UploadPage({ params }: { params: Promise<{ eventId: string }> }) {
   const { eventId } = await params;
@@ -82,8 +83,15 @@ export default async function UploadPage({ params }: { params: Promise<{ eventId
             </Card>
 
             <Card>
-              <CardHeader>
+              <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Últimas fotos procesadas</CardTitle>
+                {photos.length > 0 ? (
+                  <Button asChild size="sm" variant="ghost">
+                    <Link href={`/dashboard/events/${event.id}/gallery`}>
+                      Ver galería completa ({photos.length})
+                    </Link>
+                  </Button>
+                ) : null}
               </CardHeader>
               <CardContent>
                 {photos.length === 0 ? (
@@ -138,6 +146,7 @@ export default async function UploadPage({ params }: { params: Promise<{ eventId
                   <form action={saveEventAsDraftAction.bind(null, event.id)}>
                     <SaveDraftButton disabled={!isPublished} />
                   </form>
+                  <ReprocessFailedButton eventId={event.id} failedCount={totals.errors} />
                   <div className="border-t border-zinc-100 pt-2">
                     <EventManageActions eventId={event.id} />
                   </div>

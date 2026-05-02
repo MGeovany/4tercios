@@ -38,11 +38,11 @@ Plataforma para fotógrafos de eventos en Honduras. Subes fotos, la IA detecta r
 
 ## Reconocimiento facial — opciones
 
-| Provider          | Cuándo                                                                   | Cómo activarlo                                                                                  |
-| ----------------- | ------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------- |
-| `local` (default) | MVP y producción de bajo volumen. CPU del server, ~150-300ms por foto.   | No requiere config. O `TERCIOS_FACE_PROVIDER=local`.                                             |
-| `replicate`       | Volumen alto (>1000 fotos/min) o quieres GPU.                            | `TERCIOS_FACE_PROVIDER=replicate`, `REPLICATE_API_TOKEN`, `REPLICATE_FACE_MODEL=<owner>/<name>`. |
-| `mock`            | Tests y dev sin descargar modelos. Embeddings deterministas pero falsos. | `TERCIOS_FACE_PROVIDER=mock`.                                                                    |
+| Provider          | Cuándo                                                                   | Cómo activarlo                                                                           |
+| ----------------- | ------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
+| `local` (default) | MVP y producción de bajo volumen. CPU del server, ~150-300ms por foto.   | No requiere config. O `FACE_PROVIDER=local`.                                             |
+| `replicate`       | Volumen alto (>1000 fotos/min) o quieres GPU.                            | `FACE_PROVIDER=replicate`, `REPLICATE_API_TOKEN`, `REPLICATE_FACE_MODEL=<owner>/<name>`. |
+| `mock`            | Tests y dev sin descargar modelos. Embeddings deterministas pero falsos. | `FACE_PROVIDER=mock`.                                                                    |
 
 El embedding es siempre de 512 dimensiones (compatible con la columna `vector(512)` en pgvector). Modelos de menor dimensión se padean con ceros, conservando la similitud coseno.
 

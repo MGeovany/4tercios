@@ -166,18 +166,28 @@ export function OnboardingClient() {
     stepToSave: OnboardingStepId
   ) {
     const supabase = getSupabaseBrowserClient();
+    const businessName = payload.business.businessName.trim();
+    const phone = payload.contact.phone.trim();
+    const country = payload.payments.country.trim();
+    const method = payload.payments.method.trim();
+    const brandColor = payload.brand.primaryColor;
+
+    const { data: userRes, error: userErr } = await supabase.auth.getUser();
+    if (userErr) throw userErr;
+    if (!userRes.user) throw new Error("No encontramos tu sesión.");
+
     const { error: updErr } = await supabase.auth.updateUser({
       data: {
-        business_name: payload.business.businessName.trim(),
+        business_name: businessName,
         photography_types: payload.business.photographyTypes,
         bio: payload.business.bio.trim(),
-        phone: payload.contact.phone.trim(),
+        phone,
         website: payload.contact.website.trim(),
         instagram: payload.contact.instagram.trim(),
-        brand_color: payload.brand.primaryColor,
+        brand_color: brandColor,
         welcome_message: payload.brand.welcomeMessage.trim(),
-        payments_country: payload.payments.country,
-        payments_method: payload.payments.method,
+        payments_country: country,
+        payments_method: method,
         notif_sales: payload.notifications.sales,
         notif_matches: payload.notifications.matches,
         notif_weekly_digest: payload.notifications.weeklyDigest,
@@ -187,6 +197,39 @@ export function OnboardingClient() {
     });
 
     if (updErr) throw updErr;
+
+    // Persist canonical photographer record so server/public pages don't depend on auth metadata.
+    // Try the full payload first; fall back if optional columns aren't deployed yet.
+    const fullPatch: Record<string, unknown> = {
+      id: userRes.user.id,
+      business_name: businessName || "Fotógrafo",
+      whatsapp: phone || null,
+      brand_color: brandColor || "#18181b",
+      payout_country: country || null,
+      payout_method: method || null,
+    };
+
+    const { error: photographerErr } = await supabase
+      .from("photographers")
+      .upsert(fullPatch, { onConflict: "id" });
+
+    if (photographerErr) {
+      const code = (photographerErr as { code?: string }).code;
+      if (code === "PGRST204") {
+        const { error: minimalErr } = await supabase.from("photographers").upsert(
+          {
+            id: userRes.user.id,
+            business_name: businessName || "Fotógrafo",
+            whatsapp: phone || null,
+            brand_color: brandColor || "#18181b",
+          },
+          { onConflict: "id" }
+        );
+        if (minimalErr) throw minimalErr;
+      } else {
+        throw photographerErr;
+      }
+    }
   }
 
   async function goNext() {

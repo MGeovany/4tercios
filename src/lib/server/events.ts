@@ -1,14 +1,33 @@
 import "server-only";
 
-import { getSupabaseServerClient } from "@/lib/supabase/server";
+import { getSupabaseServerClient, getSupabaseServiceClient } from "@/lib/supabase/server";
+import { STORAGE_BUCKETS } from "@/lib/storage/paths";
 import type { EventRow, EventStatus, EventType } from "@/lib/db/types";
 
-export async function listEventsForPhotographer(): Promise<EventRow[]> {
+export type ListEventsFilters = {
+  search?: string | null;
+  status?: EventStatus | "all" | null;
+};
+
+export async function listEventsForPhotographer(
+  filters: ListEventsFilters = {}
+): Promise<EventRow[]> {
   const supabase = await getSupabaseServerClient();
-  const { data, error } = await supabase
-    .from("events")
-    .select("*")
-    .order("created_at", { ascending: false });
+  let query = supabase.from("events").select("*").order("created_at", { ascending: false });
+
+  if (filters.status && filters.status !== "all") {
+    query = query.eq("status", filters.status);
+  }
+
+  const search = filters.search?.trim();
+  if (search) {
+    const escaped = search.replace(/[\\%_,]/g, (m) => `\\${m}`);
+    query = query.or(
+      `name.ilike.%${escaped}%,city.ilike.%${escaped}%,venue.ilike.%${escaped}%,slug.ilike.%${escaped}%`
+    );
+  }
+
+  const { data, error } = await query;
   if (error) throw error;
   return data as EventRow[];
 }
@@ -29,6 +48,52 @@ export async function getPublicEventBySlug(slug: string): Promise<EventRow | nul
     .in("status", ["Procesando", "Listo"])
     .maybeSingle();
   return (data as EventRow | null) ?? null;
+}
+
+export type PublicEventPresentation = EventRow & {
+  photographers: {
+    business_name: string;
+    brand_color: string | null;
+    theme_palette: string | null;
+    theme_font: string | null;
+    watermark_style: string | null;
+    watermark_color: string | null;
+    watermark_font: string | null;
+  } | null;
+};
+
+export async function getPublicEventPresentationBySlug(
+  slug: string
+): Promise<PublicEventPresentation | null> {
+  const supabase = await getSupabaseServerClient();
+
+  const fullSelect =
+    "*, photographers!events_photographer_id_fkey(business_name, brand_color, theme_palette, theme_font, watermark_style, watermark_color, watermark_font)";
+  const minimalSelect = "*, photographers!events_photographer_id_fkey(business_name, brand_color)";
+
+  const primary = await supabase
+    .from("events")
+    .select(fullSelect)
+    .eq("slug", slug)
+    .eq("is_public", true)
+    .in("status", ["Procesando", "Listo"])
+    .maybeSingle();
+
+  let data = primary.data;
+
+  // Fallback when the branding migration hasn't been applied yet.
+  if (primary.error && (primary.error as { code?: string }).code === "PGRST204") {
+    const fallback = await supabase
+      .from("events")
+      .select(minimalSelect)
+      .eq("slug", slug)
+      .eq("is_public", true)
+      .in("status", ["Procesando", "Listo"])
+      .maybeSingle();
+    data = fallback.data;
+  }
+
+  return (data as PublicEventPresentation | null) ?? null;
 }
 
 export type CreateEventInput = {
@@ -119,8 +184,60 @@ export async function updateEvent(id: string, patch: UpdateEventInput) {
 
 export async function deleteEvent(id: string) {
   const supabase = await getSupabaseServerClient();
+  const admin = getSupabaseServiceClient();
+
+  // Fetch storage paths before deleting the event row (which cascades photos).
+  const { data: photos, error: photosError } = await supabase
+    .from("photos")
+    .select("storage_path, thumb_path")
+    .eq("event_id", id)
+    .limit(2000);
+  if (photosError) throw photosError;
+
+  const originals = (photos ?? [])
+    .map((p) => p.storage_path as string | null)
+    .filter((v): v is string => typeof v === "string" && v.length > 0);
+  const thumbs = (photos ?? [])
+    .map((p) => p.thumb_path as string | null)
+    .filter((v): v is string => typeof v === "string" && v.length > 0);
+
   const { error } = await supabase.from("events").delete().eq("id", id);
   if (error) throw error;
+
+  // Best-effort storage cleanup.
+  if (originals.length > 0) {
+    const res = await admin.storage.from(STORAGE_BUCKETS.originals).remove(originals);
+    if (res.error) console.warn("Failed deleting originals:", res.error.message);
+  }
+  if (thumbs.length > 0) {
+    const res = await admin.storage.from(STORAGE_BUCKETS.thumbs).remove(thumbs);
+    if (res.error) console.warn("Failed deleting thumbs:", res.error.message);
+  }
+}
+
+export async function reopenEvent(eventId: string) {
+  const supabase = await getSupabaseServerClient();
+  const { data: event, error } = await supabase
+    .from("events")
+    .select("id, status, online_days, purged_at")
+    .eq("id", eventId)
+    .maybeSingle();
+  if (error) throw error;
+  if (!event) throw new Error("Event not found");
+  if ((event as { purged_at?: string | null }).purged_at) {
+    throw new Error("Este evento ya fue depurado (sin fotos). No se puede reabrir.");
+  }
+
+  const currentDays = Number((event as { online_days?: unknown }).online_days ?? 14);
+  const nextDays = Math.max(1, Math.min(60, currentDays + 30));
+
+  const { error: updErr } = await supabase
+    .from("events")
+    .update({ status: "Listo", is_public: true, online_days: nextDays })
+    .eq("id", eventId);
+  if (updErr) throw updErr;
+
+  return { onlineDays: nextDays };
 }
 
 /** Aggregated counts for the dashboard home. */

@@ -6,7 +6,7 @@ import {
   createClinpaysSession,
   isClinpaysConfigured,
 } from "@/lib/payments/clinpays";
-import type { OrderRow, EventRow, PaymentProvider } from "@/lib/db/types";
+import type { OrderRow, EventRow, OrderStatus, PaymentProvider } from "@/lib/db/types";
 
 export type CreateOrderInput = {
   eventSlug: string;
@@ -112,13 +112,34 @@ export async function createOrder(input: CreateOrderInput): Promise<CreateOrderR
   return { order: { ...order, payment_url: paymentUrl }, whatsappUrl, paymentUrl };
 }
 
-export async function listOrdersForPhotographer(): Promise<OrderRow[]> {
+export type ListOrdersFilters = {
+  search?: string | null;
+  status?: OrderStatus | "all" | null;
+};
+
+export async function listOrdersForPhotographer(
+  filters: ListOrdersFilters = {}
+): Promise<OrderRow[]> {
   const supabase = await getSupabaseServerClient();
-  const { data, error } = await supabase
+  let query = supabase
     .from("orders")
     .select("*")
     .order("created_at", { ascending: false })
     .limit(200);
+
+  if (filters.status && filters.status !== "all") {
+    query = query.eq("status", filters.status);
+  }
+
+  const search = filters.search?.trim();
+  if (search) {
+    const escaped = search.replace(/[\\%_,]/g, (m) => `\\${m}`);
+    query = query.or(
+      `customer_name.ilike.%${escaped}%,customer_whatsapp.ilike.%${escaped}%,payment_reference.ilike.%${escaped}%`
+    );
+  }
+
+  const { data, error } = await query;
   if (error) throw error;
   return data as OrderRow[];
 }

@@ -7,6 +7,7 @@ import { STORAGE_BUCKETS, originalPath, thumbPath } from "@/lib/storage/paths";
 import { buildWatermarkedThumb } from "@/lib/imaging/thumb";
 import { getFaceProvider, toPgVector } from "@/lib/face";
 import type { PhotoRow } from "@/lib/db/types";
+import { normalizeHexColor, type WatermarkFontId, type WatermarkStyle } from "@/lib/branding";
 
 const PROCESS_TIMEOUT_MS = 60_000;
 
@@ -20,6 +21,19 @@ export async function listPhotosForEvent(eventId: string): Promise<PhotoRow[]> {
     .limit(500);
   if (error) throw toError(error, "Failed to list photos");
   return data as PhotoRow[];
+}
+
+/** Photo IDs in this event currently in `error` status, owned by the caller (RLS). */
+export async function listFailedPhotoIdsForEvent(eventId: string): Promise<string[]> {
+  const supabase = await getSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("photos")
+    .select("id")
+    .eq("event_id", eventId)
+    .eq("status", "error")
+    .limit(1000);
+  if (error) throw toError(error, "Failed to list failed photos");
+  return (data ?? []).map((p) => p.id as string);
 }
 
 /**
@@ -131,14 +145,34 @@ export async function processPhoto(photoId: string): Promise<PhotoRow> {
       PROCESS_TIMEOUT_MS
     );
 
-    // 4. Thumbnail (parallel-friendly).
-    const { data: photographer } = await admin
-      .from("photographers")
-      .select("business_name")
-      .eq("id", row.events.photographer_id)
-      .maybeSingle();
+    // 4. Thumbnail (parallel-friendly). Tolerate missing branding columns.
+    let photographer: Record<string, unknown> | null = null;
+    {
+      const full = await admin
+        .from("photographers")
+        .select("business_name, watermark_style, watermark_color, watermark_font")
+        .eq("id", row.events.photographer_id)
+        .maybeSingle();
+
+      if (full.error && (full.error as { code?: string }).code === "PGRST204") {
+        const minimal = await admin
+          .from("photographers")
+          .select("business_name")
+          .eq("id", row.events.photographer_id)
+          .maybeSingle();
+        photographer = (minimal.data as Record<string, unknown> | null) ?? null;
+      } else {
+        photographer = (full.data as Record<string, unknown> | null) ?? null;
+      }
+    }
+
     const brandLabel = (photographer?.business_name as string | undefined) || "4tercios";
-    const thumb = await buildWatermarkedThumb(buf, brandLabel);
+    const thumb = await buildWatermarkedThumb(buf, {
+      label: brandLabel,
+      style: (photographer?.watermark_style as WatermarkStyle | undefined) || "subtle",
+      color: normalizeHexColor(photographer?.watermark_color as string | undefined, "#ffffff"),
+      font: (photographer?.watermark_font as WatermarkFontId | undefined) || "sans",
+    });
 
     const tPath = thumbPath(row.event_id, row.id);
     const thumbUpload = await admin.storage

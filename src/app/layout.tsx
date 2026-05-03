@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Lora, Poppins, Space_Grotesk } from "next/font/google";
+import { Inter, Literata, Lora, Manrope, Poppins, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 
@@ -20,6 +20,16 @@ const lora = Lora({
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
   variable: "--font-space-grotesk",
+  weight: ["400", "500", "600", "700"],
+});
+const literata = Literata({
+  subsets: ["latin"],
+  variable: "--font-literata",
+  weight: ["400", "500", "600", "700"],
+});
+const manrope = Manrope({
+  subsets: ["latin"],
+  variable: "--font-manrope",
   weight: ["400", "500", "600", "700"],
 });
 
@@ -60,7 +70,7 @@ export default function RootLayout({
   return (
     <html
       lang="es"
-      className={`${inter.variable} ${poppins.variable} ${lora.variable} ${spaceGrotesk.variable} bg-background`}
+      className={`${inter.variable} ${poppins.variable} ${lora.variable} ${spaceGrotesk.variable} ${literata.variable} ${manrope.variable} bg-background`}
     >
       <body className="font-sans antialiased">
         <Providers>{children}</Providers>

@@ -33,7 +33,7 @@ export default function ContactoPage() {
               <p className="text-muted-foreground mt-2 text-sm">Responderemos lo antes posible.</p>
               <div className="mt-4">
                 <Button asChild>
-                  <a href="mailto:hola@4tercios.thefndrs.com">hola@4tercios.thefndrs.com</a>
+                  <a href="mailto:hola@4tercios.thefndrs.com">marlon.castro@thefndrs.com</a>
                 </Button>
               </div>
             </div>

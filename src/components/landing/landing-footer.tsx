@@ -10,7 +10,7 @@ export function LandingFooter() {
         <div className="flex items-center gap-2">
           <Link
             href="/"
-            className="inline-flex rounded-xl focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none"
+            className="inline-flex rounded-xl transition-transform duration-200 hover:scale-[1.03] focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none"
             aria-label="4Tercios"
           >
             <Image
@@ -18,23 +18,27 @@ export function LandingFooter() {
               alt="4Tercios"
               width={LANDING_LOGO_WIDTH}
               height={LANDING_LOGO_HEIGHT}
-              className="h-5 w-auto"
+              className="h-3 w-auto transition-opacity duration-200 hover:opacity-80"
             />
           </Link>
-          <span className="text-muted-foreground text-xs">· Una selfie. Sus fotos.</span>
+          <span className="text-muted-foreground text-xs transition-colors duration-200 hover:text-foreground">
+            · Reconocimiento facial para búsqueda de fotos
+          </span>
         </div>
         <div className="text-muted-foreground flex gap-6 text-xs">
-          <Link href="/terminos" className="hover:text-foreground transition-colors">
+          <Link href="/terminos" className="transition-colors duration-200 hover:text-foreground">
             Términos
           </Link>
-          <Link href="/privacidad" className="hover:text-foreground transition-colors">
+          <Link href="/privacidad" className="transition-colors duration-200 hover:text-foreground">
             Privacidad
           </Link>
-          <Link href="/contacto" className="hover:text-foreground transition-colors">
+          <Link href="/contacto" className="transition-colors duration-200 hover:text-foreground">
             Contacto
           </Link>
         </div>
-        <p className="text-muted-foreground text-xs">© 2026 4Tercios</p>
+        <p className="text-muted-foreground text-xs transition-colors duration-200 hover:text-foreground">
+          © 2026 4Tercios
+        </p>
       </div>
     </footer>
   );

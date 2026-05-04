@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 import { Brand } from "@/components/brand";
 
@@ -36,8 +37,15 @@ export function Footer({ variant = "default" }: { variant?: "default" | "dashboa
       <div className={`${containerClassName} py-14 lg:py-16`}>
         <div className="grid gap-10 lg:grid-cols-12">
           <div className="lg:col-span-5">
-            <Brand href="/" />
-            <p className="mt-3 text-sm font-medium text-white">Una selfie. Sus fotos.</p>
+          <Image
+            src="/brand/main-logo-hq.png"
+            alt="4Tercios"
+            width={428}
+            height={86}
+            priority
+            className="h-4 w-auto"
+          />
+            <p className="mt-3 text-sm font-medium text-white">Reconocimiento facial para búsqueda de fotos</p>
             <p className="mt-4 max-w-md text-sm leading-6 text-white">
               Búsqueda por selfie para fotos de eventos. Publica tu galería, comparte un link o QR y
               deja que tus clientes encuentren sus coincidencias.

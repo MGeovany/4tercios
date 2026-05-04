@@ -1,7 +1,6 @@
 "use client";
 
 import { LandingBenefits } from "@/components/landing/landing-benefits";
-import { LandingEventTypes } from "@/components/landing/landing-event-types";
 import { LandingFinalCta } from "@/components/landing/landing-final-cta";
 import { LandingFooter } from "@/components/landing/landing-footer";
 import { LandingHeader } from "@/components/landing/landing-header";
@@ -22,7 +21,7 @@ export default function LandingPage() {
       <LandingHero />
       <LandingHowItWorks />
       <LandingBenefits />
-      <LandingEventTypes />
+      {/* <LandingEventTypes /> */}
       <LandingPricing />
       <LandingFinalCta />
       <LandingFooter />

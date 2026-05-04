@@ -118,8 +118,8 @@ export const EVENT_TYPES: LandingEventType[] = [
 export const PRICING_BULLETS = [
   "Sin contratos ni permanencia",
   "Sin costo de setup por evento",
-  "Retiros cuando los pidas",
-  "Tú controlas el tiempo online",
+  "Retiros automaticos a tu cuenta",
+  "Tú controlas el tiempo disponible",
 ] as const;
 
 export const IN_VIEW_ANIMATION = {

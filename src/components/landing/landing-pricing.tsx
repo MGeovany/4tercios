@@ -15,8 +15,7 @@ export function LandingPricing() {
             Gratis hasta que vendas.
           </h2>
           <p className="text-muted-foreground mt-4 text-[15px] leading-relaxed">
-            20% sobre cada venta confirmada. Sin suscripción, sin setup, sin mínimos. Si no vendes,
-            no pagas.
+          Sin suscripción, sin setup, sin mínimos. 4Tercios solo toma una comisión de tu venta. el resto, totalmente gratis
           </p>
         </div>
 
@@ -43,7 +42,7 @@ export function LandingPricing() {
           <ul className="border-border mt-8 grid gap-3 border-t pt-6 sm:grid-cols-2">
             {PRICING_BULLETS.map((item) => (
               <li key={item} className="flex items-center gap-2 text-sm">
-                <Check className="text-primary size-4" />
+                <Check className="text-black size-4" />
                 <span>{item}</span>
               </li>
             ))}
@@ -55,9 +54,6 @@ export function LandingPricing() {
                 Crear mi primer evento
                 <ArrowRight className="size-4" />
               </Link>
-            </Button>
-            <Button variant="outline" asChild>
-              <Link href="#como-funciona">Ver cómo funciona</Link>
             </Button>
           </div>
         </div>

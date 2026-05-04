@@ -62,7 +62,7 @@ export default function OlvideContrasenaPage() {
 
   return (
     <div className="font-manrope min-h-screen bg-white text-zinc-950">
-      <header className="mx-auto flex w-full max-w-xl items-center justify-between px-6 py-6">
+      <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-6">
         <Link
           href="/"
           className="inline-flex rounded-xl focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none"

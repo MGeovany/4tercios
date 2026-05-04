@@ -37,6 +37,35 @@ export default function LoginPage() {
     }
   }, []);
 
+  function getLoginErrorMessage(err: unknown) {
+    const fallback = "No se pudo iniciar sesión.";
+    if (!err || typeof err !== "object") return fallback;
+
+    // supabase-js errors can include a `code`; sometimes it arrives stringified inside `message`.
+    const raw = err as { message?: unknown; code?: unknown };
+    let code = typeof raw.code === "string" ? raw.code : undefined;
+    let message = typeof raw.message === "string" ? raw.message : undefined;
+
+    if (!code && message) {
+      const trimmed = message.trim();
+      if (trimmed.startsWith("{") && trimmed.endsWith("}")) {
+        try {
+          const parsed = JSON.parse(trimmed) as { code?: unknown; message?: unknown };
+          if (typeof parsed.code === "string") code = parsed.code;
+          if (typeof parsed.message === "string") message = parsed.message;
+        } catch {
+          // Ignore JSON parse failures and keep the original message.
+        }
+      }
+    }
+
+    if (code === "invalid_credentials" || message === "Invalid login credentials") {
+      return "Email o contraseña incorrectos.";
+    }
+
+    return message || fallback;
+  }
+
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
@@ -52,7 +81,7 @@ export default function LoginPage() {
       });
 
       if (signInError) {
-        setError(signInError.message);
+        setError(getLoginErrorMessage(signInError));
         return;
       }
 

@@ -57,7 +57,6 @@ const ONBOARDING_PAYOUT_OPTIONS = [
     label: "PayPal",
     description: "Para retiros internacionales rápidos.",
   },
-  
 ] as const;
 
 type OnboardingPayoutMethod = (typeof ONBOARDING_PAYOUT_OPTIONS)[number]["value"];
@@ -187,7 +186,9 @@ export function ProfileSection() {
           </span>
         )}
         <div className="text-xs text-zinc-500">
-          <p>{hasGoogleAvatar ? "Usando foto de Google." : "El avatar se genera con tus iniciales."}</p>
+          <p>
+            {hasGoogleAvatar ? "Usando foto de Google." : "El avatar se genera con tus iniciales."}
+          </p>
           <p className="mt-0.5">Datos sincronizados con lo que configuras en onboarding.</p>
         </div>
       </div>
@@ -260,7 +261,9 @@ export function BrandSection() {
   const [primaryColor, setPrimaryColor] = React.useState(profile.brandColor);
   const [palette, setPalette] = React.useState<BrandPaletteId>(profile.brandPalette);
   const [brandFont, setBrandFont] = React.useState<BrandFontId>(profile.brandFont);
-  const [watermarkStyle, setWatermarkStyle] = React.useState<WatermarkStyle>(profile.watermarkStyle);
+  const [watermarkStyle, setWatermarkStyle] = React.useState<WatermarkStyle>(
+    profile.watermarkStyle
+  );
   const [watermarkColor, setWatermarkColor] = React.useState(profile.watermarkColor);
   const [watermarkFont, setWatermarkFont] = React.useState<WatermarkFontId>(profile.watermarkFont);
 
@@ -401,7 +404,10 @@ export function BrandSection() {
           </div>
         </Field>
         <Field label="Estilo de marca de agua">
-          <Select value={watermarkStyle} onValueChange={(v) => setWatermarkStyle(v as WatermarkStyle)}>
+          <Select
+            value={watermarkStyle}
+            onValueChange={(v) => setWatermarkStyle(v as WatermarkStyle)}
+          >
             <SelectTrigger className="w-full">
               <SelectValue />
             </SelectTrigger>
@@ -435,7 +441,10 @@ export function BrandSection() {
           </div>
         </Field>
         <Field label="Fuente del watermark">
-          <Select value={watermarkFont} onValueChange={(value) => setWatermarkFont(value as WatermarkFontId)}>
+          <Select
+            value={watermarkFont}
+            onValueChange={(value) => setWatermarkFont(value as WatermarkFontId)}
+          >
             <SelectTrigger className="w-full">
               <SelectValue />
             </SelectTrigger>
@@ -451,7 +460,10 @@ export function BrandSection() {
         <div className="rounded-lg border border-zinc-200 bg-zinc-50 p-3 sm:col-span-2">
           <p className="text-sm text-zinc-800">
             Vista previa:{" "}
-            <span className="font-semibold" style={{ color: normalizeHexColor(primaryColor, "#2563eb") }}>
+            <span
+              className="font-semibold"
+              style={{ color: normalizeHexColor(primaryColor, "#2563eb") }}
+            >
               {BRAND_PALETTES.find((option) => option.id === palette)?.name}
             </span>{" "}
             · Watermark{" "}
@@ -545,7 +557,10 @@ export function PayoutSection() {
           </Select>
         </Field>
         <Field label="Método preferido">
-          <Select value={method} onValueChange={(value) => setMethod(value as OnboardingPayoutMethod)}>
+          <Select
+            value={method}
+            onValueChange={(value) => setMethod(value as OnboardingPayoutMethod)}
+          >
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Selecciona método" />
             </SelectTrigger>
@@ -605,7 +620,9 @@ export function NotificationsSection() {
           if (error) throw error;
           trigger();
         } catch (error) {
-          setSaveError(error instanceof Error ? error.message : "No se pudo guardar notificaciones.");
+          setSaveError(
+            error instanceof Error ? error.message : "No se pudo guardar notificaciones."
+          );
         } finally {
           setIsSaving(false);
         }
@@ -642,7 +659,9 @@ export function PreferencesSection() {
 
   const [locale, setLocale] = React.useState<SupportedLocale>(settings.preferences.locale);
   const [timezone, setTimezone] = React.useState(settings.preferences.timezone);
-  const [dateFormat, setDateFormat] = React.useState<"short" | "long">(settings.preferences.dateFormat);
+  const [dateFormat, setDateFormat] = React.useState<"short" | "long">(
+    settings.preferences.dateFormat
+  );
 
   return (
     <SectionCard

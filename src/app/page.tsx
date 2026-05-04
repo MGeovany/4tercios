@@ -11,19 +11,20 @@ import { useHasSupabaseSession } from "@/hooks/use-has-supabase-session";
 
 export default function LandingPage() {
   const hasSession = useHasSupabaseSession();
-  const authCta = hasSession
+  const authCta = { href: "/login", label: "Iniciar sesión" };
+  const primaryCta = hasSession
     ? { href: "/dashboard", label: "Ir al dashboard" }
-    : { href: "/login", label: "Iniciar sesión" };
+    : { href: "/register", label: "Crear mi cuenta" };
 
   return (
-    <div className="bg-white text-foreground min-h-screen font-manrope">
-      <LandingHeader authCta={authCta} />
-      <LandingHero />
+    <div className="text-foreground font-manrope min-h-screen scroll-smooth bg-white">
+      <LandingHeader authCta={authCta} primaryCta={primaryCta} hasSession={hasSession} />
+      <LandingHero primaryCta={primaryCta} />
       <LandingHowItWorks />
       <LandingBenefits />
       {/* <LandingEventTypes /> */}
       <LandingPricing />
-      <LandingFinalCta />
+      <LandingFinalCta primaryCta={primaryCta} />
       <LandingFooter />
     </div>
   );

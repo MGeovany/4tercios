@@ -50,7 +50,7 @@ El embedding es siempre de 512 dimensiones (compatible con la columna `vector(51
 
 ### Fotógrafo
 
-1. `/registro` → onboarding → `/dashboard`
+1. `/register` → onboarding → `/dashboard`
 2. `/dashboard/events/new` crea el evento (Supabase). Tope de 60 días online (constraint en DB).
 3. `/dashboard/events/[id]/upload`:
    - Drag & drop sube directamente a Supabase Storage (bucket `photos-original`).

@@ -1,10 +1,34 @@
+"use client";
+
 import Link from "next/link";
+import Image from "next/image";
+import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import {
+  LANDING_LOGO_HEIGHT,
+  LANDING_LOGO_SRC,
+  LANDING_LOGO_WIDTH,
+} from "@/components/landing/constants";
+import { cn } from "@/lib/utils";
 
-function TocLink({ href, children }: { href: string; children: React.ReactNode }) {
+function TocLink({
+  href,
+  active,
+  children,
+}: {
+  href: string;
+  active: boolean;
+  children: React.ReactNode;
+}) {
   return (
-    <a className="text-muted-foreground hover:text-foreground block" href={href}>
+    <a
+      className={cn(
+        "text-muted-foreground hover:text-foreground block transition-colors",
+        active && "text-foreground font-semibold"
+      )}
+      href={href}
+    >
       {children}
     </a>
   );
@@ -15,12 +39,75 @@ function Hr() {
 }
 
 export default function TerminosPage() {
+  const [activeSection, setActiveSection] = useState("definiciones");
+
+  useEffect(() => {
+    const sectionIds = [
+      "definiciones",
+      "aceptacion",
+      "cuentas",
+      "uso",
+      "contenido",
+      "privacidad",
+      "ventas",
+      "pagos",
+      "suspension",
+      "propiedad",
+      "responsabilidad",
+      "indemnizacion",
+      "ley",
+      "cambios",
+      "contacto",
+    ];
+
+    const updateActiveSection = () => {
+      const activationLine = window.innerHeight * 0.36;
+      let current = sectionIds[0];
+
+      for (const id of sectionIds) {
+        const section = document.getElementById(id);
+        if (!section) continue;
+        const { top } = section.getBoundingClientRect();
+        if (top <= activationLine) {
+          current = id;
+        }
+      }
+
+      // Cuando llegas al final del documento, fuerza el último item.
+      if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2) {
+        current = sectionIds[sectionIds.length - 1];
+      }
+
+      setActiveSection(current);
+    };
+
+    updateActiveSection();
+    window.addEventListener("scroll", updateActiveSection, { passive: true });
+    window.addEventListener("resize", updateActiveSection);
+
+    return () => {
+      window.removeEventListener("scroll", updateActiveSection);
+      window.removeEventListener("resize", updateActiveSection);
+    };
+  }, []);
+
   return (
-    <div className="bg-background min-h-screen">
+    <div className="bg-background font-manrope min-h-screen">
       <header className="border-border/40 bg-background/80 sticky top-0 z-50 border-b backdrop-blur-xl">
         <nav className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-          <Link href="/" className="text-lg font-semibold">
-            4Tercios
+          <Link
+            href="/"
+            className="inline-flex rounded-xl focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none"
+            aria-label="4Tercios"
+          >
+            <Image
+              src={LANDING_LOGO_SRC}
+              alt="4Tercios"
+              width={LANDING_LOGO_WIDTH}
+              height={LANDING_LOGO_HEIGHT}
+              className="h-4 w-auto"
+              priority
+            />
           </Link>
           <Button variant="ghost" size="sm" asChild>
             <Link href="/">Volver</Link>
@@ -45,21 +132,51 @@ export default function TerminosPage() {
             <div className="border-border/50 bg-card sticky top-24 rounded-xl border p-5">
               <p className="text-sm font-semibold">Contenido</p>
               <nav className="mt-4 space-y-2 text-sm">
-                <TocLink href="#definiciones">1. Definiciones</TocLink>
-                <TocLink href="#aceptacion">2. Aceptación</TocLink>
-                <TocLink href="#cuentas">3. Registro y cuentas</TocLink>
-                <TocLink href="#uso">4. Uso permitido</TocLink>
-                <TocLink href="#contenido">5. Contenido y permisos</TocLink>
-                <TocLink href="#privacidad">6. Privacidad</TocLink>
-                <TocLink href="#ventas">7. Ventas y comisión</TocLink>
-                <TocLink href="#pagos">8. Pagos, reembolsos y contracargos</TocLink>
-                <TocLink href="#suspension">9. Suspensión y terminación</TocLink>
-                <TocLink href="#propiedad">10. Propiedad intelectual</TocLink>
-                <TocLink href="#responsabilidad">11. Garantías y responsabilidad</TocLink>
-                <TocLink href="#indemnizacion">12. Indemnización</TocLink>
-                <TocLink href="#ley">13. Ley aplicable</TocLink>
-                <TocLink href="#cambios">14. Cambios</TocLink>
-                <TocLink href="#contacto">15. Contacto</TocLink>
+                <TocLink href="#definiciones" active={activeSection === "definiciones"}>
+                  1. Definiciones
+                </TocLink>
+                <TocLink href="#aceptacion" active={activeSection === "aceptacion"}>
+                  2. Aceptación
+                </TocLink>
+                <TocLink href="#cuentas" active={activeSection === "cuentas"}>
+                  3. Registro y cuentas
+                </TocLink>
+                <TocLink href="#uso" active={activeSection === "uso"}>
+                  4. Uso permitido
+                </TocLink>
+                <TocLink href="#contenido" active={activeSection === "contenido"}>
+                  5. Contenido y permisos
+                </TocLink>
+                <TocLink href="#privacidad" active={activeSection === "privacidad"}>
+                  6. Privacidad
+                </TocLink>
+                <TocLink href="#ventas" active={activeSection === "ventas"}>
+                  7. Ventas y comisión
+                </TocLink>
+                <TocLink href="#pagos" active={activeSection === "pagos"}>
+                  8. Pagos, reembolsos y contracargos
+                </TocLink>
+                <TocLink href="#suspension" active={activeSection === "suspension"}>
+                  9. Suspensión y terminación
+                </TocLink>
+                <TocLink href="#propiedad" active={activeSection === "propiedad"}>
+                  10. Propiedad intelectual
+                </TocLink>
+                <TocLink href="#responsabilidad" active={activeSection === "responsabilidad"}>
+                  11. Garantías y responsabilidad
+                </TocLink>
+                <TocLink href="#indemnizacion" active={activeSection === "indemnizacion"}>
+                  12. Indemnización
+                </TocLink>
+                <TocLink href="#ley" active={activeSection === "ley"}>
+                  13. Ley aplicable
+                </TocLink>
+                <TocLink href="#cambios" active={activeSection === "cambios"}>
+                  14. Cambios
+                </TocLink>
+                <TocLink href="#contacto" active={activeSection === "contacto"}>
+                  15. Contacto
+                </TocLink>
               </nav>
             </div>
           </aside>

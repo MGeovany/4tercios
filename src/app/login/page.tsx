@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { FormEvent, useMemo, useState } from "react";
 import { CheckCircle2, Lock, LogIn, Mail } from "lucide-react";
@@ -94,6 +95,12 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-white px-4 py-6 text-zinc-950 sm:px-6 lg:px-8">
       <div className="mx-auto w-full max-w-6xl">
+        <header className="mb-6 flex items-center justify-center lg:hidden">
+          <Link href="/" className="inline-flex items-center">
+            <Image src="/brand/main-logo.png" alt="4Tercios" width={320} height={64} priority />
+          </Link>
+        </header>
+
         <div className="overflow-hidden rounded-3xl border border-zinc-200 bg-white shadow-sm lg:grid lg:grid-cols-[1.05fr_1fr]">
           <aside className="hidden border-r border-zinc-200 bg-zinc-50 p-8 lg:flex lg:flex-col lg:justify-between lg:p-10">
             <div>
@@ -119,21 +126,19 @@ export default function LoginPage() {
             </div>
 
             <ol className="mt-8 space-y-2 text-sm">
-              {[
-                "Ingresa con tu correo",
-                "Accede a tu dashboard",
-                "Gestiona eventos y órdenes",
-              ].map((item, idx) => (
-                <li
-                  key={item}
-                  className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white px-4 py-3 text-zinc-700"
-                >
-                  <span className="grid size-6 place-items-center rounded-full bg-zinc-100 text-xs font-semibold text-zinc-600">
-                    {idx + 1}
-                  </span>
-                  {item}
-                </li>
-              ))}
+              {["Ingresa con tu correo", "Accede a tu dashboard", "Gestiona eventos y órdenes"].map(
+                (item, idx) => (
+                  <li
+                    key={item}
+                    className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white px-4 py-3 text-zinc-700"
+                  >
+                    <span className="grid size-6 place-items-center rounded-full bg-zinc-100 text-xs font-semibold text-zinc-600">
+                      {idx + 1}
+                    </span>
+                    {item}
+                  </li>
+                )
+              )}
             </ol>
           </aside>
 
@@ -143,13 +148,15 @@ export default function LoginPage() {
                 <Brand href="/" />
               </div>
 
-              <h1 className="text-3xl font-semibold tracking-tight text-zinc-950">Iniciar sesión</h1>
+              <h1 className="text-3xl font-semibold tracking-tight text-zinc-950">
+                Iniciar sesión
+              </h1>
               <p className="mt-2 text-sm text-zinc-600">Entra a tu cuenta para continuar.</p>
 
               {!supabaseReady ? (
                 <p className="mt-6 rounded-xl border border-zinc-200 bg-zinc-100 px-4 py-3 text-sm text-zinc-700">
-                  Configura `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY` para activar
-                  autenticación.
+                  Configura `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY` para
+                  activar autenticación.
                 </p>
               ) : null}
 
@@ -206,7 +213,9 @@ export default function LoginPage() {
 
               <div className="relative my-6">
                 <div className="absolute inset-0 top-1/2 border-t border-zinc-200" />
-                <span className="relative mx-auto block w-fit bg-white px-3 text-xs text-zinc-500">o</span>
+                <span className="relative mx-auto block w-fit bg-white px-3 text-xs text-zinc-500">
+                  o
+                </span>
               </div>
 
               <Button
@@ -222,7 +231,7 @@ export default function LoginPage() {
 
               <p className="mt-6 text-sm text-zinc-600">
                 ¿No tienes cuenta?{" "}
-                <Link href="/registro" className="font-medium text-zinc-900 hover:underline">
+                <Link href="/register" className="font-medium text-zinc-900 hover:underline">
                   Regístrate
                 </Link>
               </p>

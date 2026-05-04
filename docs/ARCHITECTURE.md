@@ -405,7 +405,7 @@ El parser de `replicate-provider.ts` acepta múltiples shapes de output comunes.
 | `FACE_DETECTION_URL`            | HF mirror                      | Override del modelo de detección                             |
 | `FACE_RECOGNITION_URL`          | HF mirror                      | Override del modelo de embedding                             |
 | `SELFIE_MIN_SCORE`              | `0.45`                         | Cosine score mínimo para mostrar match                       |
-| `REPLICATE_API_TOKEN`           | —                              | Solo si usamos Replicate                                       |
+| `REPLICATE_API_TOKEN`           | —                              | Solo si usamos Replicate                                     |
 | `REPLICATE_FACE_MODEL`          | —                              | `owner/name[:version]`                                       |
 | `REPLICATE_FACE_DIMENSION`      | `512`                          | Override si el modelo retorna otra dim                       |
 | `CLINPAYS_*`                    | —                              | Vacío = orders quedan en `pending`, pago manual por WhatsApp |

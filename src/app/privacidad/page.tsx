@@ -1,10 +1,34 @@
+"use client";
+
 import Link from "next/link";
+import Image from "next/image";
+import { useEffect, useState } from "react";
 
+import {
+  LANDING_LOGO_HEIGHT,
+  LANDING_LOGO_SRC,
+  LANDING_LOGO_WIDTH,
+} from "@/components/landing/constants";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
-function TocLink({ href, children }: { href: string; children: React.ReactNode }) {
+function TocLink({
+  href,
+  active,
+  children,
+}: {
+  href: string;
+  active: boolean;
+  children: React.ReactNode;
+}) {
   return (
-    <a className="text-muted-foreground hover:text-foreground block" href={href}>
+    <a
+      className={cn(
+        "text-muted-foreground hover:text-foreground block transition-colors",
+        active && "text-foreground font-semibold"
+      )}
+      href={href}
+    >
       {children}
     </a>
   );
@@ -15,12 +39,66 @@ function Hr() {
 }
 
 export default function PrivacidadPage() {
+  const [activeSection, setActiveSection] = useState("que-recopilamos");
+
+  useEffect(() => {
+    const sectionIds = [
+      "que-recopilamos",
+      "como-usamos",
+      "compartimos",
+      "retencion",
+      "seguridad",
+      "derechos",
+      "contacto",
+    ];
+
+    const updateActiveSection = () => {
+      const activationLine = window.innerHeight * 0.36;
+      let current = sectionIds[0];
+
+      for (const id of sectionIds) {
+        const section = document.getElementById(id);
+        if (!section) continue;
+        const { top } = section.getBoundingClientRect();
+        if (top <= activationLine) {
+          current = id;
+        }
+      }
+
+      if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2) {
+        current = sectionIds[sectionIds.length - 1];
+      }
+
+      setActiveSection(current);
+    };
+
+    updateActiveSection();
+    window.addEventListener("scroll", updateActiveSection, { passive: true });
+    window.addEventListener("resize", updateActiveSection);
+
+    return () => {
+      window.removeEventListener("scroll", updateActiveSection);
+      window.removeEventListener("resize", updateActiveSection);
+    };
+  }, []);
+
   return (
-    <div className="bg-background min-h-screen">
+    <div className="bg-background font-manrope min-h-screen">
       <header className="border-border/40 bg-background/80 sticky top-0 z-50 border-b backdrop-blur-xl">
         <nav className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-          <Link href="/" className="text-lg font-semibold">
-            4Tercios
+          <Link
+            href="/"
+            className="inline-flex rounded-xl focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none"
+            aria-label="4Tercios"
+          >
+            <Image
+              src={LANDING_LOGO_SRC}
+              alt="4Tercios"
+              width={LANDING_LOGO_WIDTH}
+              height={LANDING_LOGO_HEIGHT}
+              className="h-4 w-auto"
+              priority
+            />
           </Link>
           <Button variant="ghost" size="sm" asChild>
             <Link href="/">Volver</Link>
@@ -45,13 +123,27 @@ export default function PrivacidadPage() {
             <div className="border-border/50 bg-card sticky top-24 rounded-xl border p-5">
               <p className="text-sm font-semibold">Contenido</p>
               <nav className="mt-4 space-y-2 text-sm">
-                <TocLink href="#que-recopilamos">1. Qué recopilamos</TocLink>
-                <TocLink href="#como-usamos">2. Cómo la usamos</TocLink>
-                <TocLink href="#compartimos">3. Con quién compartimos</TocLink>
-                <TocLink href="#retencion">4. Retención</TocLink>
-                <TocLink href="#seguridad">5. Seguridad</TocLink>
-                <TocLink href="#derechos">6. Tus derechos</TocLink>
-                <TocLink href="#contacto">7. Contacto</TocLink>
+                <TocLink href="#que-recopilamos" active={activeSection === "que-recopilamos"}>
+                  1. Qué recopilamos
+                </TocLink>
+                <TocLink href="#como-usamos" active={activeSection === "como-usamos"}>
+                  2. Cómo la usamos
+                </TocLink>
+                <TocLink href="#compartimos" active={activeSection === "compartimos"}>
+                  3. Con quién compartimos
+                </TocLink>
+                <TocLink href="#retencion" active={activeSection === "retencion"}>
+                  4. Retención
+                </TocLink>
+                <TocLink href="#seguridad" active={activeSection === "seguridad"}>
+                  5. Seguridad
+                </TocLink>
+                <TocLink href="#derechos" active={activeSection === "derechos"}>
+                  6. Tus derechos
+                </TocLink>
+                <TocLink href="#contacto" active={activeSection === "contacto"}>
+                  7. Contacto
+                </TocLink>
               </nav>
             </div>
           </aside>

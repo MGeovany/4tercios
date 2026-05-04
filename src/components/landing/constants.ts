@@ -34,15 +34,13 @@ export const STEPS: LandingStep[] = [
     step: "01",
     icon: Upload,
     title: "Sube las fotos",
-    description:
-      "Arrastra carpetas enteras. Aceptamos RAW, JPEG, hasta 50.000 fotos por evento.",
+    description: "Arrastra carpetas enteras. Aceptamos RAW, JPEG, hasta 50.000 fotos por evento.",
   },
   {
     step: "02",
     icon: ScanFace,
     title: "La IA reconoce caras",
-    description:
-      "En segundos identifica a cada persona. Indexamos rasgos, no almacenamos rostros.",
+    description: "En segundos identifica a cada persona. Indexamos rasgos, no almacenamos rostros.",
   },
   {
     step: "03",

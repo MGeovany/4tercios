@@ -65,7 +65,7 @@ export function LandingMarqueeRow({ items, direction, speed }: MarqueeRowProps) 
         {loop.map((item) => (
           <div
             key={item.key}
-            className="h-28 w-40 shrink-0 overflow-hidden rounded-xl bg-gray-100 ring-1 ring-black/5 sm:h-32 sm:w-48 lg:h-36 lg:w-56"
+            className="h-28 w-40 shrink-0 overflow-hidden rounded-xl bg-gray-100 ring-1 ring-black/5 transition-shadow duration-300 hover:shadow-sm sm:h-32 sm:w-48 lg:h-36 lg:w-56"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img

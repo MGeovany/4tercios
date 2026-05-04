@@ -248,15 +248,10 @@ type AppActions = {
     patch: Partial<Omit<AppOrder, "id" | "eventId" | "createdAt">>
   ): void;
   updateUser(patch: Partial<Omit<AppUser, "id">>): void;
-  updateSettings<K extends keyof AppSettings>(
-    section: K,
-    patch: Partial<AppSettings[K]>
-  ): void;
+  updateSettings<K extends keyof AppSettings>(section: K, patch: Partial<AppSettings[K]>): void;
 };
 
-const AppStoreContext = React.createContext<(AppState & { actions: AppActions }) | null>(
-  null
-);
+const AppStoreContext = React.createContext<(AppState & { actions: AppActions }) | null>(null);
 
 export function AppStoreProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = React.useState<AppState>(() => {

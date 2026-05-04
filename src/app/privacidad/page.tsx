@@ -148,7 +148,7 @@ export default function PrivacidadPage() {
             </div>
           </aside>
 
-          <article className="mx-auto w-full max-w-3xl">
+          <article className="mx-auto w-full max-w-3xl pb-28">
             <section id="que-recopilamos" className="scroll-mt-24">
               <h2 className="text-xl font-semibold">1. Qué recopilamos</h2>
               <p className="text-muted-foreground mt-3 leading-7">

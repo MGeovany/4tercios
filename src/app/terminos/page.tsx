@@ -181,7 +181,7 @@ export default function TerminosPage() {
             </div>
           </aside>
 
-          <article className="mx-auto w-full max-w-3xl">
+          <article className="mx-auto w-full max-w-3xl pb-28">
             <section id="definiciones" className="scroll-mt-24">
               <h2 className="text-xl font-semibold">1. Definiciones</h2>
               <ul className="text-muted-foreground mt-4 list-disc space-y-2 pl-5">

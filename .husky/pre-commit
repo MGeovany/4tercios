@@ -1,4 +1,39 @@
 #!/usr/bin/env sh
 set -e
+[ "$HUSKY" = "2" ] && set -x
 
-pnpm -s ci
+# Ensure we run from the repo root (Git GUIs may invoke hooks from elsewhere).
+# This script lives at <repo>/.husky/pre-commit.
+ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+cd "$ROOT"
+
+# Helpful debug when a GUI fails to run hooks.
+if [ "$HUSKY" = "2" ]; then
+  echo "pre-commit: cwd=$PWD" >&2
+  echo "pre-commit: PATH=$PATH" >&2
+  command -v pnpm >/dev/null 2>&1 && echo "pre-commit: pnpm=$(command -v pnpm)" >&2
+  command -v node >/dev/null 2>&1 && echo "pre-commit: node=$(command -v node)" >&2
+  command -v npx >/dev/null 2>&1 && echo "pre-commit: npx=$(command -v npx)" >&2
+fi
+
+if command -v pnpm >/dev/null 2>&1; then
+  pnpm -s run ci
+  exit 0
+fi
+
+# Git GUIs sometimes don't inherit your shell PATH, so `pnpm` may be missing.
+# Fall back to npx (will download pnpm on first run).
+if command -v npx >/dev/null 2>&1; then
+  npx -y pnpm@10.30.3 -s run ci
+  exit 0
+fi
+
+# Last resort: invoke pnpm through a local node_modules binary if present.
+if [ -x "node_modules/.bin/pnpm" ]; then
+  node_modules/.bin/pnpm -s run ci
+  exit 0
+fi
+
+echo "pre-commit: pnpm not found in PATH and npx is unavailable." >&2
+echo "Install pnpm (recommended) or ensure Node.js (npm/npx) is available." >&2
+exit 1

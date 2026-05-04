@@ -36,11 +36,15 @@ export function LandingFinalCta({ primaryCta }: LandingFinalCtaProps) {
             <p className="mt-4 text-[15px] text-white/70">
               Crea la galería, comparte el link y deja que cada cliente haga el resto.
             </p>
-            <div className="mt-8 flex justify-center">
+            <div className="relative mt-8 flex justify-center">
+              <div
+                aria-hidden
+                className="pointer-events-none absolute top-1/2 h-16 w-52 -translate-y-1/2 rounded-full bg-white/35 blur-2xl"
+              />
               <Button
                 size="lg"
                 asChild
-                className="group rounded-full bg-white text-black transition-transform duration-300 hover:-translate-y-0.5 hover:bg-white/90"
+                className="group relative rounded-full bg-white text-black transition-transform duration-300 hover:-translate-y-0.5 hover:bg-white/90"
               >
                 <Link href={primaryCta.href}>
                   {primaryCta.label}

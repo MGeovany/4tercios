@@ -17,6 +17,14 @@ if [ "$HUSKY" = "2" ]; then
 fi
 
 if command -v pnpm >/dev/null 2>&1; then
+  # Auto-fix formatting for staged files so Git GUIs can commit.
+  STAGED_FILES=$(git diff --name-only --cached --diff-filter=ACMR)
+  if [ -n "$STAGED_FILES" ]; then
+    # Prettier will skip unsupported files with --ignore-unknown.
+    pnpm -s exec prettier --write --ignore-unknown $STAGED_FILES
+    git add $STAGED_FILES
+  fi
+
   pnpm -s run ci
   exit 0
 fi
@@ -24,12 +32,24 @@ fi
 # Git GUIs sometimes don't inherit your shell PATH, so `pnpm` may be missing.
 # Fall back to npx (will download pnpm on first run).
 if command -v npx >/dev/null 2>&1; then
+  STAGED_FILES=$(git diff --name-only --cached --diff-filter=ACMR)
+  if [ -n "$STAGED_FILES" ]; then
+    npx -y pnpm@10.30.3 -s exec prettier --write --ignore-unknown $STAGED_FILES
+    git add $STAGED_FILES
+  fi
+
   npx -y pnpm@10.30.3 -s run ci
   exit 0
 fi
 
 # Last resort: invoke pnpm through a local node_modules binary if present.
 if [ -x "node_modules/.bin/pnpm" ]; then
+  STAGED_FILES=$(git diff --name-only --cached --diff-filter=ACMR)
+  if [ -n "$STAGED_FILES" ]; then
+    node_modules/.bin/pnpm -s exec prettier --write --ignore-unknown $STAGED_FILES
+    git add $STAGED_FILES
+  fi
+
   node_modules/.bin/pnpm -s run ci
   exit 0
 fi

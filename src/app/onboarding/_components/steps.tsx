@@ -11,7 +11,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 
 import {
@@ -135,7 +134,7 @@ export function StepBusiness({
       <div className="space-y-5">
         <div className="grid gap-2">
           <Label htmlFor="businessName">
-            Nombre del negocio <span className="text-muted-foreground">·</span>{" "}
+            Nombre <span className="text-muted-foreground">·</span>{" "}
             <span className="text-muted-foreground text-xs font-normal">requerido</span>
           </Label>
           <Input
@@ -165,18 +164,19 @@ export function StepBusiness({
         </div>
 
         <div className="grid gap-2">
-          <Label htmlFor="bio">Bio breve</Label>
-          <Textarea
+          {/*   <Label htmlFor="bio">Bio breve</Label>
+         <Textarea
             id="bio"
             rows={3}
             maxLength={160}
             placeholder="Una línea sobre tu trabajo. Ej. Capturamos momentos reales sin pose."
             value={value.bio}
             onChange={(e) => onChange({ ...value, bio: e.target.value })}
+            className="border-zinc-300 placeholder:text-zinc-400 focus-visible:border-black focus-visible:ring-0"
           />
           <p className="text-muted-foreground text-right text-xs tabular-nums">
             {value.bio.length}/160
-          </p>
+          </p> */}
         </div>
       </div>
     </div>

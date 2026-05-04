@@ -4,11 +4,11 @@ import {
   Check,
   GraduationCap,
   Heart,
-  QrCode,
-  Search,
+  ScanFace,
   Shield,
   Trophy,
   Upload,
+  Wallet,
   Zap,
 } from "lucide-react";
 
@@ -33,23 +33,23 @@ export const STEPS: LandingStep[] = [
   {
     step: "01",
     icon: Upload,
-    title: "Sube tu galería",
+    title: "Sube las fotos",
     description:
-      "Arrastra la carpeta. 4Tercios organiza tus fotos, detecta caras y prepara todo para compartir.",
+      "Arrastra carpetas enteras. Aceptamos RAW, JPEG, hasta 50.000 fotos por evento.",
   },
   {
     step: "02",
-    icon: QrCode,
-    title: "Comparte el link",
+    icon: ScanFace,
+    title: "La IA reconoce caras",
     description:
-      "Cada evento tiene un link único y un QR listo para WhatsApp, redes o imprimir en el venue.",
+      "En segundos identifica a cada persona. Indexamos rasgos, no almacenamos rostros.",
   },
   {
     step: "03",
-    icon: Search,
-    title: "Ellos encuentran, tú cobras",
+    icon: Wallet,
+    title: "Cobras al instante",
     description:
-      "Cada cliente sube una selfie y ve sus coincidencias. Tú recibes la solicitud y confirmas la venta.",
+      "Tus clientes buscan con un selfie y compran sus fotos. Tú recibes el pago al instante.",
   },
 ];
 
@@ -62,27 +62,27 @@ export type LandingBenefit = {
 export const BENEFITS: LandingBenefit[] = [
   {
     icon: Zap,
-    title: "Menos fricción, más ventas",
+    title: "Menos fricción, aumentas tus ventas",
     description:
-      "Cuando encontrar la foto es fácil, comprarla también. Deja de enviar álbumes por WhatsApp uno por uno.",
+      "Cuando encontrar la foto es fácil, comprarla también. Tus clientes prefieren una alternativa segura y fácil de usar.",
   },
   {
     icon: Check,
     title: "Cero configuración",
     description:
-      "Si sabes compartir un link, sabes usar 4Tercios. Nada que instalar, nada que estudiar.",
+      "Configuración rapida: sube tu evento, establece tus precios y todo listo para compartir.",
   },
   {
     icon: Shield,
     title: "Privacidad por diseño",
     description:
-      "Las selfies se usan solo para buscar y se eliminan al instante. No guardamos datos biométricos.",
+      "Las selfies se usan solo para buscar y se eliminan al instante. No guardamos datos biométricos. No guardamos tus fotos.",
   },
   {
     icon: Heart,
-    title: "Tu marca, no la nuestra",
+    title: "Tu marca, tu identidad",
     description:
-      "Galería personalizada con tus colores y logo. Los clientes te recuerdan a ti, no a una plataforma.",
+      "Haz que te recuerden: Comparte tu perfil de 4tercios en tus redes sociales para que tus clientes puedan encontrarte rapidamente.",
   },
 ];
 

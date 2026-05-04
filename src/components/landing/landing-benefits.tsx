@@ -12,8 +12,11 @@ export function LandingBenefits() {
           Por qué 4Tercios
         </p>
         <h2 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">
-          Menos envíos manuales. Más ventas.
-        </h2>
+          Te ahorramos el trabajo de búsqueda y organización manual de tus fotos.{" "}
+          <span className="text-gray-500">
+            Tu te ocupas de las fotos y nosotros de procesarlas para la venta a tus clientes.
+          </span>
+        </h2>  
       </div>
 
       <div className="mt-12 grid gap-4 sm:grid-cols-2">

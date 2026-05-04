@@ -279,7 +279,7 @@ export default function RegistroPage() {
             disabled={googleLoading || !supabaseReady}
           >
             <GoogleIcon className="size-4" />
-            {googleLoading ? "Redirigiendo..." : "Google"}
+            {googleLoading ? "Redirigiendo..." : "Registrarme con Google"}
           </Button>
 
           <p className="mt-8 text-center text-sm leading-relaxed text-zinc-500">

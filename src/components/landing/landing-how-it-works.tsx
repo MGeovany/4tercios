@@ -6,7 +6,7 @@ import { IN_VIEW_ANIMATION, STEPS } from "./constants";
 
 export function LandingHowItWorks() {
   return (
-    <section id="como-funciona" className="border-border/60 bg-muted/30 border-y font-manrope">
+    <section id="como-funciona" className="border-border/60 bg-white border-y font-manrope">
       <div className="mx-auto max-w-5xl px-6 py-20">
         <div className="max-w-xl">
           <p className="text-muted-foreground text-xs font-medium tracking-wide uppercase">

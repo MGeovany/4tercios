@@ -18,7 +18,7 @@ export function LandingHeader({ authCta }: LandingHeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <header className="border-border/60 bg-background/80 sticky top-0 z-50 border-b backdrop-blur-md">
+    <header className="border-border/60 bg-white/90 sticky top-0 z-50 border-b backdrop-blur-md">
       <nav className="mx-auto flex h-14 max-w-6xl items-center justify-between px-6">
         <Link
           href="/"
@@ -68,7 +68,7 @@ export function LandingHeader({ authCta }: LandingHeaderProps) {
       </nav>
 
       {mobileMenuOpen ? (
-        <div className="border-border/60 bg-background border-t px-6 py-4 md:hidden">
+        <div className="border-border/60 bg-white border-t px-6 py-4 md:hidden">
           <div className="flex flex-col gap-3">
             {NAV_LINKS.map((l) => (
               <Link key={l.href} href={l.href} className="text-muted-foreground text-sm">

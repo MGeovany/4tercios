@@ -17,7 +17,7 @@ export default function LandingPage() {
     : { href: "/login", label: "Iniciar sesión" };
 
   return (
-    <div className="landing-deep-blue bg-background text-foreground min-h-screen font-manrope">
+    <div className="bg-white text-foreground min-h-screen font-manrope">
       <LandingHeader authCta={authCta} />
       <LandingHero />
       <LandingHowItWorks />

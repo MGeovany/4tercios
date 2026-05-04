@@ -6,7 +6,7 @@ import { EVENT_TYPES, IN_VIEW_ANIMATION } from "./constants";
 
 export function LandingEventTypes() {
   return (
-    <section id="eventos" className="border-border/60 bg-muted/30 border-y">
+    <section id="eventos" className="border-border/60 bg-white border-y">
       <div className="mx-auto max-w-5xl px-6 py-20">
         <div className="max-w-xl">
           <p className="text-muted-foreground text-xs font-medium tracking-wide uppercase">

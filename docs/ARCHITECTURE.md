@@ -395,20 +395,21 @@ El parser de `replicate-provider.ts` acepta múltiples shapes de output comunes.
 
 ## Variables de entorno
 
-| Variable                        | Default                        | Notas                                                        |
-| ------------------------------- | ------------------------------ | ------------------------------------------------------------ |
-| `NEXT_PUBLIC_SUPABASE_URL`      | —                              | Requerido                                                    |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | —                              | Requerido                                                    |
-| `SUPABASE_SERVICE_ROLE_KEY`     | —                              | Requerido. **Server-only**, jamás expuesto al cliente        |
-| `FACE_PROVIDER`                 | auto                           | `local` \| `replicate` \| `mock`                             |
-| `FACE_MODELS_DIR`               | `$TMPDIR/4tercios-face-models` | Cache de los ONNX                                            |
-| `FACE_DETECTION_URL`            | HF mirror                      | Override del modelo de detección                             |
-| `FACE_RECOGNITION_URL`          | HF mirror                      | Override del modelo de embedding                             |
-| `SELFIE_MIN_SCORE`              | `0.45`                         | Cosine score mínimo para mostrar match                       |
-| `REPLICATE_API_TOKEN`           | —                              | Solo si usamos Replicate                                     |
-| `REPLICATE_FACE_MODEL`          | —                              | `owner/name[:version]`                                       |
-| `REPLICATE_FACE_DIMENSION`      | `512`                          | Override si el modelo retorna otra dim                       |
-| `CLINPAYS_*`                    | —                              | Vacío = orders quedan en `pending`, pago manual por WhatsApp |
+| Variable                               | Default                        | Notas                                                           |
+| -------------------------------------- | ------------------------------ | --------------------------------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`             | —                              | Requerido                                                       |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | —                              | Requerido (público; seguro en cliente con RLS bien configurado) |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY`        | —                              | Legacy opcional temporal para compatibilidad                    |
+| `SUPABASE_SERVICE_ROLE_KEY`            | —                              | Requerido. **Server-only**, jamás expuesto al cliente           |
+| `FACE_PROVIDER`                        | auto                           | `local` \| `replicate` \| `mock`                                |
+| `FACE_MODELS_DIR`                      | `$TMPDIR/4tercios-face-models` | Cache de los ONNX                                               |
+| `FACE_DETECTION_URL`                   | HF mirror                      | Override del modelo de detección                                |
+| `FACE_RECOGNITION_URL`                 | HF mirror                      | Override del modelo de embedding                                |
+| `SELFIE_MIN_SCORE`                     | `0.45`                         | Cosine score mínimo para mostrar match                          |
+| `REPLICATE_API_TOKEN`                  | —                              | Solo si usamos Replicate                                        |
+| `REPLICATE_FACE_MODEL`                 | —                              | `owner/name[:version]`                                          |
+| `REPLICATE_FACE_DIMENSION`             | `512`                          | Override si el modelo retorna otra dim                          |
+| `CLINPAYS_*`                           | —                              | Vacío = orders quedan en `pending`, pago manual por WhatsApp    |
 
 ## Despliegue
 

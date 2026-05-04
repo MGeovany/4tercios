@@ -8,10 +8,10 @@ import { getSupabaseEnv, getSupabaseServiceEnv } from "./env";
  * Reads/writes the auth session through the Next.js cookie store.
  */
 export async function getSupabaseServerClient() {
-  const { url, anonKey } = getSupabaseEnv();
+  const { url, publishableKey } = getSupabaseEnv();
   const cookieStore = await cookies();
 
-  return createServerClient(url, anonKey, {
+  return createServerClient(url, publishableKey, {
     cookies: {
       getAll() {
         return cookieStore.getAll();

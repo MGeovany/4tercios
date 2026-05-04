@@ -1,16 +1,23 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, Check, PartyPopper } from "lucide-react";
 import Confetti from "react-confetti";
 
-import { Brand } from "@/components/brand";
+import {
+  LANDING_LOGO_HEIGHT,
+  LANDING_LOGO_SRC,
+  LANDING_LOGO_WIDTH,
+} from "@/components/landing/constants";
 import { Button } from "@/components/ui/button";
 import {
   buildOnboardingPath,
   getOnboardingStepFromMetadata,
   isOnboardingStepId,
+  ONBOARDING_STEP_IDS,
   type OnboardingStepId,
 } from "@/lib/onboarding";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
@@ -29,13 +36,17 @@ import {
   type OnboardingState,
 } from "./_components/types";
 
-export function OnboardingClient() {
+function getStepIndex(step: string | null | undefined) {
+  if (!isOnboardingStepId(step)) return 0;
+  return ONBOARDING_STEP_IDS.findIndex((id) => id === step);
+}
+
+export function OnboardingClient({ initialStep }: { initialStep: string | null }) {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const initialStepRef = useRef<string | null>(searchParams.get("step"));
-  const [stepIndex, setStepIndex] = useState(0);
+  const initialStepRef = useRef<string | null>(initialStep);
+  const userNavigatedRef = useRef(false);
+  const [stepIndex, setStepIndex] = useState(() => getStepIndex(initialStep));
   const [state, setState] = useState<OnboardingState>(DEFAULT_ONBOARDING_STATE);
-  const [authChecked, setAuthChecked] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [completed, setCompleted] = useState(false);
@@ -71,12 +82,11 @@ export function OnboardingClient() {
           return;
         }
 
-        const stepFromUrl = initialStepRef.current;
-        const resolvedStep = isOnboardingStepId(stepFromUrl)
-          ? stepFromUrl
-          : getOnboardingStepFromMetadata(meta);
-        const resolvedIndex = ONBOARDING_STEPS.findIndex((step) => step.id === resolvedStep);
-        setStepIndex(resolvedIndex >= 0 ? resolvedIndex : 0);
+        if (!isOnboardingStepId(initialStepRef.current) && !userNavigatedRef.current) {
+          const fallbackStep = getOnboardingStepFromMetadata(meta);
+          setStepIndex(getStepIndex(fallbackStep));
+          syncStepInUrl(fallbackStep);
+        }
 
         setState((prev) => ({
           ...prev,
@@ -126,11 +136,9 @@ export function OnboardingClient() {
                 : prev.notifications.weeklyDigest,
           },
         }));
-        setAuthChecked(true);
       } catch (err) {
         if (!mounted) return;
         setError(err instanceof Error ? err.message : "No se pudo cargar tu cuenta.");
-        setAuthChecked(true);
       }
     }
 
@@ -148,16 +156,20 @@ export function OnboardingClient() {
   const stepRequirementMessage = getStepRequirementMessage(currentStep?.id, state);
   const canContinue = !stepRequirementMessage;
 
+  function syncStepInUrl(step: OnboardingStepId) {
+    if (typeof window === "undefined") return;
+    window.history.replaceState({}, "", buildOnboardingPath(step));
+  }
+
   function goBack() {
     setError(null);
-    setStepIndex((i) => {
-      const prevIndex = Math.max(0, i - 1);
-      const prevStep = ONBOARDING_STEPS[prevIndex]?.id;
-      if (prevStep) {
-        router.replace(buildOnboardingPath(prevStep));
-      }
-      return prevIndex;
-    });
+    userNavigatedRef.current = true;
+    const prevIndex = Math.max(0, stepIndex - 1);
+    const prevStep = ONBOARDING_STEPS[prevIndex]?.id;
+    setStepIndex(prevIndex);
+    if (prevStep) {
+      syncStepInUrl(prevStep);
+    }
   }
 
   async function persist(
@@ -238,6 +250,7 @@ export function OnboardingClient() {
       return;
     }
     setError(null);
+    userNavigatedRef.current = true;
 
     if (!isLastStep) {
       const nextIndex = Math.min(total - 1, stepIndex + 1);
@@ -248,7 +261,7 @@ export function OnboardingClient() {
       try {
         await persist(state, false, nextStep);
         setStepIndex(nextIndex);
-        router.replace(buildOnboardingPath(nextStep));
+        syncStepInUrl(nextStep);
       } catch (err) {
         setError(err instanceof Error ? err.message : "No se pudo guardar tu avance.");
       } finally {
@@ -272,17 +285,9 @@ export function OnboardingClient() {
     return (
       <div className="bg-background flex min-h-screen items-center justify-center px-6">
         <p className="max-w-md text-center text-sm text-red-600">
-          Configura `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY` para activar el
-          onboarding.
+          Configura `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` para activar
+          el onboarding.
         </p>
-      </div>
-    );
-  }
-
-  if (!authChecked) {
-    return (
-      <div className="bg-background flex min-h-screen items-center justify-center px-6">
-        <p className="text-muted-foreground text-sm">Preparando tu cuenta...</p>
       </div>
     );
   }
@@ -290,9 +295,21 @@ export function OnboardingClient() {
   return (
     <div className="bg-background min-h-screen">
       <header className="border-border/60 border-b">
-        <div className="mx-auto flex h-14 max-w-3xl items-center justify-between px-6">
-          <Brand href="/" size="sm" />
-          <span className="text-muted-foreground text-xs">Configuración inicial</span>
+        <div className="mx-auto flex h-14 max-w-3xl items-center justify-start px-6">
+          <Link
+            href="/"
+            className="inline-flex rounded-xl focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none"
+            aria-label="4Tercios"
+          >
+            <Image
+              src={LANDING_LOGO_SRC}
+              alt="4Tercios"
+              width={LANDING_LOGO_WIDTH}
+              height={LANDING_LOGO_HEIGHT}
+              className="h-4 w-auto"
+              priority
+            />
+          </Link>
         </div>
       </header>
 

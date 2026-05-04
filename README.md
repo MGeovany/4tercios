@@ -25,7 +25,7 @@ Plataforma para fotógrafos de eventos en Honduras. Subes fotos, la IA detecta r
 
 2. Copia `.env.example` a `.env.local` y completa los valores. Mínimo:
    - `NEXT_PUBLIC_SUPABASE_URL`
-   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
    - `SUPABASE_SERVICE_ROLE_KEY`
 
    Para reconocimiento facial no necesitas nada más: por defecto se usa el provider local. Los modelos ONNX (~16MB) se descargan automáticamente al primer uso a `$TMPDIR/4tercios-face-models`.

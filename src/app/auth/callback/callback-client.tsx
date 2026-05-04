@@ -63,8 +63,7 @@ export function AuthCallbackClient() {
       }
 
       if (!mounted) return;
-      const next = searchParams.get("next") || "/dashboard";
-      router.replace(onboardingCompleted ? next : onboardingPath);
+      router.replace(onboardingCompleted ? "/dashboard" : onboardingPath);
     }
 
     void resolveAuthCallback();

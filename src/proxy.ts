@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 
 const OAUTH_ERROR_PARAMS = ["error", "error_code", "error_description"] as const;
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const url = request.nextUrl;
   const hasOauthErrorParams = OAUTH_ERROR_PARAMS.some((param) => url.searchParams.has(param));
 

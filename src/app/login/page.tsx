@@ -159,8 +159,8 @@ export default function LoginPage() {
 
           {!supabaseReady ? (
             <p className="mt-6 rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-zinc-700">
-              Configura `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY` para activar
-              autenticación.
+              Configura `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` para
+              activar autenticación.
             </p>
           ) : null}
 
@@ -211,7 +211,7 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {error ? <p className="text-sm text-zinc-700">{error}</p> : null}
+            {error ? <p className="text-xs font-medium text-red-600">{`*` + error}</p> : null}
             {success ? <p className="text-sm text-zinc-700">{success}</p> : null}
 
             <Button

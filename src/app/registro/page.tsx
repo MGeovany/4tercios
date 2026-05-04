@@ -79,9 +79,10 @@ export default function RegistroPage() {
 
     try {
       const supabase = getSupabaseBrowserClient();
+      const normalizedEmail = email.trim();
       const fullName = `${firstName.trim()} ${lastName.trim()}`.trim();
       const { error: signUpError } = await supabase.auth.signUp({
-        email: email.trim(),
+        email: normalizedEmail,
         password,
         options: {
           data: {
@@ -99,7 +100,25 @@ export default function RegistroPage() {
         return;
       }
 
-      setMessage("Cuenta creada. Si el email es válido podrás continuar...");
+      const {
+        data: { session: currentSession },
+      } = await supabase.auth.getSession();
+
+      if (!currentSession) {
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email: normalizedEmail,
+          password,
+        });
+
+        if (signInError) {
+          setError(
+            "Cuenta creada, pero no pudimos iniciar sesión automáticamente. Inicia sesión para continuar con el onboarding."
+          );
+          return;
+        }
+      }
+
+      setMessage("Cuenta creada. Redirigiendo al onboarding...");
       router.replace("/onboarding");
     } catch (err) {
       const msg = err instanceof Error ? err.message : "No se pudo crear la cuenta.";
@@ -168,8 +187,8 @@ export default function RegistroPage() {
 
           {!supabaseReady ? (
             <p className="mt-6 rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-zinc-700">
-              Configura `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY` para activar
-              autenticación.
+              Configura `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` para
+              activar autenticación.
             </p>
           ) : null}
 

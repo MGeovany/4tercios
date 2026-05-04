@@ -123,8 +123,8 @@ export default function RestablecerContrasenaPage() {
           <CardContent className="space-y-4">
             {!supabaseReady ? (
               <p className="text-sm text-red-600">
-                Configura `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY` para activar
-                autenticación.
+                Configura `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` para
+                activar autenticación.
               </p>
             ) : null}
             {supabaseReady && !sessionChecked ? (

@@ -4,13 +4,14 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { FormEvent, useMemo, useState } from "react";
-import { LogIn } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 
 import {
   LANDING_LOGO_HEIGHT,
   LANDING_LOGO_SRC,
   LANDING_LOGO_WIDTH,
 } from "@/components/landing/constants";
+import { GoogleIcon } from "@/components/icons/google";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,6 +22,7 @@ export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -39,6 +41,7 @@ export default function LoginPage() {
     e.preventDefault();
     setError(null);
     setSuccess(null);
+
     setLoading(true);
 
     try {
@@ -98,7 +101,7 @@ export default function LoginPage() {
 
   return (
     <div className="font-manrope min-h-screen bg-white text-zinc-950">
-      <header className="mx-auto flex w-full max-w-xl items-center justify-between px-6 py-6">
+      <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-6">
         <Link
           href="/"
           className="inline-flex rounded-xl focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none"
@@ -157,16 +160,26 @@ export default function LoginPage() {
                   ¿Olvidaste tu contraseña?
                 </Link>
               </div>
-              <Input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                autoComplete="current-password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="h-12 rounded-xl border-zinc-200"
-              />
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="••••••••"
+                  autoComplete="current-password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="h-12 rounded-xl border-zinc-200 pr-11"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                  className="absolute top-1/2 right-3 -translate-y-1/2 text-zinc-500 transition-colors hover:text-zinc-800"
+                >
+                  {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                </button>
+              </div>
             </div>
 
             {error ? <p className="text-sm text-zinc-700">{error}</p> : null}
@@ -195,7 +208,7 @@ export default function LoginPage() {
             onClick={onGoogleSignIn}
             disabled={googleLoading || !supabaseReady}
           >
-            <LogIn className="size-4" />
+            <GoogleIcon className="size-4" />
             {googleLoading ? "Redirigiendo..." : "Iniciar sesión con Google"}
           </Button>
 

@@ -4,17 +4,39 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { FormEvent, useMemo, useState } from "react";
-import { LogIn } from "lucide-react";
+import { CheckCircle2, Eye, EyeOff } from "lucide-react";
 
 import {
   LANDING_LOGO_HEIGHT,
   LANDING_LOGO_SRC,
   LANDING_LOGO_WIDTH,
 } from "@/components/landing/constants";
+import { GoogleIcon } from "@/components/icons/google";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+import { cn } from "@/lib/utils";
+
+const PASSWORD_RULES = [
+  { id: "length", label: "Mínimo 8 caracteres", test: (value: string) => value.length >= 8 },
+  {
+    id: "uppercase",
+    label: "Al menos una mayúscula",
+    test: (value: string) => /[A-Z]/.test(value),
+  },
+  {
+    id: "lowercase",
+    label: "Al menos una minúscula",
+    test: (value: string) => /[a-z]/.test(value),
+  },
+  { id: "number", label: "Al menos un número", test: (value: string) => /\d/.test(value) },
+  {
+    id: "symbol",
+    label: "Al menos un caracter especial",
+    test: (value: string) => /[^A-Za-z0-9]/.test(value),
+  },
+] as const;
 
 export default function RegistroPage() {
   const router = useRouter();
@@ -22,6 +44,7 @@ export default function RegistroPage() {
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -36,10 +59,22 @@ export default function RegistroPage() {
     }
   }, []);
 
+  const passwordChecks = useMemo(
+    () => PASSWORD_RULES.map((rule) => ({ ...rule, valid: rule.test(password) })),
+    [password]
+  );
+  const passwordValid = passwordChecks.every((rule) => rule.valid);
+
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
     setMessage(null);
+
+    if (!passwordValid) {
+      setError("La contraseña no cumple con los requisitos de seguridad.");
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -182,17 +217,39 @@ export default function RegistroPage() {
 
             <div className="space-y-2">
               <Label htmlFor="password">Contraseña</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="Mínimo 6 caracteres"
-                autoComplete="new-password"
-                minLength={6}
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="h-12 rounded-xl border-zinc-200"
-              />
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Mínimo 8 caracteres"
+                  autoComplete="new-password"
+                  minLength={8}
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="h-12 rounded-xl border-zinc-200 pr-11"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                  className="absolute top-1/2 right-3 -translate-y-1/2 text-zinc-500 transition-colors hover:text-zinc-800"
+                >
+                  {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                </button>
+              </div>
+              <ul className="space-y-1 pt-1 text-xs text-zinc-500">
+                {passwordChecks.map((rule) => (
+                  <li key={rule.id} className="flex items-center gap-2">
+                    <CheckCircle2
+                      className={cn("size-3.5", rule.valid ? "text-emerald-600" : "text-zinc-300")}
+                    />
+                    <span className={cn(rule.valid ? "text-zinc-700" : "text-zinc-500")}>
+                      {rule.label}
+                    </span>
+                  </li>
+                ))}
+              </ul>
             </div>
 
             {error ? <p className="text-sm text-zinc-700">{error}</p> : null}
@@ -221,7 +278,7 @@ export default function RegistroPage() {
             onClick={onGoogleSignIn}
             disabled={googleLoading || !supabaseReady}
           >
-            <LogIn className="size-4" />
+            <GoogleIcon className="size-4" />
             {googleLoading ? "Redirigiendo..." : "Google"}
           </Button>
 

@@ -53,7 +53,7 @@ export const DEFAULT_ONBOARDING_STATE: OnboardingState = {
   },
   payments: {
     country: "",
-    method: "",
+    method: "transferencia",
   },
   notifications: {
     sales: true,
@@ -62,7 +62,7 @@ export const DEFAULT_ONBOARDING_STATE: OnboardingState = {
   },
 };
 
-export type StepId = "business" | "contact" | "brand" | "payments" | "notifications";
+export type StepId = "business" | "contact" | "payments" | "notifications";
 
 export type StepMeta = {
   id: StepId;
@@ -72,7 +72,6 @@ export type StepMeta = {
 export const ONBOARDING_STEPS: StepMeta[] = [
   { id: "business", label: "Negocio" },
   { id: "contact", label: "Contacto" },
-  { id: "brand", label: "Marca" },
   { id: "payments", label: "Pagos" },
   { id: "notifications", label: "Notificaciones" },
 ];
@@ -112,22 +111,22 @@ export const PAYOUT_METHODS: { value: PayoutMethod; label: string; description: 
   {
     value: "transferencia",
     label: "Transferencia bancaria",
-    description: "Recibe directo en tu banco local.",
+    description: "Recibe tus pagos en tu cuenta local. 24-72h, menor costo.",
   },
   {
     value: "tigo_money",
-    label: "Tigo Money / billetera móvil",
-    description: "Ideal si manejas pagos por celular.",
+    label: "Billetera móvil (Tigo Money)",
+    description: "Retiros rápidos desde el celular. Puede tener límites por cuenta.",
   },
   {
     value: "paypal",
     label: "PayPal",
-    description: "Para retiros internacionales rápidos.",
+    description: "Recibe pagos internacionales. Comisiones más altas.",
   },
   {
     value: "wire",
-    label: "Wire / SWIFT",
-    description: "Para cuentas en USD u otras monedas.",
+    label: "Transferencia internacional (SWIFT)",
+    description: "Para cuentas en USD o fuera del país. Puede tardar varios días.",
   },
   {
     value: "otro",

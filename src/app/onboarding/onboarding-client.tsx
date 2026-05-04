@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, Check, PartyPopper } from "lucide-react";
 import Confetti from "react-confetti";
 
@@ -13,289 +13,198 @@ import {
   LANDING_LOGO_WIDTH,
 } from "@/components/landing/constants";
 import { Button } from "@/components/ui/button";
-import {
-  buildOnboardingPath,
-  getOnboardingStepFromMetadata,
-  isOnboardingStepId,
-  ONBOARDING_STEP_IDS,
-  type OnboardingStepId,
-} from "@/lib/onboarding";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 import { OnboardingProgress } from "./_components/progress";
-import {
-  StepBrand,
-  StepBusiness,
-  StepContact,
-  StepNotifications,
-  StepPayments,
-} from "./_components/steps";
-import {
-  DEFAULT_ONBOARDING_STATE,
-  ONBOARDING_STEPS,
-  type OnboardingState,
-} from "./_components/types";
+import { StepBusiness, StepContact, StepNotifications, StepPayments } from "./_components/steps";
+import { ONBOARDING_STEPS, type OnboardingState, type StepId } from "./_components/types";
 
-function getStepIndex(step: string | null | undefined) {
-  if (!isOnboardingStepId(step)) return 0;
-  return ONBOARDING_STEP_IDS.findIndex((id) => id === step);
+type SaveState = "idle" | "saving" | "error";
+
+type PersistArgs = {
+  state: OnboardingState;
+  step: StepId;
+  markCompleted: boolean;
+};
+
+function buildMetadataPatch({ state, step, markCompleted }: PersistArgs) {
+  return {
+    business_name: state.business.businessName.trim(),
+    photography_types: state.business.photographyTypes,
+    bio: state.business.bio.trim(),
+    phone: state.contact.phone.trim(),
+    website: state.contact.website.trim(),
+    instagram: state.contact.instagram.trim(),
+    brand_color: state.brand.primaryColor,
+    welcome_message: state.brand.welcomeMessage.trim(),
+    payments_country: state.payments.country.trim(),
+    payments_method: state.payments.method.trim(),
+    notif_sales: state.notifications.sales,
+    notif_matches: state.notifications.matches,
+    notif_weekly_digest: state.notifications.weeklyDigest,
+    onboarding_step: step,
+    ...(markCompleted ? { onboarding_completed: true } : {}),
+  };
 }
 
-export function OnboardingClient({ initialStep }: { initialStep: string | null }) {
-  const router = useRouter();
-  const initialStepRef = useRef<string | null>(initialStep);
-  const userNavigatedRef = useRef(false);
-  const [stepIndex, setStepIndex] = useState(() => getStepIndex(initialStep));
-  const [state, setState] = useState<OnboardingState>(DEFAULT_ONBOARDING_STATE);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [completed, setCompleted] = useState(false);
+async function saveOnboarding(args: PersistArgs) {
+  const supabase = getSupabaseBrowserClient();
 
-  const supabaseReady = useMemo(() => {
-    try {
-      getSupabaseBrowserClient();
-      return true;
-    } catch {
-      return false;
-    }
-  }, []);
+  const {
+    data: { user },
+    error: userErr,
+  } = await supabase.auth.getUser();
+  if (userErr) throw userErr;
+  if (!user) throw new Error("No encontramos tu sesión.");
 
-  useEffect(() => {
-    if (!supabaseReady) return;
+  const { error: updErr } = await supabase.auth.updateUser({
+    data: buildMetadataPatch(args),
+  });
+  if (updErr) throw updErr;
 
-    let mounted = true;
+  const businessName = args.state.business.businessName.trim();
+  const phone = args.state.contact.phone.trim();
+  const country = args.state.payments.country.trim();
+  const method = args.state.payments.method.trim();
+  const brandColor = args.state.brand.primaryColor;
 
-    async function bootstrap() {
-      try {
-        const supabase = getSupabaseBrowserClient();
-        const { data, error: userErr } = await supabase.auth.getUser();
-        if (!mounted) return;
+  const fullPatch: Record<string, unknown> = {
+    id: user.id,
+    business_name: businessName || "Fotógrafo",
+    whatsapp: phone || null,
+    brand_color: brandColor || "#18181b",
+    payout_country: country || null,
+    payout_method: method || null,
+  };
 
-        if (userErr || !data.user) {
-          router.replace("/login");
-          return;
-        }
+  const { error: photographerErr } = await supabase
+    .from("photographers")
+    .upsert(fullPatch, { onConflict: "id" });
 
-        const meta = (data.user.user_metadata ?? {}) as Record<string, unknown>;
-        if (meta.onboarding_completed === true) {
-          router.replace("/dashboard");
-          return;
-        }
+  if (!photographerErr) return;
 
-        if (!isOnboardingStepId(initialStepRef.current) && !userNavigatedRef.current) {
-          const fallbackStep = getOnboardingStepFromMetadata(meta);
-          setStepIndex(getStepIndex(fallbackStep));
-          syncStepInUrl(fallbackStep);
-        }
+  const code = (photographerErr as { code?: string }).code;
+  if (code !== "PGRST204") throw photographerErr;
 
-        setState((prev) => ({
-          ...prev,
-          business: {
-            businessName:
-              typeof meta.business_name === "string"
-                ? meta.business_name
-                : prev.business.businessName,
-            photographyTypes: Array.isArray(meta.photography_types)
-              ? (meta.photography_types as OnboardingState["business"]["photographyTypes"])
-              : prev.business.photographyTypes,
-            bio: typeof meta.bio === "string" ? meta.bio : prev.business.bio,
-          },
-          contact: {
-            phone: typeof meta.phone === "string" ? meta.phone : prev.contact.phone,
-            website: typeof meta.website === "string" ? meta.website : prev.contact.website,
-            instagram: typeof meta.instagram === "string" ? meta.instagram : prev.contact.instagram,
-          },
-          brand: {
-            primaryColor:
-              typeof meta.brand_color === "string" ? meta.brand_color : prev.brand.primaryColor,
-            welcomeMessage:
-              typeof meta.welcome_message === "string"
-                ? meta.welcome_message
-                : prev.brand.welcomeMessage,
-          },
-          payments: {
-            country:
-              typeof meta.payments_country === "string"
-                ? meta.payments_country
-                : prev.payments.country,
-            method:
-              typeof meta.payments_method === "string"
-                ? (meta.payments_method as OnboardingState["payments"]["method"])
-                : prev.payments.method,
-          },
-          notifications: {
-            sales:
-              typeof meta.notif_sales === "boolean" ? meta.notif_sales : prev.notifications.sales,
-            matches:
-              typeof meta.notif_matches === "boolean"
-                ? meta.notif_matches
-                : prev.notifications.matches,
-            weeklyDigest:
-              typeof meta.notif_weekly_digest === "boolean"
-                ? meta.notif_weekly_digest
-                : prev.notifications.weeklyDigest,
-          },
-        }));
-      } catch (err) {
-        if (!mounted) return;
-        setError(err instanceof Error ? err.message : "No se pudo cargar tu cuenta.");
-      }
-    }
-
-    void bootstrap();
-
-    return () => {
-      mounted = false;
-    };
-  }, [router, supabaseReady]);
-
-  const total = ONBOARDING_STEPS.length;
-  const isLastStep = stepIndex === total - 1;
-  const currentStep = ONBOARDING_STEPS[stepIndex];
-
-  const stepRequirementMessage = getStepRequirementMessage(currentStep?.id, state);
-  const canContinue = !stepRequirementMessage;
-
-  function syncStepInUrl(step: OnboardingStepId) {
-    if (typeof window === "undefined") return;
-    window.history.replaceState({}, "", buildOnboardingPath(step));
-  }
-
-  function goBack() {
-    setError(null);
-    userNavigatedRef.current = true;
-    const prevIndex = Math.max(0, stepIndex - 1);
-    const prevStep = ONBOARDING_STEPS[prevIndex]?.id;
-    setStepIndex(prevIndex);
-    if (prevStep) {
-      syncStepInUrl(prevStep);
-    }
-  }
-
-  async function persist(
-    payload: OnboardingState,
-    markCompleted: boolean,
-    stepToSave: OnboardingStepId
-  ) {
-    const supabase = getSupabaseBrowserClient();
-    const businessName = payload.business.businessName.trim();
-    const phone = payload.contact.phone.trim();
-    const country = payload.payments.country.trim();
-    const method = payload.payments.method.trim();
-    const brandColor = payload.brand.primaryColor;
-
-    const { data: userRes, error: userErr } = await supabase.auth.getUser();
-    if (userErr) throw userErr;
-    if (!userRes.user) throw new Error("No encontramos tu sesión.");
-
-    const { error: updErr } = await supabase.auth.updateUser({
-      data: {
-        business_name: businessName,
-        photography_types: payload.business.photographyTypes,
-        bio: payload.business.bio.trim(),
-        phone,
-        website: payload.contact.website.trim(),
-        instagram: payload.contact.instagram.trim(),
-        brand_color: brandColor,
-        welcome_message: payload.brand.welcomeMessage.trim(),
-        payments_country: country,
-        payments_method: method,
-        notif_sales: payload.notifications.sales,
-        notif_matches: payload.notifications.matches,
-        notif_weekly_digest: payload.notifications.weeklyDigest,
-        onboarding_step: stepToSave,
-        ...(markCompleted ? { onboarding_completed: true } : {}),
-      },
-    });
-
-    if (updErr) throw updErr;
-
-    // Persist canonical photographer record so server/public pages don't depend on auth metadata.
-    // Try the full payload first; fall back if optional columns aren't deployed yet.
-    const fullPatch: Record<string, unknown> = {
-      id: userRes.user.id,
+  const { error: minimalErr } = await supabase.from("photographers").upsert(
+    {
+      id: user.id,
       business_name: businessName || "Fotógrafo",
       whatsapp: phone || null,
       brand_color: brandColor || "#18181b",
-      payout_country: country || null,
-      payout_method: method || null,
-    };
+    },
+    { onConflict: "id" }
+  );
+  if (minimalErr) throw minimalErr;
+}
 
-    const { error: photographerErr } = await supabase
-      .from("photographers")
-      .upsert(fullPatch, { onConflict: "id" });
+function getStepRequirementMessage(stepId: StepId, state: OnboardingState): string | null {
+  if (stepId === "business" && state.business.businessName.trim().length === 0) {
+    return "Agrega el nombre de tu negocio para continuar.";
+  }
+  if (stepId === "payments" && state.payments.country.trim().length === 0) {
+    return "Selecciona tu país para configurar pagos.";
+  }
+  return null;
+}
 
-    if (photographerErr) {
-      const code = (photographerErr as { code?: string }).code;
-      if (code === "PGRST204") {
-        const { error: minimalErr } = await supabase.from("photographers").upsert(
-          {
-            id: userRes.user.id,
-            business_name: businessName || "Fotógrafo",
-            whatsapp: phone || null,
-            brand_color: brandColor || "#18181b",
-          },
-          { onConflict: "id" }
-        );
-        if (minimalErr) throw minimalErr;
-      } else {
-        throw photographerErr;
-      }
-    }
+export function OnboardingClient({
+  initialStep,
+  initialState,
+}: {
+  initialStep: StepId;
+  initialState: OnboardingState;
+}) {
+  const router = useRouter();
+
+  const initialIndex = Math.max(
+    0,
+    ONBOARDING_STEPS.findIndex((s) => s.id === initialStep)
+  );
+  const [stepIndex, setStepIndex] = useState(initialIndex);
+  const [state, setState] = useState<OnboardingState>(initialState);
+  const [saveState, setSaveState] = useState<SaveState>("idle");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [completed, setCompleted] = useState(false);
+
+  // Per-call abortable persist: only the latest save's outcome wins.
+  const lastSaveTokenRef = useRef(0);
+
+  const total = ONBOARDING_STEPS.length;
+  const currentStep = ONBOARDING_STEPS[stepIndex] ?? ONBOARDING_STEPS[0];
+  const isLastStep = stepIndex === total - 1;
+
+  const requirementMessage = getStepRequirementMessage(currentStep.id, state);
+  const canContinue = !requirementMessage;
+
+  function persistInBackground(args: PersistArgs) {
+    const token = ++lastSaveTokenRef.current;
+    setSaveState("saving");
+    setErrorMessage(null);
+
+    saveOnboarding(args)
+      .then(() => {
+        if (lastSaveTokenRef.current !== token) return;
+        setSaveState("idle");
+      })
+      .catch((err: unknown) => {
+        if (lastSaveTokenRef.current !== token) return;
+        const message = err instanceof Error ? err.message : "No se pudo guardar tu avance.";
+        console.error("[onboarding] persist error", err);
+        setSaveState("error");
+        setErrorMessage(message);
+      });
   }
 
-  async function goNext() {
+  function goBack() {
+    if (stepIndex === 0) return;
+    setErrorMessage(null);
+    const prevIndex = stepIndex - 1;
+    const prevStep = ONBOARDING_STEPS[prevIndex].id;
+    setStepIndex(prevIndex);
+    persistInBackground({ state, step: prevStep, markCompleted: false });
+  }
+
+  function goNext() {
     if (!canContinue) {
-      setError(stepRequirementMessage);
+      setErrorMessage(requirementMessage);
       return;
     }
-    setError(null);
-    userNavigatedRef.current = true;
+    setErrorMessage(null);
 
     if (!isLastStep) {
-      const nextIndex = Math.min(total - 1, stepIndex + 1);
-      const nextStep = ONBOARDING_STEPS[nextIndex]?.id;
-      if (!nextStep) return;
-
-      setSaving(true);
-      try {
-        await persist(state, false, nextStep);
-        setStepIndex(nextIndex);
-        syncStepInUrl(nextStep);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "No se pudo guardar tu avance.");
-      } finally {
-        setSaving(false);
-      }
+      const nextIndex = stepIndex + 1;
+      const nextStep = ONBOARDING_STEPS[nextIndex].id;
+      setStepIndex(nextIndex);
+      persistInBackground({ state, step: nextStep, markCompleted: false });
       return;
     }
 
-    setSaving(true);
-    try {
-      await persist(state, true, "notifications");
-      setCompleted(true);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "No se pudo guardar tu información.");
-    } finally {
-      setSaving(false);
-    }
+    finishOnboarding();
   }
 
-  if (!supabaseReady) {
-    return (
-      <div className="bg-background flex min-h-screen items-center justify-center px-6">
-        <p className="max-w-md text-center text-sm text-red-600">
-          Configura `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` para activar
-          el onboarding.
-        </p>
-      </div>
-    );
+  async function finishOnboarding() {
+    setSaveState("saving");
+    setErrorMessage(null);
+    try {
+      await saveOnboarding({ state, step: "notifications", markCompleted: true });
+      setCompleted(true);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "No se pudo guardar tu información.";
+      console.error("[onboarding] finish error", err);
+      setSaveState("error");
+      setErrorMessage(message);
+    } finally {
+      setSaveState("idle");
+    }
   }
 
   return (
     <div className="bg-background min-h-screen">
       <header className="border-border/60 border-b">
-        <div className="mx-auto flex h-14 max-w-3xl items-center justify-start px-6">
+        <div
+          className={`mx-auto flex h-14 max-w-3xl items-center px-6 ${completed ? "justify-center" : "justify-start"}`}
+        >
           <Link
             href="/"
             className="inline-flex rounded-xl focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none"
@@ -316,7 +225,7 @@ export function OnboardingClient({ initialStep }: { initialStep: string | null }
       <main
         className={
           completed
-            ? "mx-auto flex min-h-[calc(100vh-3.5rem)] w-full max-w-xl items-center justify-center px-6"
+            ? "mx-auto flex min-h-[calc(100dvh-3.5rem)] min-h-[calc(100vh-3.5rem)] w-full max-w-xl items-center justify-center px-6"
             : "mx-auto w-full max-w-xl px-6 py-10 sm:py-14"
         }
       >
@@ -327,44 +236,46 @@ export function OnboardingClient({ initialStep }: { initialStep: string | null }
             <OnboardingProgress steps={ONBOARDING_STEPS} currentIndex={stepIndex} />
 
             <div className="mt-10">
-              {currentStep?.id === "business" ? (
+              {currentStep.id === "business" ? (
                 <StepBusiness
                   value={state.business}
-                  onChange={(v) => setState({ ...state, business: v })}
+                  onChange={(v) => setState((prev) => ({ ...prev, business: v }))}
                 />
               ) : null}
-              {currentStep?.id === "contact" ? (
+              {currentStep.id === "contact" ? (
                 <StepContact
                   value={state.contact}
-                  onChange={(v) => setState({ ...state, contact: v })}
+                  onChange={(v) => setState((prev) => ({ ...prev, contact: v }))}
                 />
               ) : null}
-              {currentStep?.id === "brand" ? (
-                <StepBrand value={state.brand} onChange={(v) => setState({ ...state, brand: v })} />
-              ) : null}
-              {currentStep?.id === "payments" ? (
+              {currentStep.id === "payments" ? (
                 <StepPayments
                   value={state.payments}
-                  onChange={(v) => setState({ ...state, payments: v })}
+                  onChange={(v) => setState((prev) => ({ ...prev, payments: v }))}
                 />
               ) : null}
-              {currentStep?.id === "notifications" ? (
+              {currentStep.id === "notifications" ? (
                 <StepNotifications
                   value={state.notifications}
-                  onChange={(v) => setState({ ...state, notifications: v })}
+                  onChange={(v) => setState((prev) => ({ ...prev, notifications: v }))}
                 />
               ) : null}
             </div>
 
-            {error ? <p className="mt-6 text-sm text-red-600">{error}</p> : null}
-            {!error && stepRequirementMessage ? (
-              <p className="text-muted-foreground mt-6 text-xs">{stepRequirementMessage}</p>
+            {errorMessage ? <p className="mt-6 text-sm text-red-600">{errorMessage}</p> : null}
+            {!errorMessage && requirementMessage ? (
+              <p className="text-muted-foreground mt-6 text-xs">{requirementMessage}</p>
             ) : null}
 
             <div className="mt-10 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-2">
                 {stepIndex > 0 ? (
-                  <Button type="button" variant="ghost" onClick={goBack} disabled={saving}>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={goBack}
+                    disabled={saveState === "saving"}
+                  >
                     <ArrowLeft className="size-4" />
                     Atrás
                   </Button>
@@ -374,12 +285,16 @@ export function OnboardingClient({ initialStep }: { initialStep: string | null }
               <Button
                 type="button"
                 onClick={goNext}
-                disabled={!canContinue || saving}
+                disabled={!canContinue || (isLastStep && saveState === "saving")}
                 className="sm:min-w-[160px]"
               >
-                {saving ? "Guardando..." : isLastStep ? "Terminar" : "Continuar"}
-                {!saving && !isLastStep ? <ArrowRight className="size-4" /> : null}
-                {!saving && isLastStep ? <Check className="size-4" /> : null}
+                {isLastStep && saveState === "saving"
+                  ? "Guardando..."
+                  : isLastStep
+                    ? "Terminar"
+                    : "Continuar"}
+                {!isLastStep ? <ArrowRight className="size-4" /> : null}
+                {isLastStep && saveState !== "saving" ? <Check className="size-4" /> : null}
               </Button>
             </div>
           </>
@@ -387,22 +302,6 @@ export function OnboardingClient({ initialStep }: { initialStep: string | null }
       </main>
     </div>
   );
-}
-
-function getStepRequirementMessage(stepId: string | undefined, state: OnboardingState) {
-  if (stepId === "business" && state.business.businessName.trim().length === 0) {
-    return "Agrega el nombre de tu negocio para continuar.";
-  }
-
-  if (stepId === "payments" && state.payments.country.trim().length === 0) {
-    return "Selecciona tu país para configurar pagos.";
-  }
-
-  if (stepId === "payments" && state.payments.method.trim().length === 0) {
-    return "Elige un método de pago preferido.";
-  }
-
-  return null;
 }
 
 function CompletionView({ onContinue }: { onContinue: () => void }) {
@@ -439,7 +338,8 @@ function CompletionView({ onContinue }: { onContinue: () => void }) {
         <Confetti
           width={viewport.width}
           height={viewport.height}
-          numberOfPieces={220}
+          confettiSource={{ x: 0, y: 0, w: viewport.width, h: viewport.height }}
+          numberOfPieces={300}
           recycle={false}
           gravity={0.12}
           className="pointer-events-none fixed inset-0 z-0"

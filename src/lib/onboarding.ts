@@ -1,10 +1,4 @@
-export const ONBOARDING_STEP_IDS = [
-  "business",
-  "contact",
-  "brand",
-  "payments",
-  "notifications",
-] as const;
+export const ONBOARDING_STEP_IDS = ["business", "contact", "payments", "notifications"] as const;
 
 export type OnboardingStepId = (typeof ONBOARDING_STEP_IDS)[number];
 
@@ -16,6 +10,8 @@ export function getOnboardingStepFromMetadata(
   metadata: Record<string, unknown> | null | undefined
 ): OnboardingStepId {
   const savedStep = metadata?.onboarding_step;
+  // Legacy step removed from the flow; move users forward to payments.
+  if (savedStep === "brand") return "payments";
   return isOnboardingStepId(savedStep) ? savedStep : "business";
 }
 

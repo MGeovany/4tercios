@@ -234,15 +234,14 @@ export function StepContact({
             <AtSign className="text-muted-foreground size-3.5" />
             Instagram
           </Label>
-          <div className="border-input focus-within:border-ring focus-within:ring-ring/50 flex h-9 w-full items-center rounded-md border bg-transparent transition-[color,box-shadow] focus-within:ring-[3px]">
-            <span className="text-muted-foreground pl-3 text-sm">@</span>
+          <div className="flex h-9 w-full items-center rounded-md border border-zinc-300 bg-transparent shadow-none transition-colors focus-within:border-black">
             <input
               id="instagram"
               type="text"
               placeholder="tunegocio"
               value={value.instagram.replace(/^@/, "")}
               onChange={(e) => onChange({ ...value, instagram: e.target.value.replace(/^@/, "") })}
-              className="placeholder:text-muted-foreground h-full w-full bg-transparent px-2 text-sm outline-none md:text-sm"
+              className="h-full w-full bg-transparent px-2 text-sm text-zinc-900 outline-none placeholder:text-zinc-400 md:text-sm"
             />
           </div>
         </div>
@@ -260,11 +259,6 @@ export function StepBrand({
 }) {
   return (
     <div className="space-y-7">
-      <StepHeading
-        title="Personaliza tu galería"
-        subtitle="Elige cómo se ve tu evento para los invitados. Después puedes ajustarlo por evento."
-      />
-
       <div className="space-y-6">
         <div className="space-y-3">
           <Label className="flex items-center gap-2">Color principal</Label>
@@ -316,8 +310,8 @@ export function StepPayments({
   return (
     <div className="space-y-7">
       <StepHeading
-        title="¿Cómo te pagamos?"
-        subtitle="Por ahora solo dinos cómo prefieres recibir. Configurarás los datos antes de tu primera venta."
+        title="¿Dónde quieres recibir tus ingresos?"
+        subtitle="Recibirás tu dinero después de cada venta, directo en tu cuenta. Podrás cambiar esta preferencia más adelante."
       />
 
       <div className="space-y-6">
@@ -342,6 +336,7 @@ export function StepPayments({
           <div className="grid gap-2">
             {PAYOUT_METHODS.map((m) => {
               const active = value.method === m.value;
+              const isRecommended = m.value === "transferencia";
               return (
                 <button
                   key={m.value}
@@ -363,7 +358,14 @@ export function StepPayments({
                     <Wallet className="size-4" />
                   </span>
                   <div className="flex-1">
-                    <p className="text-sm font-medium">{m.label}</p>
+                    <p className="text-sm font-medium">
+                      {m.label}{" "}
+                      {isRecommended ? (
+                        <span className="text-muted-foreground text-xs font-normal">
+                          (Recomendado)
+                        </span>
+                      ) : null}
+                    </p>
                     <p className="text-muted-foreground mt-0.5 text-xs leading-relaxed">
                       {m.description}
                     </p>
@@ -383,8 +385,13 @@ export function StepPayments({
           </div>
         </div>
 
+        <p className="bg-muted/40 rounded-md px-3 py-2 text-xs">
+          <span className="font-medium">💡 Recomendación para empezar:</span> usa transferencia
+          bancaria para recibir tu dinero más rápido.
+        </p>
         <p className="text-muted-foreground bg-muted/40 rounded-md px-3 py-2 text-xs">
-          No te pediremos datos bancarios ahora. Solo cuando confirmes tu primera venta.
+          Tus ventas se depositan automáticamente. Configurarás los datos finales antes de tu
+          primera venta.
         </p>
       </div>
     </div>

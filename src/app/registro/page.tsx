@@ -155,7 +155,7 @@ export default function RegistroPage() {
           />
         </Link>
         <Link href="/login" className="text-sm font-semibold text-zinc-700 hover:text-zinc-950">
-          Login
+          Iniciar sesión
         </Link>
       </header>
 
@@ -242,7 +242,7 @@ export default function RegistroPage() {
                 {passwordChecks.map((rule) => (
                   <li key={rule.id} className="flex items-center gap-2">
                     <CheckCircle2
-                      className={cn("size-3.5", rule.valid ? "text-emerald-600" : "text-zinc-300")}
+                      className={cn("size-3.5", rule.valid ? "text-green-600" : "text-zinc-300")}
                     />
                     <span className={cn(rule.valid ? "text-zinc-700" : "text-zinc-500")}>
                       {rule.label}

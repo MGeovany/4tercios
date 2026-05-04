@@ -1,10 +1,15 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { FormEvent, useMemo, useState } from "react";
 
+import {
+  LANDING_LOGO_HEIGHT,
+  LANDING_LOGO_SRC,
+  LANDING_LOGO_WIDTH,
+} from "@/components/landing/constants";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
@@ -56,51 +61,71 @@ export default function OlvideContrasenaPage() {
   }
 
   return (
-    <div className="bg-background min-h-screen">
-      <div className="mx-auto max-w-md px-6 py-16">
-        <Card className="border-border/50">
-          <CardHeader>
-            <CardTitle>Olvidé mi contraseña</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {!supabaseReady ? (
-              <p className="text-sm text-red-600">
-                Configura `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY` para activar
-                autenticación.
-              </p>
-            ) : null}
+    <div className="font-manrope min-h-screen bg-white text-zinc-950">
+      <header className="mx-auto flex w-full max-w-xl items-center justify-between px-6 py-6">
+        <Link
+          href="/"
+          className="inline-flex rounded-xl focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none"
+          aria-label="4Tercios"
+        >
+          <Image
+            src={LANDING_LOGO_SRC}
+            alt="4Tercios"
+            width={LANDING_LOGO_WIDTH}
+            height={LANDING_LOGO_HEIGHT}
+            className="h-4 w-auto"
+            priority
+          />
+        </Link>
+        <Link href="/login" className="text-sm font-semibold text-zinc-700 hover:text-zinc-950">
+          Login
+        </Link>
+      </header>
 
-            <form className="space-y-4" onSubmit={onSubmit}>
-              <div className="grid gap-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="tu@correo.com"
-                  autoComplete="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </div>
+      <main className="flex min-h-[calc(100vh-72px)] items-center justify-center px-6 pb-16">
+        <div className="w-full max-w-sm">
+          <h1 className="text-center text-4xl font-semibold tracking-tight">
+            Olvidé mi contraseña
+          </h1>
+          <p className="mt-3 text-center text-lg text-zinc-500">
+            Ingresa tu email para recibir el enlace de recuperación.
+          </p>
 
-              {error ? <p className="text-sm text-red-600">{error}</p> : null}
-              {message ? <p className="text-sm text-emerald-600">{message}</p> : null}
-
-              <Button type="submit" className="w-full" disabled={loading || !supabaseReady}>
-                {loading ? "Enviando..." : "Enviar enlace"}
-              </Button>
-            </form>
-
-            <p className="text-muted-foreground text-sm">
-              ¿Recordaste tu contraseña?{" "}
-              <Link href="/login" className="text-foreground underline-offset-4 hover:underline">
-                Volver a iniciar sesión
-              </Link>
+          {!supabaseReady ? (
+            <p className="mt-6 rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-zinc-700">
+              Configura `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY` para activar
+              autenticación.
             </p>
-          </CardContent>
-        </Card>
-      </div>
+          ) : null}
+
+          <form className="mt-8 space-y-4" onSubmit={onSubmit}>
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="name@example.com"
+                autoComplete="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="h-12 rounded-xl border-zinc-200"
+              />
+            </div>
+
+            {error ? <p className="text-sm text-zinc-700">{error}</p> : null}
+            {message ? <p className="text-sm text-emerald-700">{message}</p> : null}
+
+            <Button
+              type="submit"
+              className="h-12 w-full rounded-xl"
+              disabled={loading || !supabaseReady}
+            >
+              {loading ? "Enviando..." : "Enviar enlace de recuperación"}
+            </Button>
+          </form>
+        </div>
+      </main>
     </div>
   );
 }

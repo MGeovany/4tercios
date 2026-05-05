@@ -38,7 +38,7 @@ export function Footer({ variant = "default" }: { variant?: "default" | "dashboa
         <div className="grid gap-10 lg:grid-cols-12">
           <div className="lg:col-span-5">
             <Image
-              src="/brand/main-logo-hq.png"
+              src="/brand/main-logo.png"
               alt="4Tercios"
               width={428}
               height={86}

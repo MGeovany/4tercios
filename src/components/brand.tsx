@@ -22,7 +22,7 @@ export function Brand({
       )}
     >
       <Image
-        src="/brand/main-logo-hq.png"
+        src="/brand/main-logo.png"
         alt="4Tercios"
         width={428}
         height={86}

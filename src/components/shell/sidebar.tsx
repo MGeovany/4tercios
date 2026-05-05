@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import {
   ChevronDown,
@@ -11,6 +11,7 @@ import {
   LayoutGrid,
   LogOut,
   MessageSquare,
+  Loader2,
   PanelLeftClose,
   PanelLeftOpen,
   Plus,
@@ -154,16 +155,21 @@ function NavLeaf({
   item,
   active,
   collapsed = false,
+  loading = false,
+  onNavigate,
 }: {
   item: LeafItem;
   active: boolean;
   collapsed?: boolean;
+  loading?: boolean;
+  onNavigate?: (href: string) => void;
 }) {
   return (
     <Link
       href={item.href}
       prefetch
       scroll={false}
+      onClick={() => onNavigate?.(item.href)}
       aria-current={active ? "page" : undefined}
       className={cn(
         "group flex items-center rounded-xl py-2.5 text-[13.5px] transition-colors",
@@ -180,7 +186,7 @@ function NavLeaf({
           active ? "text-zinc-950" : "text-zinc-500"
         )}
       >
-        {item.icon}
+        {loading ? <Loader2 className="size-[18px] animate-spin" strokeWidth={2} /> : item.icon}
       </span>
       {!collapsed ? <span className="font-medium">{item.label}</span> : null}
     </Link>
@@ -191,12 +197,23 @@ function NavGroup({
   item,
   pathname,
   collapsed = false,
+  loading = false,
+  loadingChildHref,
+  pendingHref,
+  onNavigate,
 }: {
   item: GroupItem;
   pathname: string;
   collapsed?: boolean;
+  loading?: boolean;
+  loadingChildHref?: string | null;
+  pendingHref?: string | null;
+  onNavigate?: (href: string) => void;
 }) {
-  const groupActive = item.match(pathname);
+  const groupActive =
+    item.match(pathname) ||
+    pendingHref === item.href ||
+    item.children.some((child) => child.href === pendingHref);
   // `null` = not toggled by the user yet, follow defaults / route activity.
   const [userToggled, setUserToggled] = useState<boolean | null>(null);
   const open = userToggled ?? item.defaultOpen ?? groupActive;
@@ -209,6 +226,7 @@ function NavGroup({
         href={item.href}
         prefetch
         scroll={false}
+        onClick={() => onNavigate?.(item.href)}
         aria-current={groupActive ? "page" : undefined}
         className={cn(
           "group flex items-center justify-center rounded-xl border py-2.5 transition-colors",
@@ -218,7 +236,7 @@ function NavGroup({
             : "border-transparent text-zinc-500 hover:bg-white/60 hover:text-zinc-950"
         )}
       >
-        {item.icon}
+        {loading ? <Loader2 className="size-[18px] animate-spin" strokeWidth={2} /> : item.icon}
       </Link>
     );
   }
@@ -243,7 +261,7 @@ function NavGroup({
             groupActive ? "text-zinc-950" : "text-zinc-500"
           )}
         >
-          {item.icon}
+          {loading ? <Loader2 className="size-[18px] animate-spin" strokeWidth={2} /> : item.icon}
         </span>
         <span className="flex-1 font-medium">{item.label}</span>
         <ChevronDown
@@ -255,13 +273,14 @@ function NavGroup({
         <div className="relative mt-1 ml-[26px] flex flex-col gap-0.5 pl-4">
           <span className="absolute top-1 bottom-1 left-0 w-px bg-zinc-200" aria-hidden />
           {item.children.map((child) => {
-            const active = child.match(pathname);
+            const active = child.match(pathname) || pendingHref === child.href;
             return (
               <Link
                 key={child.id}
                 href={child.href}
                 prefetch
                 scroll={false}
+                onClick={() => onNavigate?.(child.href)}
                 className={cn(
                   "relative rounded-md px-3 py-1.5 text-[13px] transition-colors",
                   "focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none",
@@ -275,7 +294,12 @@ function NavGroup({
                   )}
                   aria-hidden
                 />
-                {child.label}
+                <span className="inline-flex items-center gap-1.5">
+                  {loadingChildHref === child.href ? (
+                    <Loader2 className="size-3.5 animate-spin text-zinc-400" strokeWidth={2} />
+                  ) : null}
+                  {child.label}
+                </span>
               </Link>
             );
           })}
@@ -289,25 +313,31 @@ function UserPill({
   onSignOut,
   isSigningOut,
   collapsed = false,
+  initialName = "",
+  initialEmail = "",
 }: {
   onSignOut: () => void;
   isSigningOut: boolean;
   collapsed?: boolean;
+  initialName?: string;
+  initialEmail?: string;
 }) {
   const { profile } = useAuthProfile();
+  const resolvedName = profile.name || initialName;
+  const resolvedEmail = profile.email || initialEmail;
 
   const initials = useMemo(() => {
-    return (profile.name || profile.email || "4T")
+    return (resolvedName || resolvedEmail || "4T")
       .split(/[\s@.]/)
       .filter(Boolean)
       .slice(0, 2)
       .map((p) => p[0])
       .join("")
       .toUpperCase();
-  }, [profile.name, profile.email]);
+  }, [resolvedName, resolvedEmail]);
 
-  const display = profile.name || (profile.email ? profile.email.split("@")[0] : "Tu cuenta");
-  const email = profile.email || "—";
+  const display = resolvedName || (resolvedEmail ? resolvedEmail.split("@")[0] : "Tu cuenta");
+  const email = resolvedEmail || "—";
 
   if (collapsed) {
     return (
@@ -375,15 +405,33 @@ function UserPill({
 }
 
 const SIDEBAR_STATE_KEY = "dashboard.sidebar.collapsed";
+type PendingNav = { href: string; routeKey: string } | null;
 
-export function Sidebar() {
+export function Sidebar({
+  initialName = "",
+  initialEmail = "",
+}: {
+  initialName?: string;
+  initialEmail?: string;
+}) {
   const { prefetch, replace, refresh } = useRouter();
   const pathname = usePathname() ?? "";
+  const searchParams = useSearchParams();
   const [isSigningOut, setIsSigningOut] = useState(false);
+  const [pendingNav, setPendingNav] = useState<PendingNav>(null);
   const [collapsed, setCollapsed] = useState(() => {
     if (typeof window === "undefined") return false;
     return window.localStorage.getItem(SIDEBAR_STATE_KEY) === "1";
   });
+  const routeKey = `${pathname}?${searchParams?.toString() ?? ""}`;
+  const showLoading = pendingNav?.routeKey === routeKey;
+
+  function handleNavigate(href: string) {
+    const next = new URL(href, window.location.origin);
+    const targetKey = `${next.pathname}${next.search}`;
+    if (targetKey === routeKey) return;
+    setPendingNav({ href, routeKey });
+  }
 
   useEffect(() => {
     window.localStorage.setItem(SIDEBAR_STATE_KEY, collapsed ? "1" : "0");
@@ -479,11 +527,22 @@ export function Sidebar() {
             <NavLeaf
               key={item.id}
               item={item}
-              active={item.match(pathname)}
+              active={item.match(pathname) || (showLoading && pendingNav?.href === item.href)}
               collapsed={collapsed}
+              loading={showLoading && pendingNav?.href === item.href}
+              onNavigate={handleNavigate}
             />
           ) : (
-            <NavGroup key={item.id} item={item} pathname={pathname} collapsed={collapsed} />
+            <NavGroup
+              key={item.id}
+              item={item}
+              pathname={pathname}
+              collapsed={collapsed}
+              loading={showLoading && pendingNav?.href === item.href}
+              loadingChildHref={showLoading ? pendingNav?.href : null}
+              pendingHref={showLoading ? pendingNav?.href : null}
+              onNavigate={handleNavigate}
+            />
           )
         )}
       </nav>
@@ -499,8 +558,10 @@ export function Sidebar() {
             <NavLeaf
               key={item.id}
               item={item}
-              active={item.match(pathname)}
+              active={item.match(pathname) || (showLoading && pendingNav?.href === item.href)}
               collapsed={collapsed}
+              loading={showLoading && pendingNav?.href === item.href}
+              onNavigate={handleNavigate}
             />
           ))}
         </nav>
@@ -511,6 +572,8 @@ export function Sidebar() {
           onSignOut={() => void handleSignOut()}
           isSigningOut={isSigningOut}
           collapsed={collapsed}
+          initialName={initialName}
+          initialEmail={initialEmail}
         />
       </div>
     </aside>

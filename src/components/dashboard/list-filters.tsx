@@ -33,6 +33,8 @@ export function ListFilters({
   const inputRef = React.useRef<HTMLInputElement | null>(null);
   const shouldRestoreFocusRef = React.useRef(false);
   const caretRef = React.useRef<number | null>(null);
+  const shouldRestoreScrollRef = React.useRef(false);
+  const scrollYRef = React.useRef(0);
 
   const updateUrl = React.useCallback(
     (nextSearch: string, nextStatus: string, preserveFocus = false) => {
@@ -40,6 +42,8 @@ export function ListFilters({
         shouldRestoreFocusRef.current = document.activeElement === inputRef.current;
         caretRef.current = nextSearch.length;
       }
+      shouldRestoreScrollRef.current = true;
+      scrollYRef.current = window.scrollY;
       const params = new URLSearchParams(searchParams?.toString() ?? "");
       if (nextSearch.trim()) params.set("q", nextSearch.trim());
       else params.delete("q");
@@ -52,6 +56,14 @@ export function ListFilters({
   );
 
   React.useEffect(() => {
+    if (shouldRestoreScrollRef.current) {
+      shouldRestoreScrollRef.current = false;
+      const nextY = scrollYRef.current;
+      requestAnimationFrame(() => {
+        window.scrollTo(0, nextY);
+      });
+    }
+
     if (!shouldRestoreFocusRef.current) return;
     shouldRestoreFocusRef.current = false;
     const nextCaret = caretRef.current;

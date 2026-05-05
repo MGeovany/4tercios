@@ -55,6 +55,8 @@ const EMPTY_PROFILE: AuthProfile = {
   notifWeeklyDigest: false,
 };
 
+let cachedProfile: AuthProfile | null = null;
+
 function readText(value: unknown) {
   return typeof value === "string" ? value.trim() : "";
 }
@@ -79,6 +81,9 @@ export function useAuthProfile() {
 
     async function loadProfile() {
       try {
+        if (cachedProfile && mounted) {
+          setProfile(cachedProfile);
+        }
         const supabase = getSupabaseBrowserClient();
         const { data } = await supabase.auth.getUser();
         if (!mounted) return;
@@ -97,7 +102,7 @@ export function useAuthProfile() {
           readText(googleIdentityData.avatar_url) ||
           readText(googleIdentityData.picture);
 
-        setProfile({
+        const nextProfile = {
           name: readText(meta.business_name) || readText(meta.full_name),
           email: user?.email ?? "",
           phone: readText(meta.phone),
@@ -130,7 +135,10 @@ export function useAuthProfile() {
             typeof meta.notif_weekly_digest === "boolean"
               ? meta.notif_weekly_digest
               : EMPTY_PROFILE.notifWeeklyDigest,
-        });
+        };
+
+        cachedProfile = nextProfile;
+        setProfile(nextProfile);
       } finally {
         if (mounted) setLoading(false);
       }

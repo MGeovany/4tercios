@@ -129,7 +129,8 @@ export const IN_VIEW_ANIMATION = {
   transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] as const },
 };
 
-const LANDING_PHOTOS = [
+/** Public paths under `public/landing/fotos-webp/` — used by hero marquees and other previews. */
+export const LANDING_PHOTOS = [
   "/landing/fotos-webp/006.webp",
   "/landing/fotos-webp/010.webp",
   "/landing/fotos-webp/026.webp",

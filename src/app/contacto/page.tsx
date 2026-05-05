@@ -69,7 +69,7 @@ export default function ContactoPage() {
               </p>
               <div className="mt-5">
                 <Button asChild className="bg-white text-black hover:bg-white/90">
-                  <a href="mailto:hola@4tercios.thefndrs.com">
+                  <a href="mailto:marlon.castro@thefndrs.com">
                     marlon.castro@thefndrs.com
                   </a>
                 </Button>

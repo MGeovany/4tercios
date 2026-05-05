@@ -3,15 +3,7 @@ import Image from "next/image";
 
 import { cn } from "@/lib/utils";
 
-export function Brand({
-  href = "/",
-  className,
-  size = "md",
-}: {
-  href?: string;
-  className?: string;
-  size?: "sm" | "md";
-}) {
+export function Brand({ href = "/", className }: { href?: string; className?: string }) {
   return (
     <Link
       href={href}
@@ -22,12 +14,12 @@ export function Brand({
       )}
     >
       <Image
-        src="/brand/main-logo.png"
+        src="/brand/logo-landing.png"
         alt="4Tercios"
-        width={428}
-        height={86}
+        width={140}
+        height={40}
         priority
-        className={size === "sm" ? "h-10 w-auto" : "h-11 w-auto"}
+        className="h-5 w-auto"
       />
     </Link>
   );

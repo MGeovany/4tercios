@@ -8,6 +8,7 @@ import { useAppStore, type SupportedLocale } from "@/lib/local-store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { RangeSlider } from "@/components/ui/range-slider";
+import { LANDING_PHOTOS } from "@/components/landing/constants";
 import { WatermarkOverlay } from "@/components/photo/watermark-overlay";
 import {
   Select,
@@ -363,12 +364,24 @@ export function ProfileSection() {
   );
 }
 
-const WATERMARK_PREVIEW_OPTIONS = [
-  { id: "running", label: "Running", src: "/landing/fotos-webp/DSC04068.webp" },
-  { id: "marathon", label: "Maratón", src: "/landing/fotos-webp/P1056924.webp" },
-  { id: "team", label: "Equipo", src: "/landing/fotos-webp/DSC04612.webp" },
-  { id: "stadium", label: "Estadio", src: "/landing/fotos-webp/P1253263.webp" },
-] as const;
+/** Same assets as the landing hero — spread across the set for variety in the picker. */
+const WATERMARK_PREVIEW_OPTIONS = (() => {
+  const n = LANDING_PHOTOS.length;
+  const picks =
+    n <= 4
+      ? [...LANDING_PHOTOS]
+      : [
+          LANDING_PHOTOS[0],
+          LANDING_PHOTOS[Math.floor(n * 0.33)],
+          LANDING_PHOTOS[Math.floor(n * 0.66)],
+          LANDING_PHOTOS[n - 1],
+        ];
+  return picks.map((src, i) => ({
+    id: `landing-${i}`,
+    label: `Foto ${i + 1}`,
+    src,
+  }));
+})();
 
 export function BrandSection() {
   const { profile, loading } = useAuthProfile();
@@ -385,7 +398,9 @@ export function BrandSection() {
   const [watermarkDensity, setWatermarkDensity] = React.useState(
     profile.watermarkDensity ?? 1
   );
-  const [previewSrc, setPreviewSrc] = React.useState<string>(WATERMARK_PREVIEW_OPTIONS[0].src);
+  const [previewSrc, setPreviewSrc] = React.useState<string>(
+    WATERMARK_PREVIEW_OPTIONS[0].src
+  );
 
   React.useEffect(() => {
     /* eslint-disable react-hooks/set-state-in-effect */
@@ -509,9 +524,7 @@ export function BrandSection() {
             max={0.45}
             step={0.01}
             value={watermarkOpacity}
-            onChange={(v) =>
-              setWatermarkOpacity(Math.max(0.02, Math.min(0.45, v)))
-            }
+            onChange={(v) => setWatermarkOpacity(Math.max(0.02, Math.min(0.45, v)))}
             valueLabel={`${Math.round(watermarkOpacity * 100)}%`}
             ariaLabel="Opacidad de watermark"
           />
@@ -523,16 +536,16 @@ export function BrandSection() {
             max={2.0}
             step={0.05}
             value={watermarkDensity}
-            onChange={(v) =>
-              setWatermarkDensity(Math.max(0.4, Math.min(2.2, v)))
+            onChange={(v) => setWatermarkDensity(Math.max(0.4, Math.min(2.2, v)))}
+            valueLabel={
+              watermarkDensity < 0.85
+                ? "Bajo"
+                : watermarkDensity < 1.25
+                  ? "Medio"
+                  : watermarkDensity < 1.7
+                    ? "Alto"
+                    : "Muy alto"
             }
-            valueLabel={watermarkDensity < 0.85
-              ? "Bajo"
-              : watermarkDensity < 1.25
-                ? "Medio"
-                : watermarkDensity < 1.7
-                  ? "Alto"
-                  : "Muy alto"}
             ariaLabel="Cantidad de watermark"
           />
         </div>
@@ -540,9 +553,7 @@ export function BrandSection() {
         <div className="space-y-3">
           <div className="flex items-center justify-between gap-3">
             <p className="text-sm font-medium text-zinc-900">Vista previa</p>
-            <p className="text-xs text-zinc-500">
-              Probando sobre una foto de ejemplo
-            </p>
+            <p className="text-xs text-zinc-500">Mismas fotos que usa la landing</p>
           </div>
           <div className="relative overflow-hidden rounded-2xl border border-zinc-200 bg-zinc-900 shadow-sm">
             <div

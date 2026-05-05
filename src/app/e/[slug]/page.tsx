@@ -4,12 +4,22 @@ import type { CSSProperties } from "react";
 import { Brand } from "@/components/brand";
 import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
 import { SelfieSearch } from "@/components/search/selfie-search";
 import { buildThemeCssVars } from "@/lib/branding";
 import { getPublicEventPresentationBySlug } from "@/lib/server/events";
 import { formatHnl } from "@/lib/currency";
+
+/** Vibrant solid colors used as a per-event accent. */
+const VIBRANT_ACCENTS = [
+  "#ff5f00",
+  "#ec4899",
+  "#7c3aed",
+  "#2563eb",
+  "#06b6d4",
+  "#16a34a",
+  "#facc15",
+  "#ef4444",
+] as const;
 
 export default async function PublicEventPage({
   params,
@@ -60,6 +70,7 @@ export default async function PublicEventPage({
     typeof event.photographers?.watermark_density === "number"
       ? Math.max(0.4, Math.min(2.2, event.photographers.watermark_density))
       : 1;
+  const accent = pickVibrantAccent(event.slug);
 
   return (
     <div
@@ -77,51 +88,57 @@ export default async function PublicEventPage({
       </header>
 
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10 lg:px-8">
-        <section className="border-border bg-card overflow-hidden rounded-3xl border shadow-sm">
-          <div className="bg-primary text-primary-foreground px-6 py-8 sm:px-8">
-            <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-end">
-              <div>
-                <Badge className="border-white/20 bg-white/10 text-white">
-                  Galería pública
-                </Badge>
-                <h1 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
+        <section
+          className="overflow-hidden rounded-3xl border border-zinc-200 bg-white shadow-[0_1px_0_0_rgba(0,0,0,0.02)]"
+          style={{ borderTopWidth: 2, borderTopColor: accent }}
+        >
+          <div className="px-6 pt-8 pb-7 sm:px-10 sm:pt-10 sm:pb-9">
+            <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
+              <div className="min-w-0">
+                <span className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-zinc-50 px-3 py-1 text-[11px] font-medium tracking-[0.08em] text-zinc-700 uppercase">
+                  <span
+                    aria-hidden
+                    className="h-1.5 w-1.5 rounded-full"
+                    style={{ background: accent }}
+                  />
+                  Encuentra tus fotos
+                </span>
+                <h1 className="mt-4 text-3xl leading-tight font-semibold tracking-tight text-zinc-950 sm:text-5xl">
                   {event.name}
                 </h1>
-                <p className="text-primary-foreground/80 mt-2 text-sm">
+                <p className="mt-2 text-sm text-zinc-500">
                   {dateStr}
                   {event.city ? ` · ${event.city}` : ""}
                   {event.venue ? ` · ${event.venue}` : ""}
                 </p>
               </div>
-              <Card className="border-white/20 bg-white/10 text-white shadow-none backdrop-blur">
-                <CardContent className="flex items-center gap-5 p-4">
-                  <div className="min-w-28">
-                    <p className="text-[11px] tracking-wide text-zinc-300 uppercase">
-                      Precio por foto
-                    </p>
-                    <p className="mt-1 text-base font-semibold">
-                      {formatHnl(event.price_per_photo_hnl)}
-                    </p>
-                  </div>
-                  <div className="h-8 w-px bg-white/20" />
-                  <div className="min-w-20">
-                    <p className="text-[11px] tracking-wide text-zinc-300 uppercase">
-                      Estado
-                    </p>
-                    <p className="mt-1 text-base font-semibold">{event.status}</p>
-                  </div>
-                </CardContent>
-              </Card>
+
+              <dl className="shrink-0">
+                <div>
+                  <dt className="text-[11px] font-medium tracking-[0.12em] text-zinc-500 uppercase">
+                    Precio por foto
+                  </dt>
+                  <dd className="mt-1 text-3xl font-semibold tracking-tight text-zinc-950 tabular-nums sm:text-4xl">
+                    {formatHnl(event.price_per_photo_hnl)}
+                  </dd>
+                </div>
+              </dl>
             </div>
           </div>
-          <div className="grid gap-3 border-t border-zinc-100 bg-zinc-50/70 px-6 py-3 text-xs text-zinc-600 sm:grid-cols-3 sm:px-8">
-            <p>Selfie privada y temporal</p>
-            <p>Búsqueda automática con IA</p>
-            <p>Compra por WhatsApp o pago online</p>
+          <div className="grid gap-2 border-t border-zinc-100 px-6 py-3.5 text-xs text-zinc-600 sm:grid-cols-3 sm:px-10">
+            <p className="flex items-center gap-2">
+              <Dot color={accent} /> Selfie privada y temporal
+            </p>
+            <p className="flex items-center gap-2">
+              <Dot color={accent} /> Búsqueda automática con IA
+            </p>
+            <p className="flex items-center gap-2">
+              <Dot color={accent} /> Compra 100% segura
+            </p>
           </div>
         </section>
 
-        <div className="mt-8 rounded-3xl border border-zinc-200 bg-white p-4 shadow-sm sm:p-6">
+        <div className="mt-8">
           <SelfieSearch
             slug={event.slug}
             pricePerPhotoHnl={event.price_per_photo_hnl}
@@ -148,5 +165,23 @@ export default async function PublicEventPage({
 
       <Footer />
     </div>
+  );
+}
+
+function pickVibrantAccent(seed: string) {
+  let hash = 0;
+  for (let i = 0; i < seed.length; i += 1) {
+    hash = (hash * 31 + seed.charCodeAt(i)) >>> 0;
+  }
+  return VIBRANT_ACCENTS[hash % VIBRANT_ACCENTS.length];
+}
+
+function Dot({ color }: { color: string }) {
+  return (
+    <span
+      aria-hidden
+      className="inline-block h-1.5 w-1.5 rounded-full"
+      style={{ background: color }}
+    />
   );
 }

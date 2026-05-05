@@ -115,11 +115,10 @@ export function SelfieSearch({
     <div className="grid gap-6 xl:grid-cols-[390px_1fr] xl:gap-8">
       <div className="space-y-4">
         {selfie ? (
-          <Card className="overflow-hidden border-zinc-200/80 bg-white shadow-sm">
+          <Card className="overflow-hidden border-zinc-200/80 bg-white shadow-none">
             <CardHeader className="border-b border-zinc-100 bg-zinc-50/70">
               <div className="flex items-center justify-between">
                 <CardTitle>Tu selfie</CardTitle>
-                <Badge variant="neutral">Paso 1</Badge>
               </div>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -161,11 +160,10 @@ export function SelfieSearch({
             </CardContent>
           </Card>
         ) : (
-          <Card className="overflow-hidden border-zinc-200/80 bg-white shadow-sm">
+          <Card className="overflow-hidden border-zinc-200/80 bg-white shadow-none">
             <CardHeader className="border-b border-zinc-100 bg-zinc-50/70">
               <div className="flex items-center justify-between">
                 <CardTitle>Encuentra tus fotos</CardTitle>
-                <Badge variant="neutral">Paso 1</Badge>
               </div>
             </CardHeader>
             <CardContent>
@@ -183,7 +181,6 @@ export function SelfieSearch({
             <div className="space-y-4">
               <div className="rounded-2xl border border-zinc-200/80 bg-zinc-50/70 p-4">
                 <div className="mb-2 flex items-center justify-between gap-2">
-                  <Badge variant="success">Paso 2 · Coincidencias</Badge>
                   <p className="text-xs text-zinc-500">Selecciona tus fotos favoritas</p>
                 </div>
                 <p className="text-sm text-zinc-700">
@@ -225,11 +222,10 @@ export function SelfieSearch({
             </div>
           )
         ) : (
-          <Card className="overflow-hidden border-zinc-200/80 bg-white shadow-sm">
+          <Card className="overflow-hidden border-zinc-200/80 bg-white shadow-none">
             <CardHeader className="border-b border-zinc-100 bg-zinc-50/70">
               <div className="flex items-center justify-between">
                 <CardTitle>Cómo funciona</CardTitle>
-                <Badge variant="neutral">Paso 2</Badge>
               </div>
             </CardHeader>
             <CardContent className="space-y-3 text-sm leading-6 text-zinc-700">
@@ -243,7 +239,7 @@ export function SelfieSearch({
                 </p>
                 <p>
                   <strong>3.</strong> Te mostramos las fotos donde apareces. Selecciona
-                  las que quieras y solicítalas por WhatsApp o paga online.
+                  las que quieras y solicítala y paga online.
                 </p>
               </div>
               <p className="text-xs text-zinc-500">
@@ -271,7 +267,7 @@ export function SelfieSearch({
 
 function EmptyState({ eventName }: { eventName: string }) {
   return (
-    <Card className="border-zinc-200/80 bg-white shadow-sm">
+    <Card className="border-zinc-200/80 bg-white shadow-none">
       <CardHeader>
         <CardTitle>No encontramos coincidencias</CardTitle>
       </CardHeader>
@@ -323,7 +319,7 @@ function MatchCard({
       type="button"
       onClick={onToggle}
       className={cn(
-        "group relative overflow-hidden rounded-2xl border bg-white text-left shadow-sm transition",
+        "group relative overflow-hidden rounded-2xl border bg-white text-left shadow-none transition",
         selected
           ? "border-zinc-950 ring-2 ring-zinc-950"
           : "border-zinc-200/80 hover:border-zinc-300"
@@ -419,9 +415,8 @@ function SelectionBar({
   };
 
   return (
-    <div className="sticky bottom-3 mt-6 rounded-2xl border border-zinc-200/80 bg-white/95 p-4 shadow-lg backdrop-blur">
+    <div className="sticky bottom-3 mt-6 rounded-2xl border border-zinc-200/80 bg-white/95 p-4 shadow-none backdrop-blur">
       <div className="mb-2 flex items-center gap-2">
-        <Badge variant="neutral">Paso 3 · Pedido</Badge>
         <p className="text-xs text-zinc-500">Confirma tus fotos y completa tu compra</p>
       </div>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">

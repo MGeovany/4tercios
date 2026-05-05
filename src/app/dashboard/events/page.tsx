@@ -82,7 +82,7 @@ export default async function EventsListPage({
         <div className="overflow-hidden rounded-xl border border-zinc-200 bg-white">
           {events.length === 0 ? (
             <div className="flex flex-col items-center justify-center gap-3 px-6 py-16 text-center">
-              <p className="text-sm text-zinc-700">
+              <p className="font-manrope text-sm text-gray-500">
                 {hasSearch
                   ? `No se encontró ningún evento para "${search.trim()}".`
                   : hasActiveFilters

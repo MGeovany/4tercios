@@ -243,10 +243,7 @@ function NavGroup({
 
   return (
     <div className="flex flex-col">
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        aria-expanded={open}
+      <div
         className={cn(
           "group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-[13.5px] transition-colors",
           "focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none",
@@ -255,20 +252,37 @@ function NavGroup({
             : "border border-transparent text-zinc-600 hover:bg-white/60 hover:text-zinc-950"
         )}
       >
-        <span
-          className={cn(
-            "flex size-5 items-center justify-center",
-            groupActive ? "text-zinc-950" : "text-zinc-500"
-          )}
+        <Link
+          href={item.href}
+          prefetch
+          scroll={false}
+          onClick={() => onNavigate?.(item.href)}
+          aria-current={groupActive ? "page" : undefined}
+          className="flex min-w-0 flex-1 items-center gap-3 focus-visible:outline-none"
         >
-          {loading ? <Loader2 className="size-[18px] animate-spin" strokeWidth={2} /> : item.icon}
-        </span>
-        <span className="flex-1 font-medium">{item.label}</span>
-        <ChevronDown
-          className={cn("size-4 text-zinc-400 transition-transform", open ? "rotate-180" : "")}
-          strokeWidth={2}
-        />
-      </button>
+          <span
+            className={cn(
+              "flex size-5 items-center justify-center",
+              groupActive ? "text-zinc-950" : "text-zinc-500"
+            )}
+          >
+            {loading ? <Loader2 className="size-[18px] animate-spin" strokeWidth={2} /> : item.icon}
+          </span>
+          <span className="truncate font-medium">{item.label}</span>
+        </Link>
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          aria-expanded={open}
+          aria-label={open ? "Colapsar submenú" : "Expandir submenú"}
+          className="inline-flex size-6 items-center justify-center rounded-md text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-700"
+        >
+          <ChevronDown
+            className={cn("size-4 transition-transform", open ? "rotate-180" : "")}
+            strokeWidth={2}
+          />
+        </button>
+      </div>
       {open ? (
         <div className="relative mt-1 ml-[26px] flex flex-col gap-0.5 pl-4">
           <span className="absolute top-1 bottom-1 left-0 w-px bg-zinc-200" aria-hidden />

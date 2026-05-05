@@ -9,6 +9,36 @@ export type ListEventsFilters = {
   status?: EventStatus | "all" | null;
 };
 
+export type ListUpcomingEventsFilters = {
+  search?: string | null;
+  status?: EventStatus | "all" | null;
+  type?: EventType | "all" | null;
+  limit?: number;
+};
+
+export type ExpiredEventRow = EventRow & {
+  expires_at: string;
+  days_since_expired: number;
+};
+
+function addDays(date: Date, days: number) {
+  const next = new Date(date);
+  next.setDate(next.getDate() + days);
+  return next;
+}
+
+function parseYmd(date: string) {
+  const [year, month, day] = date.split("-").map((v) => Number(v));
+  return new Date(year, (month || 1) - 1, day || 1);
+}
+
+function toYmd(date: Date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
 export async function listEventsForPhotographer(
   filters: ListEventsFilters = {}
 ): Promise<EventRow[]> {
@@ -30,6 +60,65 @@ export async function listEventsForPhotographer(
   const { data, error } = await query;
   if (error) throw error;
   return data as EventRow[];
+}
+
+export async function listUpcomingEventsForPhotographer(
+  filters: ListUpcomingEventsFilters = {}
+): Promise<EventRow[]> {
+  const supabase = await getSupabaseServerClient();
+  const today = new Date();
+  const todayYmd = toYmd(today);
+
+  let query = supabase
+    .from("events")
+    .select("*")
+    .gte("date", todayYmd)
+    .order("date", { ascending: true })
+    .order("created_at", { ascending: false });
+
+  if (filters.status && filters.status !== "all") {
+    query = query.eq("status", filters.status);
+  }
+
+  if (filters.type && filters.type !== "all") {
+    query = query.eq("type", filters.type);
+  }
+
+  const search = filters.search?.trim();
+  if (search) {
+    const escaped = search.replace(/[\\%_,]/g, (m) => `\\${m}`);
+    query = query.or(
+      `name.ilike.%${escaped}%,city.ilike.%${escaped}%,venue.ilike.%${escaped}%,slug.ilike.%${escaped}%`
+    );
+  }
+
+  const take = Number.isFinite(filters.limit) ? Math.max(1, Number(filters.limit)) : 8;
+  const { data, error } = await query.limit(take);
+  if (error) throw error;
+  return data as EventRow[];
+}
+
+export async function listExpiredEventsForPhotographer(filters: { search?: string | null } = {}) {
+  const events = await listEventsForPhotographer({ search: filters.search ?? null, status: null });
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  return events
+    .map((event) => {
+      const expiresDate = addDays(parseYmd(event.date), Math.max(0, event.online_days ?? 0));
+      const expiresMs = expiresDate.getTime();
+      const daysSinceExpired = Math.max(0, Math.floor((today.getTime() - expiresMs) / 86400000));
+      return {
+        ...event,
+        expires_at: toYmd(expiresDate),
+        days_since_expired: daysSinceExpired,
+      } as ExpiredEventRow;
+    })
+    .filter((event) => {
+      const expiredByDate = parseYmd(event.expires_at).getTime() < today.getTime();
+      return expiredByDate || event.status === "Archivado";
+    })
+    .sort((a, b) => b.expires_at.localeCompare(a.expires_at));
 }
 
 export async function getEventByIdForPhotographer(id: string): Promise<EventRow | null> {

@@ -33,7 +33,7 @@ export function TopbarSearch() {
           name="q"
           defaultValue={currentQuery}
           placeholder="Search anything..."
-          className="h-10 w-full rounded-2xl border border-zinc-200 bg-white py-2 pr-3 pl-9 text-[13.5px] text-zinc-900 transition-colors outline-none placeholder:text-zinc-400 focus:border-zinc-400"
+          className="h-8 w-full rounded-md border border-zinc-200 bg-gray-50 py-1 pr-3 pl-9 text-xs text-zinc-900 transition-colors outline-none placeholder:text-zinc-400 focus:border-zinc-400"
         />
       </label>
     </form>

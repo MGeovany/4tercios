@@ -2,7 +2,6 @@ import Link from "next/link";
 import {
   ArrowDownRight,
   ArrowUpRight,
-  Calendar as CalendarIcon,
   Camera,
   CheckSquare,
   ChevronRight,
@@ -15,11 +14,14 @@ import {
 } from "lucide-react";
 
 import { requirePhotographer } from "@/lib/server/auth";
-import { listEventsForPhotographer, getPhotographerStats } from "@/lib/server/events";
-import { formatHnl } from "@/lib/currency";
+import {
+  listEventsForPhotographer,
+  listUpcomingEventsForPhotographer,
+  getPhotographerStats,
+} from "@/lib/server/events";
 import { cn } from "@/lib/utils";
 import { Topbar } from "@/components/shell/topbar";
-import type { EventRow, EventStatus, OrderRow, OrderStatus } from "@/lib/db/types";
+import type { EventRow, EventStatus, EventType, OrderRow, OrderStatus } from "@/lib/db/types";
 
 import { Sparkline } from "./_components/sparkline";
 import { OverviewChart, type ChartPoint } from "./_components/overview-chart";
@@ -46,6 +48,26 @@ const EVENT_BADGE: Record<EventStatus, string> = {
   Borrador: "bg-zinc-100 text-zinc-700",
   Archivado: "bg-zinc-100 text-zinc-500",
 };
+
+const UPCOMING_STATUS_OPTIONS: { value: EventStatus | "all"; label: string }[] = [
+  { value: "all", label: "Todos" },
+  { value: "Borrador", label: "Borrador" },
+  { value: "Subiendo", label: "Subiendo" },
+  { value: "Procesando", label: "Procesando" },
+  { value: "Listo", label: "Listo" },
+  { value: "Con errores", label: "Con errores" },
+  { value: "Archivado", label: "Archivado" },
+];
+
+const UPCOMING_TYPE_OPTIONS: { value: EventType | "all"; label: string }[] = [
+  { value: "all", label: "Todos" },
+  { value: "Carrera", label: "Carrera" },
+  { value: "Graduacion", label: "Graduacion" },
+  { value: "Boda", label: "Boda" },
+  { value: "Torneo", label: "Torneo" },
+  { value: "Corporativo", label: "Corporativo" },
+  { value: "Otro", label: "Otro" },
+];
 
 const MONTH_SHORT_ES = [
   "Ene",
@@ -140,9 +162,41 @@ function inferEventThumbIcon(type: EventRow["type"]) {
   }
 }
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const sp = await searchParams;
+  const upcomingSearch =
+    typeof sp.ue_q === "string" ? sp.ue_q : Array.isArray(sp.ue_q) ? sp.ue_q[0] : "";
+  const upcomingStatusParam =
+    typeof sp.ue_status === "string"
+      ? sp.ue_status
+      : Array.isArray(sp.ue_status)
+        ? sp.ue_status[0]
+        : "all";
+  const upcomingTypeParam =
+    typeof sp.ue_type === "string" ? sp.ue_type : Array.isArray(sp.ue_type) ? sp.ue_type[0] : "all";
+
+  const upcomingStatus =
+    UPCOMING_STATUS_OPTIONS.find((o) => o.value === upcomingStatusParam)?.value ?? "all";
+  const upcomingType =
+    UPCOMING_TYPE_OPTIONS.find((o) => o.value === upcomingTypeParam)?.value ?? "all";
+  const hasUpcomingFilters =
+    (upcomingSearch ?? "").trim().length > 0 || upcomingStatus !== "all" || upcomingType !== "all";
+
   const { photographer } = await requirePhotographer();
-  const [events, stats] = await Promise.all([listEventsForPhotographer(), getPhotographerStats()]);
+  const [events, upcomingEvents, stats] = await Promise.all([
+    listEventsForPhotographer(),
+    listUpcomingEventsForPhotographer({
+      search: upcomingSearch,
+      status: upcomingStatus === "all" ? null : upcomingStatus,
+      type: upcomingType === "all" ? null : upcomingType,
+      limit: 12,
+    }),
+    getPhotographerStats(),
+  ]);
 
   const allOrders = stats.recentOrders ?? [];
   const { months: series, hasRealData } = buildMonthlySeries(allOrders);
@@ -165,13 +219,6 @@ export default async function DashboardPage() {
   const totalOrders = allOrders.length;
 
   const recentOrders = allOrders.slice(0, 4);
-  // Server component: this runs once per request, so reading the clock here is fine.
-  // eslint-disable-next-line react-hooks/purity
-  const cutoffMs = Date.now() - 1000 * 60 * 60 * 24;
-  const upcomingEvents = [...events]
-    .filter((e) => new Date(`${e.date}T00:00:00`).getTime() >= cutoffMs)
-    .sort((a, b) => a.date.localeCompare(b.date))
-    .slice(0, 4);
 
   const eventNameById = new Map(events.map((e) => [e.id, e]));
 
@@ -179,20 +226,9 @@ export default async function DashboardPage() {
 
   return (
     <>
-      <Topbar
-        title="Dashboard"
-        right={
-          <button
-            type="button"
-            aria-label="Calendario"
-            className="inline-flex size-10 items-center justify-center rounded-2xl border border-zinc-200 bg-white text-zinc-700 transition-colors hover:bg-zinc-50"
-          >
-            <CalendarIcon className="size-4" strokeWidth={1.75} />
-          </button>
-        }
-      />
+      <Topbar title="Dashboard" />
 
-      <div className="mx-auto w-full max-w-[1280px] px-6 pt-8 pb-12 lg:px-8">
+      <div className="mx-auto w-full max-w-[1280px] bg-white px-6 pt-8 pb-12 lg:px-8">
         <header className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h1 className="flex items-center gap-2 text-[26px] leading-tight font-semibold tracking-tight text-zinc-950">
@@ -264,16 +300,13 @@ export default async function DashboardPage() {
         </section>
 
         <section className="mt-5">
-          <UpcomingEvents events={upcomingEvents} />
-        </section>
-
-        <section className="mt-8">
-          <p className="text-[12px] text-zinc-500">
-            Cobrado hasta hoy:{" "}
-            <span className="font-semibold text-zinc-900">{formatHnl(stats.totals.paidHnl)}</span> ·
-            Bruto {formatHnl(stats.totals.grossHnl)} · {formatNumber(stats.totals.facesDetected)}{" "}
-            rostros detectados
-          </p>
+          <UpcomingEvents
+            events={upcomingEvents}
+            search={upcomingSearch}
+            status={upcomingStatus}
+            type={upcomingType}
+            hasActiveFilters={hasUpcomingFilters}
+          />
         </section>
       </div>
 
@@ -359,7 +392,7 @@ function BuyingHistory({
           Historial de compras
         </h2>
         <Link
-          href="/dashboard/orders"
+          href="/dashboard/history"
           className="text-[12px] font-medium text-zinc-500 transition-colors hover:text-zinc-900"
         >
           Ver todo
@@ -423,29 +456,114 @@ function BuyingHistory({
   );
 }
 
-function UpcomingEvents({ events }: { events: EventRow[] }) {
+function UpcomingEvents({
+  events,
+  search,
+  status,
+  type,
+  hasActiveFilters,
+}: {
+  events: EventRow[];
+  search: string;
+  status: EventStatus | "all";
+  type: EventType | "all";
+  hasActiveFilters: boolean;
+}) {
   return (
     <section className="rounded-3xl border border-zinc-200 bg-white">
       <header className="flex items-center justify-between border-b border-zinc-100 px-5 py-4">
         <h2 className="text-[15px] font-semibold tracking-tight text-zinc-950">Próximos eventos</h2>
-        <button
-          type="button"
+        <Link
+          href="#upcoming-filters"
           className="inline-flex items-center gap-1.5 rounded-xl border border-zinc-200 bg-white px-3 py-1.5 text-[12.5px] font-medium text-zinc-700 transition-colors hover:bg-zinc-50"
         >
           Filtrar
           <SlidersHorizontal className="size-3.5 text-zinc-400" strokeWidth={2} />
-        </button>
+        </Link>
       </header>
+
+      <form
+        id="upcoming-filters"
+        method="get"
+        className="grid gap-3 border-b border-zinc-100 bg-zinc-50/40 px-5 py-3 md:grid-cols-4"
+      >
+        <label className="min-w-0 md:col-span-2">
+          <span className="mb-1 block text-[11px] font-medium tracking-wide text-zinc-500 uppercase">
+            Buscar
+          </span>
+          <input
+            type="search"
+            name="ue_q"
+            defaultValue={search}
+            placeholder="Nombre, ciudad o slug..."
+            className="h-9 w-full rounded-lg border border-zinc-200 bg-white px-3 text-sm text-zinc-900 transition-colors outline-none placeholder:text-zinc-400 focus:border-zinc-900"
+          />
+        </label>
+        <label>
+          <span className="mb-1 block text-[11px] font-medium tracking-wide text-zinc-500 uppercase">
+            Estado
+          </span>
+          <select
+            name="ue_status"
+            defaultValue={status}
+            className="h-9 w-full rounded-lg border border-zinc-200 bg-white px-3 text-sm text-zinc-900 transition-colors outline-none focus:border-zinc-900"
+          >
+            {UPCOMING_STATUS_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label>
+          <span className="mb-1 block text-[11px] font-medium tracking-wide text-zinc-500 uppercase">
+            Tipo
+          </span>
+          <select
+            name="ue_type"
+            defaultValue={type}
+            className="h-9 w-full rounded-lg border border-zinc-200 bg-white px-3 text-sm text-zinc-900 transition-colors outline-none focus:border-zinc-900"
+          >
+            {UPCOMING_TYPE_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </label>
+        <div className="flex items-end gap-2 md:col-span-4">
+          <button
+            type="submit"
+            className="inline-flex h-9 items-center rounded-lg bg-zinc-900 px-3 text-[12.5px] font-medium text-white transition-colors hover:bg-zinc-800"
+          >
+            Aplicar filtros
+          </button>
+          {hasActiveFilters ? (
+            <Link
+              href="/dashboard"
+              className="inline-flex h-9 items-center rounded-lg border border-zinc-200 bg-white px-3 text-[12.5px] font-medium text-zinc-700 transition-colors hover:bg-zinc-50"
+            >
+              Limpiar
+            </Link>
+          ) : null}
+        </div>
+      </form>
 
       {events.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-3 px-6 py-12 text-center">
-          <p className="text-[13px] text-zinc-600">Sin eventos próximos por el momento.</p>
-          <Link
-            href="/dashboard/events/new"
-            className="inline-flex items-center gap-1 rounded-xl bg-zinc-900 px-3 py-1.5 text-[12.5px] font-medium text-white transition-colors hover:bg-zinc-800"
-          >
-            Crear evento
-          </Link>
+          <p className="text-[13px] text-zinc-600">
+            {hasActiveFilters
+              ? "No se encontraron eventos para los filtros seleccionados."
+              : "Sin eventos próximos por el momento."}
+          </p>
+          {!hasActiveFilters ? (
+            <Link
+              href="/dashboard/events/new"
+              className="inline-flex items-center gap-1 rounded-xl bg-zinc-900 px-3 py-1.5 text-[12.5px] font-medium text-white transition-colors hover:bg-zinc-800"
+            >
+              Crear evento
+            </Link>
+          ) : null}
         </div>
       ) : (
         <div className="overflow-x-auto">

@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import {
   ChevronDown,
   CreditCard,
+  History,
   HelpCircle,
   LayoutGrid,
   LogOut,
@@ -16,6 +17,7 @@ import {
   Settings,
   ShoppingBag,
   Truck,
+  Calendar,
 } from "lucide-react";
 
 import { useAuthProfile } from "@/lib/auth-profile";
@@ -66,7 +68,7 @@ const PRIMARY_NAV: NavItem[] = [
     id: "events",
     href: "/dashboard/events",
     label: "Eventos",
-    icon: <Truck className="size-[18px]" strokeWidth={1.75} />,
+    icon: <Calendar className="size-[18px]" strokeWidth={1.75} />,
     defaultOpen: true,
     match: (p) => p.startsWith("/dashboard/events") && !p.startsWith("/dashboard/events/new"),
     children: [
@@ -111,6 +113,14 @@ const PRIMARY_NAV: NavItem[] = [
     label: "Pagos",
     icon: <CreditCard className="size-[18px]" strokeWidth={1.75} />,
     match: (p) => p.includes("tab=pagos"),
+  },
+  {
+    kind: "leaf",
+    id: "history",
+    href: "/dashboard/history",
+    label: "Historial",
+    icon: <History className="size-[18px]" strokeWidth={1.75} />,
+    match: (p) => p.startsWith("/dashboard/history"),
   },
 ];
 
@@ -409,7 +419,7 @@ export function Sidebar() {
       className={cn(
         "hidden lg:sticky lg:top-0 lg:flex lg:h-screen lg:shrink-0 lg:flex-col lg:self-start lg:overflow-y-auto lg:border-r lg:border-zinc-200/80 lg:bg-zinc-50",
         "transition-[width] duration-200",
-        collapsed ? "lg:w-[72px]" : "lg:w-[272px]"
+        collapsed ? "lg:w-[72px]" : "lg:w-[232px]"
       )}
     >
       <div

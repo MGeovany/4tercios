@@ -172,21 +172,35 @@ function NavLeaf({
       onClick={() => onNavigate?.(item.href)}
       aria-current={active ? "page" : undefined}
       className={cn(
-        "group flex items-center rounded-xl py-2.5 text-[13.5px] transition-colors",
+        "group flex items-center rounded-xl py-2.5 text-[13.5px] transition-all duration-300 ease-out",
         collapsed ? "justify-center px-2" : "gap-3 px-3",
         "focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none",
         active
-          ? "border border-zinc-200 bg-white text-zinc-950 shadow-[0_1px_0_rgba(24,24,27,0.04)]"
-          : "border border-transparent text-zinc-600 hover:bg-white/60 hover:text-zinc-950"
+          ? "border border-zinc-200 bg-white text-zinc-950 shadow-[0_1px_0_rgba(24,24,27,0.04)] ring-1 ring-zinc-200/60"
+          : "border border-transparent text-zinc-600 hover:bg-white/60 hover:text-zinc-950 hover:shadow-[0_1px_0_rgba(24,24,27,0.03)]"
       )}
     >
       <span
         className={cn(
-          "flex size-5 items-center justify-center",
+          "relative flex size-5 items-center justify-center transition-colors duration-300",
           active ? "text-zinc-950" : "text-zinc-500"
         )}
       >
-        {loading ? <Loader2 className="size-[18px] animate-spin" strokeWidth={2} /> : item.icon}
+        <span
+          className={cn(
+            "absolute inset-0 flex items-center justify-center transition-opacity duration-200",
+            loading ? "opacity-0" : "opacity-100"
+          )}
+        >
+          {item.icon}
+        </span>
+        <Loader2
+          className={cn(
+            "size-[18px] animate-spin transition-opacity duration-200",
+            loading ? "opacity-100" : "opacity-0"
+          )}
+          strokeWidth={2}
+        />
       </span>
       {!collapsed ? <span className="font-medium">{item.label}</span> : null}
     </Link>
@@ -229,14 +243,30 @@ function NavGroup({
         onClick={() => onNavigate?.(item.href)}
         aria-current={groupActive ? "page" : undefined}
         className={cn(
-          "group flex items-center justify-center rounded-xl border py-2.5 transition-colors",
+          "group flex items-center justify-center rounded-xl border py-2.5 transition-all duration-300 ease-out",
           "focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none",
           groupActive
-            ? "border-zinc-200 bg-white text-zinc-950 shadow-[0_1px_0_rgba(24,24,27,0.04)]"
+            ? "border-zinc-200 bg-white text-zinc-950 shadow-[0_1px_0_rgba(24,24,27,0.04)] ring-1 ring-zinc-200/60"
             : "border-transparent text-zinc-500 hover:bg-white/60 hover:text-zinc-950"
         )}
       >
-        {loading ? <Loader2 className="size-[18px] animate-spin" strokeWidth={2} /> : item.icon}
+        <span className="relative flex size-5 items-center justify-center">
+          <span
+            className={cn(
+              "absolute inset-0 flex items-center justify-center transition-opacity duration-200",
+              loading ? "opacity-0" : "opacity-100"
+            )}
+          >
+            {item.icon}
+          </span>
+          <Loader2
+            className={cn(
+              "size-[18px] animate-spin transition-opacity duration-200",
+              loading ? "opacity-100" : "opacity-0"
+            )}
+            strokeWidth={2}
+          />
+        </span>
       </Link>
     );
   }
@@ -245,10 +275,10 @@ function NavGroup({
     <div className="flex flex-col">
       <div
         className={cn(
-          "group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-[13.5px] transition-colors",
+          "group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-[13.5px] transition-all duration-300 ease-out",
           "focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none",
           groupActive
-            ? "border border-zinc-200 bg-white text-zinc-950 shadow-[0_1px_0_rgba(24,24,27,0.04)]"
+            ? "border border-zinc-200 bg-white text-zinc-950 shadow-[0_1px_0_rgba(24,24,27,0.04)] ring-1 ring-zinc-200/60"
             : "border border-transparent text-zinc-600 hover:bg-white/60 hover:text-zinc-950"
         )}
       >
@@ -262,11 +292,25 @@ function NavGroup({
         >
           <span
             className={cn(
-              "flex size-5 items-center justify-center",
+              "relative flex size-5 items-center justify-center transition-colors duration-300",
               groupActive ? "text-zinc-950" : "text-zinc-500"
             )}
           >
-            {loading ? <Loader2 className="size-[18px] animate-spin" strokeWidth={2} /> : item.icon}
+            <span
+              className={cn(
+                "absolute inset-0 flex items-center justify-center transition-opacity duration-200",
+                loading ? "opacity-0" : "opacity-100"
+              )}
+            >
+              {item.icon}
+            </span>
+            <Loader2
+              className={cn(
+                "size-[18px] animate-spin transition-opacity duration-200",
+                loading ? "opacity-100" : "opacity-0"
+              )}
+              strokeWidth={2}
+            />
           </span>
           <span className="truncate font-medium">{item.label}</span>
         </Link>
@@ -296,7 +340,7 @@ function NavGroup({
                 scroll={false}
                 onClick={() => onNavigate?.(child.href)}
                 className={cn(
-                  "relative rounded-md px-3 py-1.5 text-[13px] transition-colors",
+                  "relative rounded-md px-3 py-1.5 text-[13px] transition-all duration-300 ease-out",
                   "focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none",
                   active ? "text-zinc-950" : "text-zinc-500 hover:text-zinc-900"
                 )}

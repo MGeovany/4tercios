@@ -37,10 +37,7 @@ export default async function DashboardHistoryPage({
       <Topbar title="Historial" subtitle={`${expiredEvents.length} eventos caducados`} />
 
       <div className="mx-auto w-full max-w-5xl space-y-4 px-6 py-8">
-        <form
-          className="flex items-center gap-2 rounded-xl border border-zinc-200 bg-white p-2"
-          method="get"
-        >
+        <form className="flex items-center gap-2 rounded-xl bg-white" method="get">
           <label className="relative min-w-0 flex-1">
             <MagnifyingGlassIcon className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-zinc-400" />
             <input
@@ -62,7 +59,7 @@ export default async function DashboardHistoryPage({
         <section className="overflow-hidden rounded-xl border border-zinc-200 bg-white">
           {expiredEvents.length === 0 ? (
             <div className="flex flex-col items-center justify-center gap-3 px-6 py-16 text-center">
-              <p className="text-sm text-zinc-700">
+              <p className="font-manrope text-sm text-gray-500">
                 {search.trim()
                   ? `No se encontraron eventos caducados para "${search.trim()}".`
                   : "Aún no tienes eventos caducados."}

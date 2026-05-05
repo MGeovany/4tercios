@@ -1,4 +1,5 @@
-import { LayoutGrid, Search } from "lucide-react";
+import { LayoutGrid } from "lucide-react";
+import { TopbarSearch } from "@/components/shell/topbar-search";
 
 export function Topbar({
   title,
@@ -31,17 +32,7 @@ export function Topbar({
         </div>
 
         <div className="flex items-center gap-3">
-          <label className="relative hidden w-[280px] md:block">
-            <Search
-              className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-zinc-400"
-              strokeWidth={1.75}
-            />
-            <input
-              type="search"
-              placeholder="Search anything..."
-              className="h-10 w-full rounded-2xl border border-zinc-200 bg-white py-2 pr-3 pl-9 text-[13.5px] text-zinc-900 transition-colors outline-none placeholder:text-zinc-400 focus:border-zinc-400"
-            />
-          </label>
+          <TopbarSearch />
           {right ? <div className="flex items-center gap-2">{right}</div> : null}
         </div>
       </div>

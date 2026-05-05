@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
@@ -35,6 +34,7 @@ type LeafItem = {
 type GroupItem = {
   kind: "group";
   id: string;
+  href: string;
   label: string;
   icon: React.ReactNode;
   defaultOpen?: boolean;
@@ -64,6 +64,7 @@ const PRIMARY_NAV: NavItem[] = [
   {
     kind: "group",
     id: "events",
+    href: "/dashboard/events",
     label: "Eventos",
     icon: <Truck className="size-[18px]" strokeWidth={1.75} />,
     defaultOpen: true,
@@ -140,7 +141,15 @@ const SECONDARY_NAV: LeafItem[] = [
   },
 ];
 
-function NavLeaf({ item, active }: { item: LeafItem; active: boolean }) {
+function NavLeaf({
+  item,
+  active,
+  collapsed = false,
+}: {
+  item: LeafItem;
+  active: boolean;
+  collapsed?: boolean;
+}) {
   return (
     <Link
       href={item.href}
@@ -148,7 +157,8 @@ function NavLeaf({ item, active }: { item: LeafItem; active: boolean }) {
       scroll={false}
       aria-current={active ? "page" : undefined}
       className={cn(
-        "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13.5px] transition-colors",
+        "group flex items-center rounded-xl py-2.5 text-[13.5px] transition-colors",
+        collapsed ? "justify-center px-2" : "gap-3 px-3",
         "focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none",
         active
           ? "border border-zinc-200 bg-white text-zinc-950 shadow-[0_1px_0_rgba(24,24,27,0.04)]"
@@ -163,18 +173,46 @@ function NavLeaf({ item, active }: { item: LeafItem; active: boolean }) {
       >
         {item.icon}
       </span>
-      <span className="font-medium">{item.label}</span>
+      {!collapsed ? <span className="font-medium">{item.label}</span> : null}
     </Link>
   );
 }
 
-function NavGroup({ item, pathname }: { item: GroupItem; pathname: string }) {
+function NavGroup({
+  item,
+  pathname,
+  collapsed = false,
+}: {
+  item: GroupItem;
+  pathname: string;
+  collapsed?: boolean;
+}) {
   const groupActive = item.match(pathname);
   // `null` = not toggled by the user yet, follow defaults / route activity.
   const [userToggled, setUserToggled] = useState<boolean | null>(null);
   const open = userToggled ?? item.defaultOpen ?? groupActive;
   const setOpen = (next: boolean | ((prev: boolean) => boolean)) =>
     setUserToggled(typeof next === "function" ? next(open) : next);
+
+  if (collapsed) {
+    return (
+      <Link
+        href={item.href}
+        prefetch
+        scroll={false}
+        aria-current={groupActive ? "page" : undefined}
+        className={cn(
+          "group flex items-center justify-center rounded-xl border py-2.5 transition-colors",
+          "focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none",
+          groupActive
+            ? "border-zinc-200 bg-white text-zinc-950 shadow-[0_1px_0_rgba(24,24,27,0.04)]"
+            : "border-transparent text-zinc-500 hover:bg-white/60 hover:text-zinc-950"
+        )}
+      >
+        {item.icon}
+      </Link>
+    );
+  }
 
   return (
     <div className="flex flex-col">
@@ -238,7 +276,15 @@ function NavGroup({ item, pathname }: { item: GroupItem; pathname: string }) {
   );
 }
 
-function UserPill({ onSignOut, isSigningOut }: { onSignOut: () => void; isSigningOut: boolean }) {
+function UserPill({
+  onSignOut,
+  isSigningOut,
+  collapsed = false,
+}: {
+  onSignOut: () => void;
+  isSigningOut: boolean;
+  collapsed?: boolean;
+}) {
   const { profile } = useAuthProfile();
 
   const initials = useMemo(() => {
@@ -253,6 +299,37 @@ function UserPill({ onSignOut, isSigningOut }: { onSignOut: () => void; isSignin
 
   const display = profile.name || (profile.email ? profile.email.split("@")[0] : "Tu cuenta");
   const email = profile.email || "—";
+
+  if (collapsed) {
+    return (
+      <div className="flex flex-col items-center gap-2 rounded-2xl border border-zinc-200 bg-white p-2 shadow-[0_1px_0_rgba(24,24,27,0.04)]">
+        <Link
+          href="/dashboard/settings"
+          prefetch
+          scroll={false}
+          className="inline-flex size-9 items-center justify-center rounded-xl bg-zinc-900 text-[11px] font-semibold tracking-wide text-white focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none"
+          aria-label={display}
+          title={display}
+        >
+          {initials || "4T"}
+        </Link>
+        <button
+          type="button"
+          onClick={onSignOut}
+          disabled={isSigningOut}
+          aria-label="Cerrar sesión"
+          className={cn(
+            "inline-flex size-8 shrink-0 items-center justify-center rounded-lg text-zinc-500 transition-colors",
+            "hover:bg-zinc-100 hover:text-zinc-900",
+            "focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none",
+            "disabled:pointer-events-none disabled:opacity-50"
+          )}
+        >
+          <LogOut className="size-4" strokeWidth={1.75} />
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="flex items-center gap-2 rounded-2xl border border-zinc-200 bg-white p-2 shadow-[0_1px_0_rgba(24,24,27,0.04)]">
@@ -288,10 +365,20 @@ function UserPill({ onSignOut, isSigningOut }: { onSignOut: () => void; isSignin
   );
 }
 
+const SIDEBAR_STATE_KEY = "dashboard.sidebar.collapsed";
+
 export function Sidebar() {
   const { prefetch, replace, refresh } = useRouter();
   const pathname = usePathname() ?? "";
   const [isSigningOut, setIsSigningOut] = useState(false);
+  const [collapsed, setCollapsed] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.localStorage.getItem(SIDEBAR_STATE_KEY) === "1";
+  });
+
+  useEffect(() => {
+    window.localStorage.setItem(SIDEBAR_STATE_KEY, collapsed ? "1" : "0");
+  }, [collapsed]);
 
   useEffect(() => {
     for (const item of PRIMARY_NAV) {
@@ -318,8 +405,21 @@ export function Sidebar() {
   }
 
   return (
-    <aside className="hidden lg:sticky lg:top-0 lg:flex lg:h-screen lg:w-[272px] lg:shrink-0 lg:flex-col lg:self-start lg:overflow-y-auto lg:border-r lg:border-zinc-200/80 lg:bg-zinc-50">
-      <div className="flex items-center justify-between gap-3 px-5 pt-6 pb-5">
+    <aside
+      className={cn(
+        "hidden lg:sticky lg:top-0 lg:flex lg:h-screen lg:shrink-0 lg:flex-col lg:self-start lg:overflow-y-auto lg:border-r lg:border-zinc-200/80 lg:bg-zinc-50",
+        "transition-[width] duration-200",
+        collapsed ? "lg:w-[72px]" : "lg:w-[272px]"
+      )}
+    >
+      <div
+        className={cn(
+          "pt-6 pb-5",
+          collapsed
+            ? "flex flex-col items-center gap-3 px-2"
+            : "flex items-center justify-between gap-3 px-5"
+        )}
+      >
         <Link
           href="/dashboard"
           prefetch
@@ -327,58 +427,82 @@ export function Sidebar() {
           className="inline-flex items-center gap-2.5 rounded-xl focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none"
           aria-label="4Tercios"
         >
-          <span className="inline-flex size-9 items-center justify-center rounded-xl bg-zinc-900 text-[15px] font-bold text-white shadow-[inset_0_-2px_0_rgba(0,0,0,0.25)]">
-            4
-          </span>
-          <Image
-            src="/brand/main-logo.png"
-            alt="4Tercios"
-            width={1024}
-            height={216}
-            className="h-[18px] w-auto"
-            priority
-          />
+          {!collapsed ? (
+            <>
+              {/*  <Image
+              src="/brand/main-logo.png"
+              alt="4Tercios"
+              width={1024}
+              height={216}
+              className="h-8 w-auto"
+              priority
+              /> */}
+              <span className="font-manrope text-2xl font-bold">4Tercios</span>
+            </>
+          ) : null}
         </Link>
         <button
           type="button"
-          aria-label="Colapsar barra lateral"
-          className="hidden size-9 items-center justify-center rounded-xl border border-zinc-200 bg-white text-zinc-500 transition-colors hover:text-zinc-900 lg:inline-flex"
+          onClick={() => setCollapsed((v) => !v)}
+          aria-label={collapsed ? "Expandir barra lateral" : "Colapsar barra lateral"}
+          className={cn(
+            "hidden size-9 items-center justify-center rounded-xl border border-zinc-200 bg-white text-zinc-500 transition-colors hover:text-zinc-900 lg:inline-flex"
+          )}
         >
-          <PanelLeftClose className="size-4" strokeWidth={1.75} />
-          <span className="sr-only">
-            <PanelLeftOpen className="size-4" />
-          </span>
+          {collapsed ? (
+            <PanelLeftOpen className="size-4" strokeWidth={1.75} />
+          ) : (
+            <PanelLeftClose className="size-4" strokeWidth={1.75} />
+          )}
         </button>
       </div>
 
-      <div className="px-4 pt-1">
-        <p className="px-2 pb-2 text-[10.5px] font-semibold tracking-[0.14em] text-zinc-400 uppercase">
-          Main Menu
-        </p>
-      </div>
-      <nav className="flex flex-col gap-1 px-3">
+      {!collapsed ? (
+        <div className="px-4 pt-1">
+          <p className="px-2 pb-2 text-[10.5px] font-semibold tracking-[0.14em] text-zinc-400 uppercase">
+            Main Menu
+          </p>
+        </div>
+      ) : null}
+      <nav className={cn("flex flex-col gap-1", collapsed ? "px-2" : "px-3")}>
         {PRIMARY_NAV.map((item) =>
           item.kind === "leaf" ? (
-            <NavLeaf key={item.id} item={item} active={item.match(pathname)} />
+            <NavLeaf
+              key={item.id}
+              item={item}
+              active={item.match(pathname)}
+              collapsed={collapsed}
+            />
           ) : (
-            <NavGroup key={item.id} item={item} pathname={pathname} />
+            <NavGroup key={item.id} item={item} pathname={pathname} collapsed={collapsed} />
           )
         )}
       </nav>
 
-      <div className="mt-7 px-4">
-        <p className="px-2 pb-2 text-[10.5px] font-semibold tracking-[0.14em] text-zinc-400 uppercase">
-          Setting
-        </p>
+      <div className={cn("mt-7", collapsed ? "px-2" : "px-4")}>
+        {!collapsed ? (
+          <p className="px-2 pb-2 text-[10.5px] font-semibold tracking-[0.14em] text-zinc-400 uppercase">
+            Setting
+          </p>
+        ) : null}
         <nav className="flex flex-col gap-1">
           {SECONDARY_NAV.map((item) => (
-            <NavLeaf key={item.id} item={item} active={item.match(pathname)} />
+            <NavLeaf
+              key={item.id}
+              item={item}
+              active={item.match(pathname)}
+              collapsed={collapsed}
+            />
           ))}
         </nav>
       </div>
 
       <div className="mt-auto p-3">
-        <UserPill onSignOut={() => void handleSignOut()} isSigningOut={isSigningOut} />
+        <UserPill
+          onSignOut={() => void handleSignOut()}
+          isSigningOut={isSigningOut}
+          collapsed={collapsed}
+        />
       </div>
     </aside>
   );

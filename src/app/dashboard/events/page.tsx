@@ -58,6 +58,7 @@ export default async function EventsListPage({
     status: statusFilter === "all" ? null : (statusFilter as EventStatus),
   });
   const hasActiveFilters = (search ?? "").trim().length > 0 || statusFilter !== "all";
+  const hasSearch = (search ?? "").trim().length > 0;
 
   return (
     <>
@@ -85,7 +86,11 @@ export default async function EventsListPage({
           {events.length === 0 ? (
             <div className="flex flex-col items-center justify-center gap-3 px-6 py-16 text-center">
               <p className="text-sm text-zinc-700">
-                {hasActiveFilters ? "No hay eventos con esos filtros." : "Aún no tienes eventos."}
+                {hasSearch
+                  ? `No se encontró ningún evento para "${search.trim()}".`
+                  : hasActiveFilters
+                    ? "No hay eventos con esos filtros."
+                    : "Aún no tienes eventos."}
               </p>
               {!hasActiveFilters ? (
                 <Button size="sm" asChild>

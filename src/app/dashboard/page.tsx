@@ -123,17 +123,8 @@ function buildMonthlySeries(orders: Pick<OrderRow, "created_at" | "total_hnl" | 
       months[idx].value += 1;
     }
   }
-
-  // Provide a soft baseline so the empty state is still readable.
-  const total = months.reduce((acc, m) => acc + m.value, 0);
-  if (total === 0) {
-    const baseline = [3, 5, 7, 6, 9, 12, 10, 14];
-    months.forEach((m, i) => {
-      m.value = baseline[i] ?? 0;
-    });
-  }
-
-  return months;
+  const hasRealData = months.some((m) => m.value > 0);
+  return { months, hasRealData };
 }
 
 function inferEventThumbIcon(type: EventRow["type"]) {
@@ -154,7 +145,7 @@ export default async function DashboardPage() {
   const [events, stats] = await Promise.all([listEventsForPhotographer(), getPhotographerStats()]);
 
   const allOrders = stats.recentOrders ?? [];
-  const series = buildMonthlySeries(allOrders);
+  const { months: series, hasRealData } = buildMonthlySeries(allOrders);
   const peakIndex = series.reduce((acc, cur, i) => (cur.value > series[acc].value ? i : acc), 0);
   const seriesTotal = series.reduce((acc, m) => acc + m.value, 0);
   const seriesAvg = Math.round(seriesTotal / series.length);
@@ -213,7 +204,7 @@ export default async function DashboardPage() {
                 👋
               </span>
             </h1>
-            <p className="mt-1 text-[13.5px] text-zinc-500">
+            <p className="mt-3 text-[13.5px] text-gray-600">
               Gestiona tus eventos, sigue tus ventas y revisa tus fotos — todo en un solo lugar.
             </p>
           </div>
@@ -255,10 +246,17 @@ export default async function DashboardPage() {
             <OverviewChart
               data={series}
               highlightIndex={peakIndex}
-              avgLabel={`${formatNumber(seriesAvg)}/${formatNumber(Math.max(seriesAvg * 2, 10))}`}
-              changeLabel={`${monthlyChange >= 0 ? "+" : ""}${monthlyChange}%`}
+              avgLabel={
+                hasRealData
+                  ? `${formatNumber(seriesAvg)}/${formatNumber(Math.max(seriesAvg * 2, 10))}`
+                  : "Aun no hay informacion"
+              }
+              changeLabel={
+                hasRealData ? `${monthlyChange >= 0 ? "+" : ""}${monthlyChange}%` : undefined
+              }
               changePositive={monthlyChange >= 0}
-              unit="ord"
+              hasRealData={hasRealData}
+              unit="ordenes"
             />
           </div>
 

@@ -86,7 +86,9 @@ function Switch({
 
       <div className="flex-1">
         <p className="text-sm font-medium">{label}</p>
-        <p className="text-muted-foreground mt-0.5 text-xs leading-relaxed">{description}</p>
+        <p className="text-muted-foreground mt-0.5 text-xs leading-relaxed">
+          {description}
+        </p>
       </div>
 
       <span
@@ -160,7 +162,9 @@ export function StepBusiness({
               </ChipButton>
             ))}
           </div>
-          <p className="text-muted-foreground text-xs">Elige uno o varios. Puedes saltarlo.</p>
+          <p className="text-muted-foreground text-xs">
+            Elige uno o varios. Puedes saltarlo.
+          </p>
         </div>
 
         <div className="grid gap-2">
@@ -240,7 +244,9 @@ export function StepContact({
               type="text"
               placeholder="tunegocio"
               value={value.instagram.replace(/^@/, "")}
-              onChange={(e) => onChange({ ...value, instagram: e.target.value.replace(/^@/, "") })}
+              onChange={(e) =>
+                onChange({ ...value, instagram: e.target.value.replace(/^@/, "") })
+              }
               className="h-full w-full bg-transparent px-2 text-sm text-zinc-900 outline-none placeholder:text-zinc-400 md:text-sm"
             />
           </div>
@@ -274,7 +280,9 @@ export function StepBrand({
                   aria-pressed={active}
                   className={cn(
                     "relative size-10 rounded-full transition-transform",
-                    active ? "ring-offset-background scale-105 ring-2 ring-offset-2" : "ring-0"
+                    active
+                      ? "ring-offset-background scale-105 ring-2 ring-offset-2"
+                      : "ring-0"
                   )}
                   style={{
                     backgroundColor: c.value,
@@ -317,7 +325,10 @@ export function StepPayments({
       <div className="space-y-6">
         <div className="grid gap-2">
           <Label htmlFor="country">País</Label>
-          <Select value={value.country} onValueChange={(v) => onChange({ ...value, country: v })}>
+          <Select
+            value={value.country}
+            onValueChange={(v) => onChange({ ...value, country: v })}
+          >
             <SelectTrigger id="country" className="w-full">
               <SelectValue placeholder="Selecciona tu país" />
             </SelectTrigger>
@@ -352,7 +363,9 @@ export function StepPayments({
                   <span
                     className={cn(
                       "mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-lg",
-                      active ? "bg-foreground text-background" : "bg-muted text-foreground"
+                      active
+                        ? "bg-foreground text-background"
+                        : "bg-muted text-foreground"
                     )}
                   >
                     <Wallet className="size-4" />
@@ -377,7 +390,9 @@ export function StepPayments({
                       active ? "border-foreground bg-foreground" : "border-border"
                     )}
                   >
-                    {active ? <Check className="text-background size-4" strokeWidth={3} /> : null}
+                    {active ? (
+                      <Check className="text-background size-4" strokeWidth={3} />
+                    ) : null}
                   </span>
                 </button>
               );
@@ -386,12 +401,12 @@ export function StepPayments({
         </div>
 
         <p className="bg-muted/40 rounded-md px-3 py-2 text-xs">
-          <span className="font-medium">💡 Recomendación para empezar:</span> usa transferencia
-          bancaria para recibir tu dinero más rápido.
+          <span className="font-medium">💡 Recomendación para empezar:</span> usa
+          transferencia bancaria para recibir tu dinero más rápido.
         </p>
         <p className="text-muted-foreground bg-muted/40 rounded-md px-3 py-2 text-xs">
-          Tus ventas se depositan automáticamente. Configurarás los datos finales antes de tu
-          primera venta.
+          Tus ventas se depositan automáticamente. Configurarás los datos finales antes de
+          tu primera venta.
         </p>
       </div>
     </div>

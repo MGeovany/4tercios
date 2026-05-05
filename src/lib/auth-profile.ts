@@ -3,13 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
-import {
-  type BrandFontId,
-  type BrandPaletteId,
-  normalizeHexColor,
-  type WatermarkFontId,
-  type WatermarkStyle,
-} from "@/lib/branding";
+import { type BrandFontId, type BrandPaletteId, normalizeHexColor } from "@/lib/branding";
 
 export type AuthProfile = {
   name: string;
@@ -23,9 +17,9 @@ export type AuthProfile = {
   brandColor: string;
   brandPalette: BrandPaletteId;
   brandFont: BrandFontId;
-  watermarkStyle: WatermarkStyle;
-  watermarkColor: string;
-  watermarkFont: WatermarkFontId;
+  watermarkLabel: string;
+  watermarkOpacity: number;
+  watermarkDensity: number;
   paymentsCountry: string;
   paymentsMethod: string;
   notifSales: boolean;
@@ -45,9 +39,9 @@ const EMPTY_PROFILE: AuthProfile = {
   brandColor: "#2563eb",
   brandPalette: "deep-blue",
   brandFont: "inter",
-  watermarkStyle: "subtle",
-  watermarkColor: "#ffffff",
-  watermarkFont: "sans",
+  watermarkLabel: "4Tercios",
+  watermarkOpacity: 0.08,
+  watermarkDensity: 1,
   paymentsCountry: "",
   paymentsMethod: "",
   notifSales: true,
@@ -59,6 +53,16 @@ let cachedProfile: AuthProfile | null = null;
 
 function readText(value: unknown) {
   return typeof value === "string" ? value.trim() : "";
+}
+
+function clampOpacity(value: unknown, fallback: number) {
+  if (typeof value !== "number" || !Number.isFinite(value)) return fallback;
+  return Math.max(0.02, Math.min(0.45, value));
+}
+
+function clampDensity(value: unknown, fallback: number) {
+  if (typeof value !== "number" || !Number.isFinite(value)) return fallback;
+  return Math.max(0.4, Math.min(2.2, value));
 }
 
 export function useAuthProfile() {
@@ -95,7 +99,10 @@ export function useAuthProfile() {
         const googleIdentity = identities.find(
           (identity) => readText(identity.provider) === "google"
         );
-        const googleIdentityData = (googleIdentity?.identity_data ?? {}) as Record<string, unknown>;
+        const googleIdentityData = (googleIdentity?.identity_data ?? {}) as Record<
+          string,
+          unknown
+        >;
         const avatarUrl =
           readText(meta.avatar_url) ||
           readText(meta.picture) ||
@@ -111,22 +118,30 @@ export function useAuthProfile() {
           bio: readText(meta.bio),
           avatarUrl,
           provider,
-          brandColor: normalizeHexColor(readText(meta.brand_color), EMPTY_PROFILE.brandColor),
-          brandPalette:
-            (readText(meta.brand_palette) as BrandPaletteId) || EMPTY_PROFILE.brandPalette,
-          brandFont: (readText(meta.brand_font) as BrandFontId) || EMPTY_PROFILE.brandFont,
-          watermarkStyle:
-            (readText(meta.watermark_style) as WatermarkStyle) || EMPTY_PROFILE.watermarkStyle,
-          watermarkColor: normalizeHexColor(
-            readText(meta.watermark_color),
-            EMPTY_PROFILE.watermarkColor
+          brandColor: normalizeHexColor(
+            readText(meta.brand_color),
+            EMPTY_PROFILE.brandColor
           ),
-          watermarkFont:
-            (readText(meta.watermark_font) as WatermarkFontId) || EMPTY_PROFILE.watermarkFont,
+          brandPalette:
+            (readText(meta.brand_palette) as BrandPaletteId) ||
+            EMPTY_PROFILE.brandPalette,
+          brandFont:
+            (readText(meta.brand_font) as BrandFontId) || EMPTY_PROFILE.brandFont,
+          watermarkLabel: readText(meta.watermark_label) || EMPTY_PROFILE.watermarkLabel,
+          watermarkOpacity: clampOpacity(
+            meta.watermark_opacity,
+            EMPTY_PROFILE.watermarkOpacity
+          ),
+          watermarkDensity: clampDensity(
+            meta.watermark_density,
+            EMPTY_PROFILE.watermarkDensity
+          ),
           paymentsCountry: readText(meta.payments_country),
           paymentsMethod: readText(meta.payments_method),
           notifSales:
-            typeof meta.notif_sales === "boolean" ? meta.notif_sales : EMPTY_PROFILE.notifSales,
+            typeof meta.notif_sales === "boolean"
+              ? meta.notif_sales
+              : EMPTY_PROFILE.notifSales,
           notifMatches:
             typeof meta.notif_matches === "boolean"
               ? meta.notif_matches

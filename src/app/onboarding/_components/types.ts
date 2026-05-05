@@ -107,7 +107,11 @@ export const COUNTRY_OPTIONS = [
   { value: "OTRO", label: "Otro país" },
 ];
 
-export const PAYOUT_METHODS: { value: PayoutMethod; label: string; description: string }[] = [
+export const PAYOUT_METHODS: {
+  value: PayoutMethod;
+  label: string;
+  description: string;
+}[] = [
   {
     value: "transferencia",
     label: "Transferencia bancaria",

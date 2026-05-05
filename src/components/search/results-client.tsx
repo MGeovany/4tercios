@@ -63,7 +63,8 @@ export function ResultsClient({
                 {selectedIds.length}
               </p>
               <p className="mt-2 text-sm text-zinc-700">
-                Estimado: <span className="font-medium text-zinc-950">{formatHnl(total)}</span>
+                Estimado:{" "}
+                <span className="font-medium text-zinc-950">{formatHnl(total)}</span>
               </p>
               <p className="mt-1 text-xs text-zinc-500">
                 Precio por foto: {formatHnl(pricePerPhotoHnl)}

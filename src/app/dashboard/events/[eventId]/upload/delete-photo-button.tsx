@@ -79,7 +79,12 @@ export function DeletePhotoButton({ photoId }: { photoId: string }) {
           >
             Cancelar
           </Button>
-          <Button type="button" variant="destructive" onClick={onDelete} disabled={deleting}>
+          <Button
+            type="button"
+            variant="destructive"
+            onClick={onDelete}
+            disabled={deleting}
+          >
             <Trash2 className="size-4" />
             {deleting ? "Borrando..." : "Sí, borrar"}
           </Button>

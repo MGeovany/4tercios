@@ -4,7 +4,10 @@ import { createOrder } from "@/lib/server/orders";
 
 export const runtime = "nodejs";
 
-export async function POST(request: NextRequest, ctx: { params: Promise<{ slug: string }> }) {
+export async function POST(
+  request: NextRequest,
+  ctx: { params: Promise<{ slug: string }> }
+) {
   const { slug } = await ctx.params;
 
   let payload: unknown;

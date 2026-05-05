@@ -8,7 +8,11 @@ import { requirePhotographer } from "@/lib/server/auth";
 import { getEventByIdForPhotographer } from "@/lib/server/events";
 import { EditEventForm } from "./edit-form";
 
-export default async function EditEventPage({ params }: { params: Promise<{ eventId: string }> }) {
+export default async function EditEventPage({
+  params,
+}: {
+  params: Promise<{ eventId: string }>;
+}) {
   const { eventId } = await params;
   await requirePhotographer();
 

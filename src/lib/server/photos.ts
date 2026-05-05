@@ -7,7 +7,6 @@ import { STORAGE_BUCKETS, originalPath, thumbPath } from "@/lib/storage/paths";
 import { buildWatermarkedThumb } from "@/lib/imaging/thumb";
 import { getFaceProvider, toPgVector } from "@/lib/face";
 import type { PhotoRow } from "@/lib/db/types";
-import { normalizeHexColor, type WatermarkFontId, type WatermarkStyle } from "@/lib/branding";
 
 const PROCESS_TIMEOUT_MS = 60_000;
 
@@ -84,7 +83,9 @@ export async function registerPhoto(input: {
     .from(STORAGE_BUCKETS.originals)
     .createSignedUploadUrl(path, { upsert: false });
   if (signedUpload.error || !signedUpload.data?.token) {
-    throw new Error(`Signed upload URL failed: ${signedUpload.error?.message ?? "No token"}`);
+    throw new Error(
+      `Signed upload URL failed: ${signedUpload.error?.message ?? "No token"}`
+    );
   }
 
   return {
@@ -124,7 +125,9 @@ export async function processPhoto(photoId: string): Promise<PhotoRow> {
 
   try {
     // 1. Download original.
-    const original = await admin.storage.from(STORAGE_BUCKETS.originals).download(row.storage_path);
+    const original = await admin.storage
+      .from(STORAGE_BUCKETS.originals)
+      .download(row.storage_path);
     if (original.error || !original.data) {
       throw new Error(`Storage download failed: ${original.error?.message}`);
     }
@@ -150,28 +153,57 @@ export async function processPhoto(photoId: string): Promise<PhotoRow> {
     {
       const full = await admin
         .from("photographers")
-        .select("business_name, watermark_style, watermark_color, watermark_font")
+        .select("business_name, watermark_label, watermark_opacity, watermark_density")
         .eq("id", row.events.photographer_id)
         .maybeSingle();
 
       if (full.error && (full.error as { code?: string }).code === "PGRST204") {
-        const minimal = await admin
+        const opacityOnly = await admin
           .from("photographers")
-          .select("business_name")
+          .select("business_name, watermark_label, watermark_opacity")
           .eq("id", row.events.photographer_id)
           .maybeSingle();
-        photographer = (minimal.data as Record<string, unknown> | null) ?? null;
+        if (!opacityOnly.error) {
+          photographer = (opacityOnly.data as Record<string, unknown> | null) ?? null;
+        } else if ((opacityOnly.error as { code?: string }).code === "PGRST204") {
+          const labelOnly = await admin
+            .from("photographers")
+            .select("business_name, watermark_label")
+            .eq("id", row.events.photographer_id)
+            .maybeSingle();
+          if (!labelOnly.error) {
+            photographer = (labelOnly.data as Record<string, unknown> | null) ?? null;
+          } else {
+            const minimal = await admin
+              .from("photographers")
+              .select("business_name")
+              .eq("id", row.events.photographer_id)
+              .maybeSingle();
+            photographer = (minimal.data as Record<string, unknown> | null) ?? null;
+          }
+        }
       } else {
         photographer = (full.data as Record<string, unknown> | null) ?? null;
       }
     }
 
-    const brandLabel = (photographer?.business_name as string | undefined) || "4tercios";
+    const brandLabel =
+      (photographer?.watermark_label as string | undefined) ||
+      (photographer?.business_name as string | undefined) ||
+      "4Tercios";
     const thumb = await buildWatermarkedThumb(buf, {
       label: brandLabel,
-      style: (photographer?.watermark_style as WatermarkStyle | undefined) || "subtle",
-      color: normalizeHexColor(photographer?.watermark_color as string | undefined, "#ffffff"),
-      font: (photographer?.watermark_font as WatermarkFontId | undefined) || "sans",
+      style: "subtle",
+      color: "#ffffff",
+      font: "sans",
+      opacity:
+        typeof photographer?.watermark_opacity === "number"
+          ? (photographer.watermark_opacity as number)
+          : 0.08,
+      density:
+        typeof photographer?.watermark_density === "number"
+          ? (photographer.watermark_density as number)
+          : 1,
     });
 
     const tPath = thumbPath(row.event_id, row.id);
@@ -222,7 +254,10 @@ export async function processPhoto(photoId: string): Promise<PhotoRow> {
     return updated as PhotoRow;
   } catch (err) {
     const message = toError(err, "Photo processing failed").message;
-    await admin.from("photos").update({ status: "error", error_message: message }).eq("id", row.id);
+    await admin
+      .from("photos")
+      .update({ status: "error", error_message: message })
+      .eq("id", row.id);
     throw new Error(message);
   }
 }
@@ -250,7 +285,9 @@ export async function deletePhoto(photoId: string): Promise<{ id: string }> {
   if (deleteError) throw toError(deleteError, "Failed to delete photo");
 
   // Best-effort storage cleanup after successful row delete.
-  const originalsDelete = await admin.storage.from(STORAGE_BUCKETS.originals).remove([storagePath]);
+  const originalsDelete = await admin.storage
+    .from(STORAGE_BUCKETS.originals)
+    .remove([storagePath]);
   if (originalsDelete.error) {
     console.warn("Failed deleting original from storage:", originalsDelete.error.message);
   }

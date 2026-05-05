@@ -30,7 +30,9 @@ export function LandingEventTypes() {
                   <e.icon className="size-4" />
                 </div>
                 <p className="mt-4 leading-tight font-semibold">{e.name}</p>
-                <p className="text-muted-foreground mt-2 text-sm leading-relaxed">{e.tagline}</p>
+                <p className="text-muted-foreground mt-2 text-sm leading-relaxed">
+                  {e.tagline}
+                </p>
               </m.div>
             ))}
           </div>

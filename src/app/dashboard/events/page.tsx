@@ -48,7 +48,11 @@ export default async function EventsListPage({
   const sp = await searchParams;
   const search = typeof sp.q === "string" ? sp.q : Array.isArray(sp.q) ? sp.q[0] : "";
   const statusParam =
-    typeof sp.status === "string" ? sp.status : Array.isArray(sp.status) ? sp.status[0] : "all";
+    typeof sp.status === "string"
+      ? sp.status
+      : Array.isArray(sp.status)
+        ? sp.status[0]
+        : "all";
   const statusFilter =
     EVENT_STATUS_OPTIONS.find((opt) => opt.value === statusParam)?.value ?? "all";
   const events = await listEventsForPhotographer({
@@ -102,7 +106,10 @@ export default async function EventsListPage({
                   <div className="group flex items-center gap-4 px-4 py-3 transition-colors hover:bg-zinc-50">
                     <span
                       aria-hidden
-                      className={cn("size-2 shrink-0 rounded-full", STATUS_DOT[event.status])}
+                      className={cn(
+                        "size-2 shrink-0 rounded-full",
+                        STATUS_DOT[event.status]
+                      )}
                     />
                     <Link
                       href={`/dashboard/events/${event.id}/upload`}
@@ -139,7 +146,9 @@ export default async function EventsListPage({
                     <EventRowActions
                       eventId={event.id}
                       status={event.status}
-                      purgedAt={(event as { purged_at?: string | null }).purged_at ?? null}
+                      purgedAt={
+                        (event as { purged_at?: string | null }).purged_at ?? null
+                      }
                     />
                   </div>
                 </li>

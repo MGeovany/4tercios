@@ -1,7 +1,13 @@
 // Shared shape of rows in the 4tercios database.
 // Keep in sync with supabase/migrations/0001_initial_schema.sql.
 
-export type EventType = "Carrera" | "Graduacion" | "Boda" | "Torneo" | "Corporativo" | "Otro";
+export type EventType =
+  | "Carrera"
+  | "Graduacion"
+  | "Boda"
+  | "Torneo"
+  | "Corporativo"
+  | "Otro";
 export type EventStatus =
   | "Borrador"
   | "Subiendo"
@@ -24,6 +30,9 @@ export type Photographer = {
   watermark_style: string | null;
   watermark_color: string | null;
   watermark_font: string | null;
+  watermark_label: string | null;
+  watermark_opacity: number | null;
+  watermark_density: number | null;
   payout_country: string | null;
   payout_method: string | null;
   created_at: string;

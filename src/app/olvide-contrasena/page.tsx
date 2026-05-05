@@ -42,9 +42,12 @@ export default function OlvideContrasenaPage() {
           ? `${window.location.origin}/restablecer-contrasena`
           : undefined;
 
-      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-        redirectTo,
-      });
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(
+        email.trim(),
+        {
+          redirectTo,
+        }
+      );
 
       if (resetError) {
         setError(resetError.message);
@@ -77,7 +80,10 @@ export default function OlvideContrasenaPage() {
             priority
           />
         </Link>
-        <Link href="/login" className="text-sm font-semibold text-zinc-700 hover:text-zinc-950">
+        <Link
+          href="/login"
+          className="text-sm font-semibold text-zinc-700 hover:text-zinc-950"
+        >
           Login
         </Link>
       </header>
@@ -93,8 +99,8 @@ export default function OlvideContrasenaPage() {
 
           {!supabaseReady ? (
             <p className="mt-6 rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-zinc-700">
-              Configura `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` para
-              activar autenticación.
+              Configura `NEXT_PUBLIC_SUPABASE_URL` y
+              `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` para activar autenticación.
             </p>
           ) : null}
 

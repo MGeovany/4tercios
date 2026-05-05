@@ -106,7 +106,8 @@ export default function RestablecerContrasenaPage() {
       setMessage("Contraseña actualizada. Redirigiendo al login...");
       setTimeout(() => router.replace("/login"), 900);
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "No se pudo actualizar la contraseña.";
+      const msg =
+        err instanceof Error ? err.message : "No se pudo actualizar la contraseña.";
       setError(msg);
     } finally {
       setLoading(false);
@@ -123,12 +124,14 @@ export default function RestablecerContrasenaPage() {
           <CardContent className="space-y-4">
             {!supabaseReady ? (
               <p className="text-sm text-red-600">
-                Configura `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` para
-                activar autenticación.
+                Configura `NEXT_PUBLIC_SUPABASE_URL` y
+                `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` para activar autenticación.
               </p>
             ) : null}
             {supabaseReady && !sessionChecked ? (
-              <p className="text-muted-foreground text-sm">Validando enlace de recuperación...</p>
+              <p className="text-muted-foreground text-sm">
+                Validando enlace de recuperación...
+              </p>
             ) : null}
 
             <form className="space-y-4" onSubmit={onSubmit}>
@@ -163,7 +166,9 @@ export default function RestablecerContrasenaPage() {
               <Button
                 type="submit"
                 className="w-full"
-                disabled={loading || !supabaseReady || !sessionChecked || !hasRecoverySession}
+                disabled={
+                  loading || !supabaseReady || !sessionChecked || !hasRecoverySession
+                }
               >
                 {loading ? "Actualizando..." : "Actualizar contraseña"}
               </Button>
@@ -171,7 +176,10 @@ export default function RestablecerContrasenaPage() {
 
             <p className="text-muted-foreground text-sm">
               ¿Necesitas volver?{" "}
-              <Link href="/login" className="text-foreground underline-offset-4 hover:underline">
+              <Link
+                href="/login"
+                className="text-foreground underline-offset-4 hover:underline"
+              >
                 Ir a login
               </Link>
             </p>

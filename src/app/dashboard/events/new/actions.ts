@@ -21,7 +21,9 @@ export type CreateEventActionInput = {
   slug: string;
 };
 
-export type CreateEventActionResult = { ok: true; eventId: string } | { ok: false; error: string };
+export type CreateEventActionResult =
+  | { ok: true; eventId: string }
+  | { ok: false; error: string };
 
 export async function createEventAction(
   input: CreateEventActionInput

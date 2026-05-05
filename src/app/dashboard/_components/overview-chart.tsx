@@ -41,7 +41,8 @@ export function OverviewChart({
   const [active, setActive] = useState<number>(safeHighlight);
 
   const max = Math.max(...visibleData.map((d) => d.value), 1);
-  const selected = visibleData[Math.min(active, visibleData.length - 1)] ?? visibleData[0];
+  const selected =
+    visibleData[Math.min(active, visibleData.length - 1)] ?? visibleData[0];
 
   const periodOrderCount = (months: number) =>
     data.slice(-months).reduce((acc, m) => acc + m.value, 0);
@@ -50,7 +51,9 @@ export function OverviewChart({
   return (
     <section className="flex h-full flex-col rounded-3xl border border-zinc-200 bg-white p-5 lg:p-6">
       <header className="flex items-start justify-between gap-4">
-        <h2 className="text-[17px] font-semibold tracking-tight text-zinc-950">Resumen</h2>
+        <h2 className="text-[17px] font-semibold tracking-tight text-zinc-950">
+          Resumen
+        </h2>
         {hasRealData ? (
           <label className="relative">
             <select
@@ -90,7 +93,9 @@ export function OverviewChart({
             <span
               className={cn(
                 "inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11.5px] font-semibold tabular-nums",
-                changePositive ? "bg-emerald-50 text-emerald-700" : "bg-rose-50 text-rose-700"
+                changePositive
+                  ? "bg-emerald-50 text-emerald-700"
+                  : "bg-rose-50 text-rose-700"
               )}
             >
               {changeLabel}

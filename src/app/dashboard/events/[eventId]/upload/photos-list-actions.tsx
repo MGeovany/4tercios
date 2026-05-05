@@ -75,7 +75,9 @@ export function PhotosListActions({ photos, previewUrls }: PhotosListActionsProp
       router.refresh();
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "No se pudieron borrar las fotos seleccionadas."
+        err instanceof Error
+          ? err.message
+          : "No se pudieron borrar las fotos seleccionadas."
       );
     } finally {
       setDeleting(false);
@@ -151,7 +153,11 @@ export function PhotosListActions({ photos, previewUrls }: PhotosListActionsProp
             <div className="flex items-center gap-1 self-end sm:self-auto">
               <Badge
                 variant={
-                  p.status === "ready" ? "success" : p.status === "error" ? "danger" : "info"
+                  p.status === "ready"
+                    ? "success"
+                    : p.status === "error"
+                      ? "danger"
+                      : "info"
                 }
               >
                 {labelForStatus(p.status)}
@@ -174,7 +180,8 @@ export function PhotosListActions({ photos, previewUrls }: PhotosListActionsProp
           <DialogHeader>
             <DialogTitle>¿Borrar {selectedCount} imágenes?</DialogTitle>
             <DialogDescription>
-              Esta acción no se puede deshacer. Se eliminarán del evento y del almacenamiento.
+              Esta acción no se puede deshacer. Se eliminarán del evento y del
+              almacenamiento.
             </DialogDescription>
           </DialogHeader>
 
@@ -228,7 +235,9 @@ export function PhotosListActions({ photos, previewUrls }: PhotosListActionsProp
               />
             </div>
           ) : (
-            <p className="text-sm text-zinc-600">No hay vista previa disponible para esta foto.</p>
+            <p className="text-sm text-zinc-600">
+              No hay vista previa disponible para esta foto.
+            </p>
           )}
         </DialogContent>
       </Dialog>

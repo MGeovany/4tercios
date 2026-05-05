@@ -52,9 +52,13 @@ export async function GET(request: NextRequest) {
       "";
 
     const venue =
-      [address.attraction, address.amenity, address.building, address.leisure, address.road].find(
-        Boolean
-      ) ||
+      [
+        address.attraction,
+        address.amenity,
+        address.building,
+        address.leisure,
+        address.road,
+      ].find(Boolean) ||
       payload.display_name?.split(",").slice(0, 2).join(", ").trim() ||
       "";
 

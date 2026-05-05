@@ -15,7 +15,8 @@ export function LandingBenefits() {
           <h2 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">
             Te ahorramos el trabajo de búsqueda y organización manual de tus fotos.{" "}
             <span className="text-gray-500">
-              Tu te ocupas de las fotos y nosotros de procesarlas para la venta a tus clientes.
+              Tu te ocupas de las fotos y nosotros de procesarlas para la venta a tus
+              clientes.
             </span>
           </h2>
         </m.div>
@@ -32,7 +33,9 @@ export function LandingBenefits() {
                 <b.icon className="size-4" />
               </div>
               <h3 className="mt-4 font-semibold">{b.title}</h3>
-              <p className="text-muted-foreground mt-2 text-sm leading-relaxed">{b.description}</p>
+              <p className="text-muted-foreground mt-2 text-sm leading-relaxed">
+                {b.description}
+              </p>
             </m.div>
           ))}
         </div>

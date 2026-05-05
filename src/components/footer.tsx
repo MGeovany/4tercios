@@ -49,19 +49,21 @@ export function Footer({ variant = "default" }: { variant?: "default" | "dashboa
               Reconocimiento facial para búsqueda de fotos
             </p>
             <p className="mt-4 max-w-md text-sm leading-6 text-white">
-              Búsqueda por selfie para fotos de eventos. Publica tu galería, comparte un link o QR y
-              deja que tus clientes encuentren sus coincidencias.
+              Búsqueda por selfie para fotos de eventos. Publica tu galería, comparte un
+              link o QR y deja que tus clientes encuentren sus coincidencias.
             </p>
 
             <div className="mt-6 flex flex-wrap gap-2">
-              {["Carreras", "Graduaciones", "Bodas", "Torneos", "Corporativo"].map((t) => (
-                <span
-                  key={t}
-                  className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white"
-                >
-                  {t}
-                </span>
-              ))}
+              {["Carreras", "Graduaciones", "Bodas", "Torneos", "Corporativo"].map(
+                (t) => (
+                  <span
+                    key={t}
+                    className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white"
+                  >
+                    {t}
+                  </span>
+                )
+              )}
             </div>
           </div>
 
@@ -69,7 +71,10 @@ export function Footer({ variant = "default" }: { variant?: "default" | "dashboa
             <div>
               <p className="text-sm font-semibold text-white">Producto</p>
               <div className="mt-4 space-y-2">
-                <Link href="/dashboard" className="block text-sm text-white hover:underline">
+                <Link
+                  href="/dashboard"
+                  className="block text-sm text-white hover:underline"
+                >
                   Dashboard
                 </Link>
                 <Link
@@ -85,7 +90,10 @@ export function Footer({ variant = "default" }: { variant?: "default" | "dashboa
                   Ver evento publico
                 </Link>
                 {variant === "default" ? (
-                  <Link href="/#comision" className="block text-sm text-white hover:underline">
+                  <Link
+                    href="/#comision"
+                    className="block text-sm text-white hover:underline"
+                  >
                     Comisión
                   </Link>
                 ) : null}
@@ -101,10 +109,16 @@ export function Footer({ variant = "default" }: { variant?: "default" | "dashboa
                 <p className="text-sm leading-6 text-white">
                   Controlas el tiempo online de cada evento.
                 </p>
-                <Link href="/privacidad" className="block text-sm text-white hover:underline">
+                <Link
+                  href="/privacidad"
+                  className="block text-sm text-white hover:underline"
+                >
                   Política de privacidad
                 </Link>
-                <Link href="/terminos" className="block text-sm text-white hover:underline">
+                <Link
+                  href="/terminos"
+                  className="block text-sm text-white hover:underline"
+                >
                   Términos de servicio
                 </Link>
               </div>
@@ -120,7 +134,10 @@ export function Footer({ variant = "default" }: { variant?: "default" | "dashboa
                   hola@4tercios.thefndrs.com
                 </a>
                 <p className="text-sm text-white">20% por venta. Tu defines el precio.</p>
-                <Link href="/contacto" className="block text-sm text-white hover:underline">
+                <Link
+                  href="/contacto"
+                  className="block text-sm text-white hover:underline"
+                >
                   Contacto
                 </Link>
               </div>
@@ -142,13 +159,19 @@ export function Footer({ variant = "default" }: { variant?: "default" | "dashboa
           <div>
             <p className="text-xs font-semibold text-white">Confianza</p>
             <p className="mt-2 text-sm text-white">Selfie privada, solo coincidencias</p>
-            <p className="mt-1 text-xs text-white">Control del tiempo online por evento</p>
+            <p className="mt-1 text-xs text-white">
+              Control del tiempo online por evento
+            </p>
           </div>
         </div>
 
         <div className="mt-12 flex flex-col gap-3 border-t border-white/10 pt-8 lg:flex-row lg:items-center lg:justify-between">
-          <p className="text-xs text-white">© {year} 4Tercios. Todos los derechos reservados.</p>
-          <p className="text-xs text-white">Hecho para fotografos de eventos en Centroamerica.</p>
+          <p className="text-xs text-white">
+            © {year} 4Tercios. Todos los derechos reservados.
+          </p>
+          <p className="text-xs text-white">
+            Hecho para fotografos de eventos en Centroamerica.
+          </p>
         </div>
       </div>
     </footer>

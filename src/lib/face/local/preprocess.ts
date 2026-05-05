@@ -9,7 +9,9 @@ export type RawImage = {
 };
 
 /** Decode arbitrary input (JPEG/PNG/WebP/HEIC) to a raw RGB buffer. */
-export async function decodeImage(input: Buffer | ArrayBuffer | Uint8Array): Promise<RawImage> {
+export async function decodeImage(
+  input: Buffer | ArrayBuffer | Uint8Array
+): Promise<RawImage> {
   const buf = Buffer.isBuffer(input) ? input : Buffer.from(input as Uint8Array);
   const { data, info } = await sharp(buf, { failOn: "none" })
     .rotate()

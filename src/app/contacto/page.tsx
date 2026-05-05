@@ -69,7 +69,9 @@ export default function ContactoPage() {
               </p>
               <div className="mt-5">
                 <Button asChild className="bg-white text-black hover:bg-white/90">
-                  <a href="mailto:hola@4tercios.thefndrs.com">marlon.castro@thefndrs.com</a>
+                  <a href="mailto:hola@4tercios.thefndrs.com">
+                    marlon.castro@thefndrs.com
+                  </a>
                 </Button>
               </div>
             </m.section>
@@ -82,7 +84,9 @@ export default function ContactoPage() {
               className="rounded-2xl border border-white/15 bg-white/5 p-6 sm:p-7"
             >
               <h2 className="text-sm font-semibold text-white">Legal</h2>
-              <p className="mt-2 text-sm leading-relaxed text-white/70">Políticas y documentos.</p>
+              <p className="mt-2 text-sm leading-relaxed text-white/70">
+                Políticas y documentos.
+              </p>
               <div className="mt-5 flex flex-wrap gap-2">
                 <Button
                   variant="outline"

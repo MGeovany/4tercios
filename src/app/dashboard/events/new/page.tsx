@@ -22,7 +22,12 @@ import { LocationPickerMap } from "@/components/forms/location-picker-map";
 import { useAuthProfile } from "@/lib/auth-profile";
 import { CITY_SUGGESTIONS } from "@/lib/cities";
 import { cn } from "@/lib/utils";
-import { commissionHnl, formatDateISO, formatHnl, type EventType } from "@/lib/local-store";
+import {
+  commissionHnl,
+  formatDateISO,
+  formatHnl,
+  type EventType,
+} from "@/lib/local-store";
 import { createEventAction } from "./actions";
 
 const EVENT_TYPES: { value: EventType; label: string }[] = [
@@ -68,9 +73,13 @@ function Section({
   return (
     <div className="border-t border-zinc-100 pt-8 first:border-t-0 first:pt-0">
       <div className="flex items-baseline gap-3">
-        <span className="text-xs font-medium tracking-wide text-zinc-500 uppercase">{eyebrow}</span>
+        <span className="text-xs font-medium tracking-wide text-zinc-500 uppercase">
+          {eyebrow}
+        </span>
       </div>
-      <h2 className="mt-1 text-base font-semibold tracking-tight text-zinc-950">{title}</h2>
+      <h2 className="mt-1 text-base font-semibold tracking-tight text-zinc-950">
+        {title}
+      </h2>
       {description ? <p className="mt-1 text-sm text-zinc-500">{description}</p> : null}
       <div className="mt-5">{children}</div>
     </div>
@@ -99,7 +108,9 @@ export default function NewEventPage() {
   const [date, setDate] = React.useState(today);
   const [city, setCity] = React.useState("");
   const [venue, setVenue] = React.useState("");
-  const [location, setLocation] = React.useState<{ lat: number; lng: number } | null>(null);
+  const [location, setLocation] = React.useState<{ lat: number; lng: number } | null>(
+    null
+  );
   const [resolvingLocation, setResolvingLocation] = React.useState(false);
   const [resolvingCity, setResolvingCity] = React.useState(false);
   const [description, setDescription] = React.useState("");
@@ -175,9 +186,12 @@ export default function NewEventPage() {
     const timeout = window.setTimeout(async () => {
       setResolvingCity(true);
       try {
-        const res = await fetch(`/api/geocode/forward?city=${encodeURIComponent(cityText)}`, {
-          signal: controller.signal,
-        });
+        const res = await fetch(
+          `/api/geocode/forward?city=${encodeURIComponent(cityText)}`,
+          {
+            signal: controller.signal,
+          }
+        );
         if (!res.ok) return;
         const body = (await res.json()) as { lat?: number; lng?: number };
         if (typeof body.lat !== "number" || typeof body.lng !== "number") return;
@@ -300,8 +314,12 @@ export default function NewEventPage() {
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
                   />
-                  {resolvingLocation ? <Hint>Actualizando ciudad desde el pin...</Hint> : null}
-                  {resolvingCity ? <Hint>Moviendo pin desde la ciudad seleccionada...</Hint> : null}
+                  {resolvingLocation ? (
+                    <Hint>Actualizando ciudad desde el pin...</Hint>
+                  ) : null}
+                  {resolvingCity ? (
+                    <Hint>Moviendo pin desde la ciudad seleccionada...</Hint>
+                  ) : null}
                 </div>
                 <div>
                   <Label htmlFor="venue">
@@ -314,7 +332,9 @@ export default function NewEventPage() {
                     value={venue}
                     onChange={(e) => setVenue(e.target.value)}
                   />
-                  {resolvingLocation ? <Hint>Actualizando lugar desde el pin...</Hint> : null}
+                  {resolvingLocation ? (
+                    <Hint>Actualizando lugar desde el pin...</Hint>
+                  ) : null}
                 </div>
                 <div className="sm:col-span-2">
                   <Label>
@@ -382,7 +402,9 @@ export default function NewEventPage() {
                       }}
                     />
                   </div>
-                  <Hint>Se genera automáticamente desde el nombre. Puedes personalizarlo.</Hint>
+                  <Hint>
+                    Se genera automáticamente desde el nombre. Puedes personalizarlo.
+                  </Hint>
                 </div>
 
                 <div>
@@ -424,8 +446,10 @@ export default function NewEventPage() {
                     {priceValid ? (
                       <>
                         Recibes{" "}
-                        <span className="font-medium text-zinc-900">{formatHnl(receives)}</span> por
-                        foto (20% comisión: {formatHnl(commissionHnl(price))}).
+                        <span className="font-medium text-zinc-900">
+                          {formatHnl(receives)}
+                        </span>{" "}
+                        por foto (20% comisión: {formatHnl(commissionHnl(price))}).
                       </>
                     ) : (
                       <>Comisión 20% por venta confirmada.</>
@@ -535,8 +559,8 @@ export default function NewEventPage() {
               </dl>
 
               <p className="mt-4 text-[11px] leading-5 text-zinc-500">
-                Se crea como <span className="font-medium text-zinc-700">borrador</span>. Podrás
-                editar todo esto después de subir las fotos.
+                Se crea como <span className="font-medium text-zinc-700">borrador</span>.
+                Podrás editar todo esto después de subir las fotos.
               </p>
             </div>
           </aside>

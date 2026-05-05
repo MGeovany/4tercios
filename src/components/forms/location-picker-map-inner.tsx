@@ -16,7 +16,10 @@ type LocationPickerMapInnerProps = {
   onChange: (coords: Coordinates) => void;
 };
 
-export default function LocationPickerMapInner({ value, onChange }: LocationPickerMapInnerProps) {
+export default function LocationPickerMapInner({
+  value,
+  onChange,
+}: LocationPickerMapInnerProps) {
   const center = React.useMemo<[number, number]>(
     () => (value ? [value.lng, value.lat] : [DEFAULT_CENTER[1], DEFAULT_CENTER[0]]),
     [value]

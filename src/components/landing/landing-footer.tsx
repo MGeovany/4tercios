@@ -26,13 +26,22 @@ export function LandingFooter() {
           </span>
         </div>
         <div className="text-muted-foreground flex gap-6 text-xs">
-          <Link href="/terminos" className="hover:text-primary transition-colors duration-200">
+          <Link
+            href="/terminos"
+            className="hover:text-primary transition-colors duration-200"
+          >
             Términos
           </Link>
-          <Link href="/privacidad" className="hover:text-primary transition-colors duration-200">
+          <Link
+            href="/privacidad"
+            className="hover:text-primary transition-colors duration-200"
+          >
             Privacidad
           </Link>
-          <Link href="/contacto" className="hover:text-primary transition-colors duration-200">
+          <Link
+            href="/contacto"
+            className="hover:text-primary transition-colors duration-200"
+          >
             Contacto
           </Link>
         </div>

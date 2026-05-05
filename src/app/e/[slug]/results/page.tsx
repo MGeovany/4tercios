@@ -48,7 +48,8 @@ export default async function ResultsPage({
     );
   }
 
-  const pageRaw = typeof sp.page === "string" ? sp.page : Array.isArray(sp.page) ? sp.page[0] : "1";
+  const pageRaw =
+    typeof sp.page === "string" ? sp.page : Array.isArray(sp.page) ? sp.page[0] : "1";
   const pageNum = Math.max(1, Number.parseInt(pageRaw ?? "1", 10) || 1);
   const from = (pageNum - 1) * PAGE_SIZE;
   const to = from + PAGE_SIZE - 1;
@@ -82,17 +83,21 @@ export default async function ResultsPage({
     primaryColor: event.photographers?.brand_color,
   });
   const brandFont = event.photographers?.theme_font ?? "inter";
-  const watermarkStyle = (event.photographers?.watermark_style ?? "subtle") as
-    | "none"
-    | "subtle"
-    | "bold";
-  const watermarkColor = event.photographers?.watermark_color ?? "#ffffff";
-  const watermarkLabel = event.photographers?.business_name || "4Tercios";
-  const watermarkFont = (event.photographers?.watermark_font ?? "sans") as
-    | "sans"
-    | "serif"
-    | "mono"
-    | "display";
+  const watermarkStyle = "subtle" as const;
+  const watermarkColor = "#ffffff";
+  const watermarkLabel =
+    event.photographers?.watermark_label ||
+    event.photographers?.business_name ||
+    "4Tercios";
+  const watermarkFont = "sans" as const;
+  const watermarkOpacity =
+    typeof event.photographers?.watermark_opacity === "number"
+      ? Math.max(0.02, Math.min(0.45, event.photographers.watermark_opacity))
+      : 0.08;
+  const watermarkDensity =
+    typeof event.photographers?.watermark_density === "number"
+      ? Math.max(0.4, Math.min(2.2, event.photographers.watermark_density))
+      : 1;
 
   return (
     <div
@@ -132,7 +137,9 @@ export default async function ResultsPage({
             />
             <div className="relative grid gap-6 lg:grid-cols-[1fr_auto] lg:items-end">
               <div>
-                <Badge className="border-white/20 bg-white/10 text-white">Galería completa</Badge>
+                <Badge className="border-white/20 bg-white/10 text-white">
+                  Galería completa
+                </Badge>
                 <h1 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
                   {event.name}
                 </h1>
@@ -149,7 +156,10 @@ export default async function ResultsPage({
               <div className="grid w-full gap-3 sm:grid-cols-3 lg:w-auto">
                 <KpiTile label="Fotos" value={totalPhotos.toLocaleString("es-HN")} />
                 <KpiTile label="Rostros" value={totalFaces.toLocaleString("es-HN")} />
-                <KpiTile label="Precio / foto" value={formatHnl(event.price_per_photo_hnl)} />
+                <KpiTile
+                  label="Precio / foto"
+                  value={formatHnl(event.price_per_photo_hnl)}
+                />
               </div>
             </div>
           </div>
@@ -163,7 +173,9 @@ export default async function ResultsPage({
         <div className="mt-8">
           {gallery.length === 0 ? (
             <div className="rounded-3xl border border-dashed border-zinc-300 bg-white p-12 text-center">
-              <p className="text-base font-medium text-zinc-950">Aún no hay fotos publicadas</p>
+              <p className="text-base font-medium text-zinc-950">
+                Aún no hay fotos publicadas
+              </p>
               <p className="mt-1 text-sm text-zinc-600">
                 Vuelve a intentar pronto o usa la búsqueda con selfie.
               </p>
@@ -185,6 +197,8 @@ export default async function ResultsPage({
                 watermarkColor={watermarkColor}
                 watermarkLabel={watermarkLabel}
                 watermarkFont={watermarkFont}
+                watermarkOpacity={watermarkOpacity}
+                watermarkDensity={watermarkDensity}
               />
               {totalPages > 1 ? (
                 <Pagination
@@ -230,7 +244,8 @@ function Pagination({
   const start = (currentPage - 1) * pageSize + 1;
   const end = Math.min(totalPhotos, currentPage * pageSize);
   const prev = currentPage > 1 ? `/e/${slug}/results?page=${currentPage - 1}` : null;
-  const next = currentPage < totalPages ? `/e/${slug}/results?page=${currentPage + 1}` : null;
+  const next =
+    currentPage < totalPages ? `/e/${slug}/results?page=${currentPage + 1}` : null;
 
   return (
     <nav
@@ -242,7 +257,10 @@ function Pagination({
         <span className="font-medium text-zinc-900">
           {start}–{end}
         </span>{" "}
-        de <span className="font-medium text-zinc-900">{totalPhotos.toLocaleString("es-HN")}</span>{" "}
+        de{" "}
+        <span className="font-medium text-zinc-900">
+          {totalPhotos.toLocaleString("es-HN")}
+        </span>{" "}
         fotos
       </p>
       <div className="flex items-center gap-2">

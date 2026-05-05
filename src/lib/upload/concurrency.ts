@@ -26,7 +26,10 @@ export async function runWithConcurrency<T, R>(
     }
   }
 
-  const workers = Array.from({ length: Math.max(1, Math.min(concurrency, items.length)) }, next);
+  const workers = Array.from(
+    { length: Math.max(1, Math.min(concurrency, items.length)) },
+    next
+  );
   await Promise.all(workers);
   return results;
 }

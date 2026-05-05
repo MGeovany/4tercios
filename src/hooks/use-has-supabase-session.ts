@@ -21,9 +21,11 @@ export function useHasSupabaseSession() {
         const { data } = await supabase.auth.getSession();
         if (mounted) setHasSession(Boolean(data.session));
 
-        const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
-          if (mounted) setHasSession(Boolean(session));
-        });
+        const { data: authListener } = supabase.auth.onAuthStateChange(
+          (_event, session) => {
+            if (mounted) setHasSession(Boolean(session));
+          }
+        );
 
         unsubscribe = () => authListener.subscription.unsubscribe();
       } catch {

@@ -48,9 +48,14 @@ function makeReplicateOrThrow(): FaceProvider {
   return provider;
 }
 
-function makeReplicateProvider(opts: { apiToken: string; model: string }): FaceProvider | null {
+function makeReplicateProvider(opts: {
+  apiToken: string;
+  model: string;
+}): FaceProvider | null {
   if (!/^[\w.-]+\/[\w.-]+(:[\w.-]+)?$/.test(opts.model)) {
-    console.warn(`[face] Invalid REPLICATE_FACE_MODEL "${opts.model}" — falling back to local.`);
+    console.warn(
+      `[face] Invalid REPLICATE_FACE_MODEL "${opts.model}" — falling back to local.`
+    );
     return null;
   }
   return createReplicateFaceProvider({

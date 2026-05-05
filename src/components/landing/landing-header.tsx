@@ -6,7 +6,12 @@ import { useState } from "react";
 import { Menu, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { LANDING_LOGO_HEIGHT, LANDING_LOGO_SRC, LANDING_LOGO_WIDTH, NAV_LINKS } from "./constants";
+import {
+  LANDING_LOGO_HEIGHT,
+  LANDING_LOGO_SRC,
+  LANDING_LOGO_WIDTH,
+  NAV_LINKS,
+} from "./constants";
 
 export type LandingAuthCta = { href: string; label: string };
 export type LandingPrimaryCta = { href: string; label: string };

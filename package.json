@@ -10,8 +10,7 @@
     "lint": "eslint",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "ci": "pnpm -s lint && pnpm -s format:check && pnpm -s build",
-    "prepare": "husky"
+    "ci": "pnpm -s lint && pnpm -s format:check && pnpm -s build"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.11",

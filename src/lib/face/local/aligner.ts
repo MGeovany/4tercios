@@ -13,7 +13,14 @@ const REF_POINTS: Array<[number, number]> = [
 
 const TARGET_SIZE = 112;
 
-export type Affine = { a: number; b: number; c: number; d: number; tx: number; ty: number };
+export type Affine = {
+  a: number;
+  b: number;
+  c: number;
+  d: number;
+  tx: number;
+  ty: number;
+};
 
 /**
  * Estimate similarity transform (Umeyama) mapping `src` keypoints onto `REF_POINTS`.
@@ -183,7 +190,10 @@ export function warpAffineToFace(src: RawImage, affine: Affine): Uint8ClampedArr
       const w11 = dx * dy;
       const dst = (y * TARGET_SIZE + x) * 3;
       out[dst] =
-        src.data[i00] * w00 + src.data[i10] * w10 + src.data[i01] * w01 + src.data[i11] * w11;
+        src.data[i00] * w00 +
+        src.data[i10] * w10 +
+        src.data[i01] * w01 +
+        src.data[i11] * w11;
       out[dst + 1] =
         src.data[i00 + 1] * w00 +
         src.data[i10 + 1] * w10 +

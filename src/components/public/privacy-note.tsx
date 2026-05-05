@@ -9,8 +9,8 @@ export function PrivacyNote() {
       <div>
         <p className="text-sm font-medium text-zinc-900">Privacidad primero</p>
         <p className="mt-1 text-sm leading-6 text-zinc-700">
-          Tu selfie se usa solo para encontrar coincidencias. No se publica en la galeria. Puedes
-          borrar tu busqueda cuando quieras.
+          Tu selfie se usa solo para encontrar coincidencias. No se publica en la galeria.
+          Puedes borrar tu busqueda cuando quieras.
         </p>
       </div>
     </div>

@@ -88,7 +88,11 @@ export const BRAND_FONTS: { id: BrandFontId; name: string }[] = [
   { id: "space-grotesk", name: "Space Grotesk" },
 ];
 
-export const WATERMARK_STYLES: { id: WatermarkStyle; name: string; description: string }[] = [
+export const WATERMARK_STYLES: {
+  id: WatermarkStyle;
+  name: string;
+  description: string;
+}[] = [
   { id: "none", name: "Sin marca", description: "No agrega texto sobre la miniatura." },
   {
     id: "subtle",

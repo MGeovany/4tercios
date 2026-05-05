@@ -22,7 +22,11 @@ export function TopbarSearch() {
   }
 
   return (
-    <form key={`${pathname}:${currentQuery}`} onSubmit={handleSubmit} className="hidden md:block">
+    <form
+      key={`${pathname}:${currentQuery}`}
+      onSubmit={handleSubmit}
+      className="hidden md:block"
+    >
       <label className="relative block w-[280px]">
         <Search
           className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-zinc-400"

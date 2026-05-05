@@ -36,14 +36,19 @@ export default function FeedbackPage() {
             <MessageSquareText className="size-5" strokeWidth={1.75} />
           </div>
 
-          <h2 className="mt-3 text-base font-semibold text-zinc-950">Enviar feedback al equipo</h2>
+          <h2 className="mt-3 text-base font-semibold text-zinc-950">
+            Enviar feedback al equipo
+          </h2>
           <p className="mt-1 text-sm text-zinc-600">
-            Cuéntanos qué te gustaría mejorar. Esto abre tu cliente de correo con el mensaje listo.
+            Cuéntanos qué te gustaría mejorar. Esto abre tu cliente de correo con el
+            mensaje listo.
           </p>
 
           <div className="mt-5 grid gap-4">
             <div>
-              <p className="mb-2 text-xs font-medium tracking-wide text-zinc-500 uppercase">Tipo</p>
+              <p className="mb-2 text-xs font-medium tracking-wide text-zinc-500 uppercase">
+                Tipo
+              </p>
               <div className="flex flex-wrap gap-1.5">
                 {FEEDBACK_TYPES.map((option) => (
                   <button
@@ -63,7 +68,9 @@ export default function FeedbackPage() {
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-medium text-zinc-800">Título</label>
+              <label className="mb-2 block text-sm font-medium text-zinc-800">
+                Título
+              </label>
               <Input
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
@@ -72,7 +79,9 @@ export default function FeedbackPage() {
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-medium text-zinc-800">Detalle</label>
+              <label className="mb-2 block text-sm font-medium text-zinc-800">
+                Detalle
+              </label>
               <Textarea
                 rows={6}
                 value={details}

@@ -1,5 +1,9 @@
 import Link from "next/link";
-import { ChevronRightIcon, ExternalLinkIcon, MagnifyingGlassIcon } from "@radix-ui/react-icons";
+import {
+  ChevronRightIcon,
+  ExternalLinkIcon,
+  MagnifyingGlassIcon,
+} from "@radix-ui/react-icons";
 
 import { listExpiredEventsForPhotographer } from "@/lib/server/events";
 import { Topbar } from "@/components/shell/topbar";
@@ -68,11 +72,16 @@ export default async function DashboardHistoryPage({
           ) : (
             <ul className="divide-y divide-zinc-100">
               {expiredEvents.map((event) => (
-                <li key={event.id} className="group px-4 py-3 transition-colors hover:bg-zinc-50">
+                <li
+                  key={event.id}
+                  className="group px-4 py-3 transition-colors hover:bg-zinc-50"
+                >
                   <div className="flex items-start gap-4">
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
-                        <p className="truncate text-sm font-medium text-zinc-950">{event.name}</p>
+                        <p className="truncate text-sm font-medium text-zinc-950">
+                          {event.name}
+                        </p>
                         <span
                           className={cn(
                             "inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-semibold",
@@ -83,11 +92,12 @@ export default async function DashboardHistoryPage({
                         </span>
                       </div>
                       <p className="mt-0.5 truncate text-xs text-zinc-500">
-                        {event.city ?? "—"} · {event.type} · Evento: {formatDate(event.date)}
+                        {event.city ?? "—"} · {event.type} · Evento:{" "}
+                        {formatDate(event.date)}
                       </p>
                       <p className="mt-1 text-xs text-zinc-600">
-                        Caducó: {formatDate(event.expires_at)} · Online {event.online_days} días ·
-                        Hace {event.days_since_expired}{" "}
+                        Caducó: {formatDate(event.expires_at)} · Online{" "}
+                        {event.online_days} días · Hace {event.days_since_expired}{" "}
                         {event.days_since_expired === 1 ? "día" : "días"}
                       </p>
                     </div>

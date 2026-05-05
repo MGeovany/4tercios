@@ -20,15 +20,22 @@ let cached: Promise<LoadedModels> | null = null;
 export function loadModels(): Promise<LoadedModels> {
   if (cached) return cached;
   cached = (async () => {
-    const cacheDir = nonEmptyEnv("FACE_MODELS_DIR") ?? join(tmpdir(), "4tercios-face-models");
+    const cacheDir =
+      nonEmptyEnv("FACE_MODELS_DIR") ?? join(tmpdir(), "4tercios-face-models");
     await mkdir(cacheDir, { recursive: true });
 
     const detectionPath = join(cacheDir, "detection.onnx");
     const recognitionPath = join(cacheDir, "recognition.onnx");
 
     await Promise.all([
-      ensureFile(detectionPath, nonEmptyEnv("FACE_DETECTION_URL") ?? DEFAULT_DETECTION_URL),
-      ensureFile(recognitionPath, nonEmptyEnv("FACE_RECOGNITION_URL") ?? DEFAULT_RECOGNITION_URL),
+      ensureFile(
+        detectionPath,
+        nonEmptyEnv("FACE_DETECTION_URL") ?? DEFAULT_DETECTION_URL
+      ),
+      ensureFile(
+        recognitionPath,
+        nonEmptyEnv("FACE_RECOGNITION_URL") ?? DEFAULT_RECOGNITION_URL
+      ),
     ]);
 
     const sessionOpts: ort.InferenceSession.SessionOptions = {
@@ -74,7 +81,9 @@ async function ensureFile(path: string, url: string) {
   }
   const buf = Buffer.from(await res.arrayBuffer());
   if (buf.byteLength < 1024) {
-    throw new Error(`Downloaded file ${url} is suspiciously small (${buf.byteLength} bytes)`);
+    throw new Error(
+      `Downloaded file ${url} is suspiciously small (${buf.byteLength} bytes)`
+    );
   }
   await writeFile(path, buf);
 }

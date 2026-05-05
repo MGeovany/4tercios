@@ -65,7 +65,10 @@ export default function PrivacidadPage() {
         }
       }
 
-      if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2) {
+      if (
+        window.innerHeight + window.scrollY >=
+        document.documentElement.scrollHeight - 2
+      ) {
         current = sectionIds[sectionIds.length - 1];
       }
 
@@ -111,10 +114,13 @@ export default function PrivacidadPage() {
           <h1 className="text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
             Política de privacidad
           </h1>
-          <p className="text-muted-foreground mt-3 text-sm">Última actualización: 2026-04-21</p>
+          <p className="text-muted-foreground mt-3 text-sm">
+            Última actualización: 2026-04-21
+          </p>
           <p className="text-muted-foreground mt-6 leading-7">
-            Esta política explica qué información usamos para operar 4Tercios y cómo la protegemos.
-            Es un borrador y debe revisarse con asesoría legal antes de publicarse.
+            Esta política explica qué información usamos para operar 4Tercios y cómo la
+            protegemos. Es un borrador y debe revisarse con asesoría legal antes de
+            publicarse.
           </p>
         </header>
 
@@ -123,7 +129,10 @@ export default function PrivacidadPage() {
             <div className="border-border/50 bg-card sticky top-24 rounded-xl border p-5">
               <p className="text-sm font-semibold">Contenido</p>
               <nav className="mt-4 space-y-2 text-sm">
-                <TocLink href="#que-recopilamos" active={activeSection === "que-recopilamos"}>
+                <TocLink
+                  href="#que-recopilamos"
+                  active={activeSection === "que-recopilamos"}
+                >
                   1. Qué recopilamos
                 </TocLink>
                 <TocLink href="#como-usamos" active={activeSection === "como-usamos"}>
@@ -157,11 +166,15 @@ export default function PrivacidadPage() {
               <ul className="text-muted-foreground mt-4 list-disc space-y-2 pl-5">
                 <li>Datos del evento (nombre, fecha, ubicación, link público).</li>
                 <li>Fotos que subes para tu galería.</li>
-                <li>Datos básicos de solicitudes de compra (por ejemplo, selección de fotos).</li>
+                <li>
+                  Datos básicos de solicitudes de compra (por ejemplo, selección de
+                  fotos).
+                </li>
                 <li>Datos de soporte cuando nos contactas.</li>
               </ul>
               <p className="text-muted-foreground mt-4 leading-7">
-                La selfie se usa para la búsqueda dentro del evento. No la usamos para publicidad.
+                La selfie se usa para la búsqueda dentro del evento. No la usamos para
+                publicidad.
               </p>
             </section>
 
@@ -181,9 +194,9 @@ export default function PrivacidadPage() {
             <section id="compartimos" className="scroll-mt-24">
               <h2 className="text-xl font-semibold">3. Con quién compartimos</h2>
               <p className="text-muted-foreground mt-3 leading-7">
-                No vendemos tu información. Podemos compartir datos únicamente cuando sea necesario
-                para operar el servicio (por ejemplo, proveedores de infraestructura) o si la ley lo
-                exige.
+                No vendemos tu información. Podemos compartir datos únicamente cuando sea
+                necesario para operar el servicio (por ejemplo, proveedores de
+                infraestructura) o si la ley lo exige.
               </p>
             </section>
 
@@ -192,8 +205,8 @@ export default function PrivacidadPage() {
             <section id="retencion" className="scroll-mt-24">
               <h2 className="text-xl font-semibold">4. Retención</h2>
               <p className="text-muted-foreground mt-3 leading-7">
-                Conservamos la información el tiempo necesario para prestar el servicio y cumplir
-                obligaciones legales. Puedes solicitar eliminación.
+                Conservamos la información el tiempo necesario para prestar el servicio y
+                cumplir obligaciones legales. Puedes solicitar eliminación.
               </p>
             </section>
 
@@ -202,8 +215,8 @@ export default function PrivacidadPage() {
             <section id="seguridad" className="scroll-mt-24">
               <h2 className="text-xl font-semibold">5. Seguridad</h2>
               <p className="text-muted-foreground mt-3 leading-7">
-                Aplicamos medidas razonables para proteger la información. Ningún sistema es 100%
-                seguro.
+                Aplicamos medidas razonables para proteger la información. Ningún sistema
+                es 100% seguro.
               </p>
             </section>
 
@@ -212,8 +225,8 @@ export default function PrivacidadPage() {
             <section id="derechos" className="scroll-mt-24">
               <h2 className="text-xl font-semibold">6. Tus derechos</h2>
               <p className="text-muted-foreground mt-3 leading-7">
-                Puedes solicitar acceso, corrección o eliminación de información relacionada con tu
-                evento.
+                Puedes solicitar acceso, corrección o eliminación de información
+                relacionada con tu evento.
               </p>
               <div className="mt-4">
                 <Button variant="outline" asChild>

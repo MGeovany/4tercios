@@ -34,13 +34,15 @@ export const STEPS: LandingStep[] = [
     step: "01",
     icon: Upload,
     title: "Sube las fotos",
-    description: "Arrastra carpetas enteras. Aceptamos RAW, JPEG, hasta 50.000 fotos por evento.",
+    description:
+      "Arrastra carpetas enteras. Aceptamos RAW, JPEG, hasta 50.000 fotos por evento.",
   },
   {
     step: "02",
     icon: ScanFace,
     title: "La IA reconoce caras",
-    description: "En segundos identifica a cada persona. Indexamos rasgos, no almacenamos rostros.",
+    description:
+      "En segundos identifica a cada persona. Indexamos rasgos, no almacenamos rostros.",
   },
   {
     step: "03",
@@ -191,7 +193,22 @@ function buildMarqueeRowItems(prefix: string, offset: number) {
 }
 
 export const HERO_ROWS = [
-  { id: "row-top", direction: "left" as const, speed: 0.35, items: buildMarqueeRowItems("a", 0) },
-  { id: "row-mid", direction: "right" as const, speed: 0.55, items: buildMarqueeRowItems("b", 1) },
-  { id: "row-bot", direction: "left" as const, speed: 0.45, items: buildMarqueeRowItems("c", 2) },
+  {
+    id: "row-top",
+    direction: "left" as const,
+    speed: 0.35,
+    items: buildMarqueeRowItems("a", 0),
+  },
+  {
+    id: "row-mid",
+    direction: "right" as const,
+    speed: 0.55,
+    items: buildMarqueeRowItems("b", 1),
+  },
+  {
+    id: "row-bot",
+    direction: "left" as const,
+    speed: 0.45,
+    items: buildMarqueeRowItems("c", 2),
+  },
 ];

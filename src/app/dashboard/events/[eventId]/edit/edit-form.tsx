@@ -69,7 +69,8 @@ export function EditEventForm({ event }: { event: EventRow }) {
   const [showDelete, setShowDelete] = React.useState(false);
 
   const priceValid = Number.isFinite(price) && price > 0;
-  const daysValid = Number.isFinite(onlineDays) && onlineDays > 0 && onlineDays <= MAX_ONLINE_DAYS;
+  const daysValid =
+    Number.isFinite(onlineDays) && onlineDays > 0 && onlineDays <= MAX_ONLINE_DAYS;
   const canSubmit = name.trim().length > 0 && priceValid && daysValid && !saving;
 
   const receives = priceValid ? Math.max(0, price - commissionHnl(price)) : 0;
@@ -192,7 +193,8 @@ export function EditEventForm({ event }: { event: EventRow }) {
             <div className="min-w-0">
               <p className="text-sm font-medium text-zinc-950">Galería pública</p>
               <p className="mt-0.5 text-xs text-zinc-500">
-                Cuando está apagada, sólo tú puedes ver el evento. Útil mientras subes fotos.
+                Cuando está apagada, sólo tú puedes ver el evento. Útil mientras subes
+                fotos.
               </p>
             </div>
           </label>
@@ -216,7 +218,8 @@ export function EditEventForm({ event }: { event: EventRow }) {
             <Hint>
               {priceValid ? (
                 <>
-                  Recibes <span className="font-medium text-zinc-900">{formatHnl(receives)}</span>{" "}
+                  Recibes{" "}
+                  <span className="font-medium text-zinc-900">{formatHnl(receives)}</span>{" "}
                   por foto (20% comisión).
                 </>
               ) : (
@@ -296,8 +299,8 @@ export function EditEventForm({ event }: { event: EventRow }) {
         <div className="mt-6 rounded-lg border border-red-200 bg-red-50 p-4">
           <p className="text-sm font-semibold text-red-900">¿Borrar este evento?</p>
           <p className="mt-1 text-xs text-red-800">
-            Se borrarán también las fotos, rostros y órdenes asociadas. Esta acción no se puede
-            deshacer.
+            Se borrarán también las fotos, rostros y órdenes asociadas. Esta acción no se
+            puede deshacer.
           </p>
           <div className="mt-3 flex items-center gap-2">
             <Button
@@ -336,8 +339,12 @@ function Section({
 }) {
   return (
     <div className="border-t border-zinc-100 pt-8 first:border-t-0 first:pt-0">
-      <span className="text-xs font-medium tracking-wide text-zinc-500 uppercase">{eyebrow}</span>
-      <h2 className="mt-1 text-base font-semibold tracking-tight text-zinc-950">{title}</h2>
+      <span className="text-xs font-medium tracking-wide text-zinc-500 uppercase">
+        {eyebrow}
+      </span>
+      <h2 className="mt-1 text-base font-semibold tracking-tight text-zinc-950">
+        {title}
+      </h2>
       <div className="mt-5">{children}</div>
     </div>
   );

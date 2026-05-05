@@ -43,7 +43,9 @@ export function AuthCallbackClient() {
         // will run as anon and fail RLS.
         const code = searchParams.get("code");
         if (code) {
-          const { error } = await supabase.auth.exchangeCodeForSession(window.location.href);
+          const { error } = await supabase.auth.exchangeCodeForSession(
+            window.location.href
+          );
           if (error && !isMissingPkceVerifierError(error)) {
             throw error;
           }
@@ -51,7 +53,9 @@ export function AuthCallbackClient() {
 
         const { data: sessionData } = await supabase.auth.getSession();
         if (!sessionData.session) {
-          throw new Error("No se pudo completar la sesión. Intenta iniciar sesión nuevamente.");
+          throw new Error(
+            "No se pudo completar la sesión. Intenta iniciar sesión nuevamente."
+          );
         }
 
         const { data } = await supabase.auth.getUser();

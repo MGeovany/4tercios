@@ -55,8 +55,8 @@ export function LandingHero({ primaryCta }: LandingHeroProps) {
             transition={{ duration: 0.5, delay: 0.14, ease: [0.22, 1, 0.36, 1] }}
             className="font-manrope mx-auto mt-5 max-w-xl text-[15px] leading-relaxed text-pretty text-gray-600 sm:text-base"
           >
-            Diseñado para fotógrafos que cubren cientos de personas en un solo evento. Precisión de
-            coincidencia actual del 99.7%
+            Diseñado para fotógrafos que cubren cientos de personas en un solo evento.
+            Precisión de coincidencia actual del 99.7%
           </m.p>
           <m.div
             initial={{ opacity: 0, y: 18 }}

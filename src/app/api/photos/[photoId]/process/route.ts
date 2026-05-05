@@ -5,7 +5,10 @@ import { processPhoto } from "@/lib/server/photos";
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
-export async function POST(_request: NextRequest, ctx: { params: Promise<{ photoId: string }> }) {
+export async function POST(
+  _request: NextRequest,
+  ctx: { params: Promise<{ photoId: string }> }
+) {
   const { photoId } = await ctx.params;
   if (!photoId) {
     return NextResponse.json({ error: "photoId required" }, { status: 400 });

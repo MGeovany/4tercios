@@ -19,7 +19,11 @@ import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 
 const PASSWORD_RULES = [
-  { id: "length", label: "Mínimo 8 caracteres", test: (value: string) => value.length >= 8 },
+  {
+    id: "length",
+    label: "Mínimo 8 caracteres",
+    test: (value: string) => value.length >= 8,
+  },
   {
     id: "uppercase",
     label: "Al menos una mayúscula",
@@ -30,7 +34,11 @@ const PASSWORD_RULES = [
     label: "Al menos una minúscula",
     test: (value: string) => /[a-z]/.test(value),
   },
-  { id: "number", label: "Al menos un número", test: (value: string) => /\d/.test(value) },
+  {
+    id: "number",
+    label: "Al menos un número",
+    test: (value: string) => /\d/.test(value),
+  },
   {
     id: "symbol",
     label: "Al menos un caracter especial",
@@ -173,22 +181,27 @@ export default function RegistroPage() {
             priority
           />
         </Link>
-        <Link href="/login" className="text-sm font-semibold text-zinc-700 hover:text-zinc-950">
+        <Link
+          href="/login"
+          className="text-sm font-semibold text-zinc-700 hover:text-zinc-950"
+        >
           Iniciar sesión
         </Link>
       </header>
 
       <main className="flex min-h-[calc(100vh-72px)] items-center justify-center px-6 pb-16">
         <div className="w-full max-w-md">
-          <h1 className="text-center text-4xl font-semibold tracking-tight">Crear una cuenta</h1>
+          <h1 className="text-center text-4xl font-semibold tracking-tight">
+            Crear una cuenta
+          </h1>
           <p className="mt-3 text-center text-lg text-zinc-500">
             Ingresa tus datos para crear tu cuenta
           </p>
 
           {!supabaseReady ? (
             <p className="mt-6 rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-zinc-700">
-              Configura `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` para
-              activar autenticación.
+              Configura `NEXT_PUBLIC_SUPABASE_URL` y
+              `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` para activar autenticación.
             </p>
           ) : null}
 
@@ -254,14 +267,21 @@ export default function RegistroPage() {
                   aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
                   className="absolute top-1/2 right-3 -translate-y-1/2 text-zinc-500 transition-colors hover:text-zinc-800"
                 >
-                  {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                  {showPassword ? (
+                    <EyeOff className="size-4" />
+                  ) : (
+                    <Eye className="size-4" />
+                  )}
                 </button>
               </div>
               <ul className="space-y-1 pt-1 text-xs text-zinc-500">
                 {passwordChecks.map((rule) => (
                   <li key={rule.id} className="flex items-center gap-2">
                     <CheckCircle2
-                      className={cn("size-3.5", rule.valid ? "text-green-600" : "text-zinc-300")}
+                      className={cn(
+                        "size-3.5",
+                        rule.valid ? "text-green-600" : "text-zinc-300"
+                      )}
                     />
                     <span className={cn(rule.valid ? "text-zinc-700" : "text-zinc-500")}>
                       {rule.label}
@@ -303,11 +323,17 @@ export default function RegistroPage() {
 
           <p className="mt-8 text-center text-sm leading-relaxed text-zinc-500">
             Al continuar, aceptas nuestros{" "}
-            <Link href="/terminos" className="underline underline-offset-4 hover:text-zinc-900">
+            <Link
+              href="/terminos"
+              className="underline underline-offset-4 hover:text-zinc-900"
+            >
               Términos de servicio
             </Link>{" "}
             y la{" "}
-            <Link href="/privacidad" className="underline underline-offset-4 hover:text-zinc-900">
+            <Link
+              href="/privacidad"
+              className="underline underline-offset-4 hover:text-zinc-900"
+            >
               Política de privacidad
             </Link>
             .

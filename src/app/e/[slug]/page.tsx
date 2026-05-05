@@ -11,7 +11,11 @@ import { buildThemeCssVars } from "@/lib/branding";
 import { getPublicEventPresentationBySlug } from "@/lib/server/events";
 import { formatHnl } from "@/lib/currency";
 
-export default async function PublicEventPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function PublicEventPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
   const { slug } = await params;
   const event = await getPublicEventPresentationBySlug(slug);
 
@@ -41,17 +45,21 @@ export default async function PublicEventPage({ params }: { params: Promise<{ sl
     primaryColor: event.photographers?.brand_color,
   });
   const brandFont = event.photographers?.theme_font ?? "inter";
-  const watermarkStyle = (event.photographers?.watermark_style ?? "subtle") as
-    | "none"
-    | "subtle"
-    | "bold";
-  const watermarkColor = event.photographers?.watermark_color ?? "#ffffff";
-  const watermarkLabel = event.photographers?.business_name || "4Tercios";
-  const watermarkFont = (event.photographers?.watermark_font ?? "sans") as
-    | "sans"
-    | "serif"
-    | "mono"
-    | "display";
+  const watermarkStyle = "subtle" as const;
+  const watermarkColor = "#ffffff";
+  const watermarkLabel =
+    event.photographers?.watermark_label ||
+    event.photographers?.business_name ||
+    "4Tercios";
+  const watermarkFont = "sans" as const;
+  const watermarkOpacity =
+    typeof event.photographers?.watermark_opacity === "number"
+      ? Math.max(0.02, Math.min(0.45, event.photographers.watermark_opacity))
+      : 0.08;
+  const watermarkDensity =
+    typeof event.photographers?.watermark_density === "number"
+      ? Math.max(0.4, Math.min(2.2, event.photographers.watermark_density))
+      : 1;
 
   return (
     <div
@@ -73,7 +81,9 @@ export default async function PublicEventPage({ params }: { params: Promise<{ sl
           <div className="bg-primary text-primary-foreground px-6 py-8 sm:px-8">
             <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-end">
               <div>
-                <Badge className="border-white/20 bg-white/10 text-white">Galería pública</Badge>
+                <Badge className="border-white/20 bg-white/10 text-white">
+                  Galería pública
+                </Badge>
                 <h1 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
                   {event.name}
                 </h1>
@@ -95,7 +105,9 @@ export default async function PublicEventPage({ params }: { params: Promise<{ sl
                   </div>
                   <div className="h-8 w-px bg-white/20" />
                   <div className="min-w-20">
-                    <p className="text-[11px] tracking-wide text-zinc-300 uppercase">Estado</p>
+                    <p className="text-[11px] tracking-wide text-zinc-300 uppercase">
+                      Estado
+                    </p>
                     <p className="mt-1 text-base font-semibold">{event.status}</p>
                   </div>
                 </CardContent>
@@ -119,6 +131,8 @@ export default async function PublicEventPage({ params }: { params: Promise<{ sl
             watermarkColor={watermarkColor}
             watermarkLabel={watermarkLabel}
             watermarkFont={watermarkFont}
+            watermarkOpacity={watermarkOpacity}
+            watermarkDensity={watermarkDensity}
           />
         </div>
 

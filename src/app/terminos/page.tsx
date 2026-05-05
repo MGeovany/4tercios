@@ -74,7 +74,10 @@ export default function TerminosPage() {
       }
 
       // Cuando llegas al final del documento, fuerza el último item.
-      if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2) {
+      if (
+        window.innerHeight + window.scrollY >=
+        document.documentElement.scrollHeight - 2
+      ) {
         current = sectionIds[sectionIds.length - 1];
       }
 
@@ -120,10 +123,12 @@ export default function TerminosPage() {
           <h1 className="text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
             Términos de servicio
           </h1>
-          <p className="text-muted-foreground mt-3 text-sm">Última actualización: 2026-04-21</p>
+          <p className="text-muted-foreground mt-3 text-sm">
+            Última actualización: 2026-04-21
+          </p>
           <p className="text-muted-foreground mt-6 leading-7">
-            Estos términos regulan el uso de 4Tercios. Son un borrador y deben revisarse con
-            asesoría legal antes de publicarse.
+            Estos términos regulan el uso de 4Tercios. Son un borrador y deben revisarse
+            con asesoría legal antes de publicarse.
           </p>
         </header>
 
@@ -162,7 +167,10 @@ export default function TerminosPage() {
                 <TocLink href="#propiedad" active={activeSection === "propiedad"}>
                   10. Propiedad intelectual
                 </TocLink>
-                <TocLink href="#responsabilidad" active={activeSection === "responsabilidad"}>
+                <TocLink
+                  href="#responsabilidad"
+                  active={activeSection === "responsabilidad"}
+                >
                   11. Garantías y responsabilidad
                 </TocLink>
                 <TocLink href="#indemnizacion" active={activeSection === "indemnizacion"}>
@@ -186,24 +194,24 @@ export default function TerminosPage() {
               <h2 className="text-xl font-semibold">1. Definiciones</h2>
               <ul className="text-muted-foreground mt-4 list-disc space-y-2 pl-5">
                 <li>
-                  <span className="text-foreground font-medium">“4Tercios”</span>: la plataforma,
-                  sitio web y funcionalidades relacionadas.
+                  <span className="text-foreground font-medium">“4Tercios”</span>: la
+                  plataforma, sitio web y funcionalidades relacionadas.
                 </li>
                 <li>
-                  <span className="text-foreground font-medium">“Fotógrafo”</span>: la persona que
-                  crea eventos y sube fotos.
+                  <span className="text-foreground font-medium">“Fotógrafo”</span>: la
+                  persona que crea eventos y sube fotos.
                 </li>
                 <li>
-                  <span className="text-foreground font-medium">“Cliente”</span>: la persona que
-                  accede al link del evento para ver y comprar fotos.
+                  <span className="text-foreground font-medium">“Cliente”</span>: la
+                  persona que accede al link del evento para ver y comprar fotos.
                 </li>
                 <li>
-                  <span className="text-foreground font-medium">“Evento”</span>: galería y página
-                  pública creada por el fotógrafo.
+                  <span className="text-foreground font-medium">“Evento”</span>: galería y
+                  página pública creada por el fotógrafo.
                 </li>
                 <li>
-                  <span className="text-foreground font-medium">“Venta completada”</span>: una
-                  transacción confirmada y no revertida.
+                  <span className="text-foreground font-medium">“Venta completada”</span>:
+                  una transacción confirmada y no revertida.
                 </li>
               </ul>
             </section>
@@ -213,12 +221,12 @@ export default function TerminosPage() {
             <section id="aceptacion" className="scroll-mt-24">
               <h2 className="text-xl font-semibold">2. Aceptación</h2>
               <p className="text-muted-foreground mt-3 leading-7">
-                Al usar 4Tercios aceptas estos términos. Si no estás de acuerdo, no uses la
-                plataforma.
+                Al usar 4Tercios aceptas estos términos. Si no estás de acuerdo, no uses
+                la plataforma.
               </p>
               <p className="text-muted-foreground mt-3 leading-7">
-                Debes tener edad suficiente para celebrar contratos en tu país o contar con
-                autorización de un representante legal.
+                Debes tener edad suficiente para celebrar contratos en tu país o contar
+                con autorización de un representante legal.
               </p>
             </section>
 
@@ -227,8 +235,8 @@ export default function TerminosPage() {
             <section id="cuentas" className="scroll-mt-24">
               <h2 className="text-xl font-semibold">3. Registro y cuentas</h2>
               <p className="text-muted-foreground mt-3 leading-7">
-                Eres responsable de mantener la seguridad de tu cuenta y de la información que
-                compartes desde ella.
+                Eres responsable de mantener la seguridad de tu cuenta y de la información
+                que compartes desde ella.
               </p>
               <ul className="text-muted-foreground mt-4 list-disc space-y-2 pl-5">
                 <li>No compartas tus credenciales con terceros.</li>
@@ -242,19 +250,21 @@ export default function TerminosPage() {
             <section id="uso" className="scroll-mt-24">
               <h2 className="text-xl font-semibold">4. Uso permitido</h2>
               <p className="text-muted-foreground mt-3 leading-7">
-                Puedes usar 4Tercios para publicar galerías de eventos y facilitar la compra de
-                fotos.
+                Puedes usar 4Tercios para publicar galerías de eventos y facilitar la
+                compra de fotos.
               </p>
               <p className="text-muted-foreground mt-3 leading-7">No está permitido:</p>
               <ul className="text-muted-foreground mt-4 list-disc space-y-2 pl-5">
                 <li>Usar 4Tercios para actividades ilegales o fraudulentas.</li>
-                <li>Subir malware, intentar acceder sin autorización o degradar el servicio.</li>
+                <li>
+                  Subir malware, intentar acceder sin autorización o degradar el servicio.
+                </li>
                 <li>Suplantar identidad o crear eventos engañosos.</li>
                 <li>Recolectar datos de otros usuarios sin consentimiento.</li>
               </ul>
               <p className="text-muted-foreground mt-3 leading-7">
-                Podemos aplicar medidas razonables para prevenir abuso, como limitaciones de
-                tráfico, bloqueo de IPs o suspensión temporal.
+                Podemos aplicar medidas razonables para prevenir abuso, como limitaciones
+                de tráfico, bloqueo de IPs o suspensión temporal.
               </p>
             </section>
 
@@ -263,18 +273,22 @@ export default function TerminosPage() {
             <section id="contenido" className="scroll-mt-24">
               <h2 className="text-xl font-semibold">5. Contenido y permisos</h2>
               <p className="text-muted-foreground mt-3 leading-7">
-                Eres responsable de las fotos que subes y de contar con permisos para publicarlas y
-                venderlas. No debes subir contenido ilegal, infractor o que viole derechos de
-                terceros.
+                Eres responsable de las fotos que subes y de contar con permisos para
+                publicarlas y venderlas. No debes subir contenido ilegal, infractor o que
+                viole derechos de terceros.
               </p>
               <ul className="text-muted-foreground mt-4 list-disc space-y-2 pl-5">
                 <li>
-                  Garantizas que tienes derechos de autor o licencias necesarias para el contenido.
+                  Garantizas que tienes derechos de autor o licencias necesarias para el
+                  contenido.
                 </li>
                 <li>
-                  Si recibimos una reclamación razonable, podemos ocultar o retirar contenido.
+                  Si recibimos una reclamación razonable, podemos ocultar o retirar
+                  contenido.
                 </li>
-                <li>Mantienes 4Tercios indemne ante reclamos derivados de tu contenido.</li>
+                <li>
+                  Mantienes 4Tercios indemne ante reclamos derivados de tu contenido.
+                </li>
               </ul>
             </section>
 
@@ -297,20 +311,22 @@ export default function TerminosPage() {
             <section id="ventas" className="scroll-mt-24">
               <h2 className="text-xl font-semibold">7. Ventas y comisión</h2>
               <p className="text-muted-foreground mt-3 leading-7">
-                Tú defines el precio por foto. 4Tercios cobra una comisión del 20% únicamente sobre
-                ventas completadas. No hay mensualidades ni cargos adicionales.
+                Tú defines el precio por foto. 4Tercios cobra una comisión del 20%
+                únicamente sobre ventas completadas. No hay mensualidades ni cargos
+                adicionales.
               </p>
               <ul className="text-muted-foreground mt-4 list-disc space-y-2 pl-5">
                 <li>
-                  La comisión se calcula sobre el monto de la venta (antes de impuestos, si aplica),
-                  salvo que se indique lo contrario.
+                  La comisión se calcula sobre el monto de la venta (antes de impuestos,
+                  si aplica), salvo que se indique lo contrario.
                 </li>
                 <li>
-                  Puedes cambiar precios por evento, y dichos cambios aplican a futuras compras.
+                  Puedes cambiar precios por evento, y dichos cambios aplican a futuras
+                  compras.
                 </li>
                 <li>
-                  4Tercios puede ofrecer promociones solo si tú las habilitas o si se acuerda por
-                  escrito.
+                  4Tercios puede ofrecer promociones solo si tú las habilitas o si se
+                  acuerda por escrito.
                 </li>
               </ul>
             </section>
@@ -318,24 +334,32 @@ export default function TerminosPage() {
             <Hr />
 
             <section id="pagos" className="scroll-mt-24">
-              <h2 className="text-xl font-semibold">8. Pagos, reembolsos y contracargos</h2>
+              <h2 className="text-xl font-semibold">
+                8. Pagos, reembolsos y contracargos
+              </h2>
               <p className="text-muted-foreground mt-3 leading-7">
-                Los pagos pueden procesarse mediante proveedores externos. La disponibilidad de
-                métodos de pago puede variar por país.
+                Los pagos pueden procesarse mediante proveedores externos. La
+                disponibilidad de métodos de pago puede variar por país.
               </p>
-              <p className="text-muted-foreground mt-3 leading-7">Reembolsos y contracargos:</p>
+              <p className="text-muted-foreground mt-3 leading-7">
+                Reembolsos y contracargos:
+              </p>
               <ul className="text-muted-foreground mt-4 list-disc space-y-2 pl-5">
                 <li>
-                  Si se revierte una venta (reembolso o contracargo), esa venta puede dejar de
-                  considerarse “completada”.
+                  Si se revierte una venta (reembolso o contracargo), esa venta puede
+                  dejar de considerarse “completada”.
                 </li>
-                <li>Podemos ajustar saldos o reportes para reflejar ventas revertidas.</li>
                 <li>
-                  Eres responsable de definir tu política de entrega y soporte al cliente final.
+                  Podemos ajustar saldos o reportes para reflejar ventas revertidas.
+                </li>
+                <li>
+                  Eres responsable de definir tu política de entrega y soporte al cliente
+                  final.
                 </li>
               </ul>
               <p className="text-muted-foreground mt-3 leading-7">
-                Impuestos: eres responsable de determinar y cumplir tus obligaciones fiscales.
+                Impuestos: eres responsable de determinar y cumplir tus obligaciones
+                fiscales.
               </p>
             </section>
 
@@ -361,12 +385,13 @@ export default function TerminosPage() {
             <section id="propiedad" className="scroll-mt-24">
               <h2 className="text-xl font-semibold">10. Propiedad intelectual</h2>
               <p className="text-muted-foreground mt-3 leading-7">
-                4Tercios y su marca, diseño y software pertenecen a sus respectivos titulares.
+                4Tercios y su marca, diseño y software pertenecen a sus respectivos
+                titulares.
               </p>
               <p className="text-muted-foreground mt-3 leading-7">
-                El fotógrafo conserva los derechos sobre sus fotos. Al subir contenido, nos otorgas
-                una licencia limitada para alojarlo, mostrarlo y distribuirlo según sea necesario
-                para operar el servicio.
+                El fotógrafo conserva los derechos sobre sus fotos. Al subir contenido,
+                nos otorgas una licencia limitada para alojarlo, mostrarlo y distribuirlo
+                según sea necesario para operar el servicio.
               </p>
             </section>
 
@@ -375,13 +400,13 @@ export default function TerminosPage() {
             <section id="responsabilidad" className="scroll-mt-24">
               <h2 className="text-xl font-semibold">11. Garantías y responsabilidad</h2>
               <p className="text-muted-foreground mt-3 leading-7">
-                4Tercios se ofrece “tal cual”. No garantizamos disponibilidad ininterrumpida. En la
-                medida permitida por ley, no seremos responsables por pérdidas indirectas derivadas
-                del uso de la plataforma.
+                4Tercios se ofrece “tal cual”. No garantizamos disponibilidad
+                ininterrumpida. En la medida permitida por ley, no seremos responsables
+                por pérdidas indirectas derivadas del uso de la plataforma.
               </p>
               <p className="text-muted-foreground mt-3 leading-7">
-                No garantizamos que el servicio cumpla con necesidades específicas, ni que esté
-                libre de errores. El uso es bajo tu propio riesgo.
+                No garantizamos que el servicio cumpla con necesidades específicas, ni que
+                esté libre de errores. El uso es bajo tu propio riesgo.
               </p>
             </section>
 
@@ -390,8 +415,8 @@ export default function TerminosPage() {
             <section id="indemnizacion" className="scroll-mt-24">
               <h2 className="text-xl font-semibold">12. Indemnización</h2>
               <p className="text-muted-foreground mt-3 leading-7">
-                Aceptas defender e indemnizar a 4Tercios ante reclamaciones derivadas de tu uso del
-                servicio, tu contenido, o tu incumplimiento de estos términos.
+                Aceptas defender e indemnizar a 4Tercios ante reclamaciones derivadas de
+                tu uso del servicio, tu contenido, o tu incumplimiento de estos términos.
               </p>
             </section>
 
@@ -400,8 +425,9 @@ export default function TerminosPage() {
             <section id="ley" className="scroll-mt-24">
               <h2 className="text-xl font-semibold">13. Ley aplicable</h2>
               <p className="text-muted-foreground mt-3 leading-7">
-                Estos términos se regirán por las leyes aplicables. Cualquier disputa se resolverá
-                en los tribunales competentes, salvo que la normativa aplicable disponga otra cosa.
+                Estos términos se regirán por las leyes aplicables. Cualquier disputa se
+                resolverá en los tribunales competentes, salvo que la normativa aplicable
+                disponga otra cosa.
               </p>
             </section>
 
@@ -410,8 +436,8 @@ export default function TerminosPage() {
             <section id="cambios" className="scroll-mt-24">
               <h2 className="text-xl font-semibold">14. Cambios</h2>
               <p className="text-muted-foreground mt-3 leading-7">
-                Podemos actualizar estos términos. Publicaremos la fecha de actualización en esta
-                misma página.
+                Podemos actualizar estos términos. Publicaremos la fecha de actualización
+                en esta misma página.
               </p>
             </section>
 

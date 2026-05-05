@@ -17,7 +17,10 @@ export type FaceProvider = {
   /** Detect every face in the image and return its embedding. Empty array = no faces. */
   detect(input: { imageUrl: string; signal?: AbortSignal }): Promise<FaceDetection[]>;
   /** Convenience: detect and return the highest-quality face. Used for selfies. */
-  embedBestFace(input: { imageUrl: string; signal?: AbortSignal }): Promise<FaceDetection | null>;
+  embedBestFace(input: {
+    imageUrl: string;
+    signal?: AbortSignal;
+  }): Promise<FaceDetection | null>;
 };
 
 export const FACE_EMBEDDING_DIMENSION = 512;

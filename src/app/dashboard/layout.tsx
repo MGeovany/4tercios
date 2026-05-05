@@ -4,7 +4,11 @@ import { Sidebar } from "@/components/shell/sidebar";
 import { buildOnboardingPath, getOnboardingStepFromMetadata } from "@/lib/onboarding";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 
-export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
+export default async function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const supabase = await getSupabaseServerClient();
   const {
     data: { user },

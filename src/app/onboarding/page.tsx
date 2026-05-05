@@ -28,12 +28,18 @@ function hydrateState(meta: Record<string, unknown>): OnboardingState {
       photographyTypes: Array.isArray(meta.photography_types)
         ? (meta.photography_types as PhotographyType[])
         : DEFAULT_ONBOARDING_STATE.business.photographyTypes,
-      bio: typeof meta.bio === "string" ? meta.bio : DEFAULT_ONBOARDING_STATE.business.bio,
+      bio:
+        typeof meta.bio === "string" ? meta.bio : DEFAULT_ONBOARDING_STATE.business.bio,
     },
     contact: {
-      phone: typeof meta.phone === "string" ? meta.phone : DEFAULT_ONBOARDING_STATE.contact.phone,
+      phone:
+        typeof meta.phone === "string"
+          ? meta.phone
+          : DEFAULT_ONBOARDING_STATE.contact.phone,
       website:
-        typeof meta.website === "string" ? meta.website : DEFAULT_ONBOARDING_STATE.contact.website,
+        typeof meta.website === "string"
+          ? meta.website
+          : DEFAULT_ONBOARDING_STATE.contact.website,
       instagram:
         typeof meta.instagram === "string"
           ? meta.instagram
@@ -81,7 +87,10 @@ function hydrateState(meta: Record<string, unknown>): OnboardingState {
   };
 }
 
-function resolveInitialStep(searchStep: string | undefined, meta: Record<string, unknown>): StepId {
+function resolveInitialStep(
+  searchStep: string | undefined,
+  meta: Record<string, unknown>
+): StepId {
   if (searchStep === "brand") return "payments";
   if (isStepId(searchStep)) return searchStep;
   if (meta.onboarding_step === "brand") return "payments";

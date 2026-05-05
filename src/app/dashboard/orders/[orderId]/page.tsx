@@ -19,7 +19,10 @@ import { Badge } from "@/components/ui/badge";
 import { OrderStatusActions } from "./status-actions";
 import type { OrderStatus } from "@/lib/db/types";
 
-const STATUS_VARIANT: Record<OrderStatus, "success" | "info" | "danger" | "warning" | "neutral"> = {
+const STATUS_VARIANT: Record<
+  OrderStatus,
+  "success" | "info" | "danger" | "warning" | "neutral"
+> = {
   paid: "success",
   pending: "warning",
   delivered: "neutral",
@@ -79,15 +82,19 @@ export default async function OrderDetailPage({
                     <p className="mt-1 text-sm text-zinc-700">{order.customer_email}</p>
                   ) : null}
                   <p className="mt-2 text-sm text-zinc-700">
-                    Evento: <span className="font-medium text-zinc-950">{event.name}</span>
+                    Evento:{" "}
+                    <span className="font-medium text-zinc-950">{event.name}</span>
                   </p>
                 </div>
-                <Badge variant={STATUS_VARIANT[order.status]}>{STATUS_LABEL[order.status]}</Badge>
+                <Badge variant={STATUS_VARIANT[order.status]}>
+                  {STATUS_LABEL[order.status]}
+                </Badge>
               </div>
             </CardHeader>
             <CardContent>
               <p className="text-sm font-medium text-zinc-900">
-                {order.photo_ids.length} foto{order.photo_ids.length === 1 ? "" : "s"} seleccionada
+                {order.photo_ids.length} foto{order.photo_ids.length === 1 ? "" : "s"}{" "}
+                seleccionada
                 {order.photo_ids.length === 1 ? "" : "s"}
               </p>
               <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -129,10 +136,14 @@ export default async function OrderDetailPage({
                     {formatHnl(order.total_hnl)}
                   </p>
                   <p className="mt-1 text-sm text-zinc-700">
-                    {order.photo_ids.length} fotos · {formatHnl(event.price_per_photo_hnl)} c/u
+                    {order.photo_ids.length} fotos ·{" "}
+                    {formatHnl(event.price_per_photo_hnl)} c/u
                   </p>
                   <p className="mt-1 text-xs text-zinc-500">
-                    Pago: {order.payment_provider === "clinpays" ? "Clinpays" : "WhatsApp manual"}
+                    Pago:{" "}
+                    {order.payment_provider === "clinpays"
+                      ? "Clinpays"
+                      : "WhatsApp manual"}
                   </p>
                 </div>
 
@@ -146,7 +157,11 @@ export default async function OrderDetailPage({
 
                 {waPhone ? (
                   <Button asChild className="w-full">
-                    <Link href={`https://wa.me/${waPhone}`} target="_blank" rel="noreferrer">
+                    <Link
+                      href={`https://wa.me/${waPhone}`}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
                       <ChatBubbleIcon /> Abrir WhatsApp
                     </Link>
                   </Button>

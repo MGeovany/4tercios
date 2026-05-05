@@ -21,7 +21,13 @@ import {
 } from "@/lib/server/events";
 import { cn } from "@/lib/utils";
 import { Topbar } from "@/components/shell/topbar";
-import type { EventRow, EventStatus, EventType, OrderRow, OrderStatus } from "@/lib/db/types";
+import type {
+  EventRow,
+  EventStatus,
+  EventType,
+  OrderRow,
+  OrderStatus,
+} from "@/lib/db/types";
 
 import { Sparkline } from "./_components/sparkline";
 import { OverviewChart, type ChartPoint } from "./_components/overview-chart";
@@ -124,7 +130,9 @@ function shortOrderId(id: string, fallback: number) {
   return `#PV-${pad(2400 + fallback)}`;
 }
 
-function buildMonthlySeries(orders: Pick<OrderRow, "created_at" | "total_hnl" | "status">[]) {
+function buildMonthlySeries(
+  orders: Pick<OrderRow, "created_at" | "total_hnl" | "status">[]
+) {
   const now = new Date();
   const months: ChartPoint[] = [];
   for (let i = 7; i >= 0; i--) {
@@ -139,7 +147,8 @@ function buildMonthlySeries(orders: Pick<OrderRow, "created_at" | "total_hnl" | 
   for (const o of orders) {
     if (!o.created_at) continue;
     const d = new Date(o.created_at);
-    const monthsBack = (now.getFullYear() - d.getFullYear()) * 12 + (now.getMonth() - d.getMonth());
+    const monthsBack =
+      (now.getFullYear() - d.getFullYear()) * 12 + (now.getMonth() - d.getMonth());
     const idx = 7 - monthsBack;
     if (idx >= 0 && idx < months.length) {
       months[idx].value += 1;
@@ -177,14 +186,20 @@ export default async function DashboardPage({
         ? sp.ue_status[0]
         : "all";
   const upcomingTypeParam =
-    typeof sp.ue_type === "string" ? sp.ue_type : Array.isArray(sp.ue_type) ? sp.ue_type[0] : "all";
+    typeof sp.ue_type === "string"
+      ? sp.ue_type
+      : Array.isArray(sp.ue_type)
+        ? sp.ue_type[0]
+        : "all";
 
   const upcomingStatus =
     UPCOMING_STATUS_OPTIONS.find((o) => o.value === upcomingStatusParam)?.value ?? "all";
   const upcomingType =
     UPCOMING_TYPE_OPTIONS.find((o) => o.value === upcomingTypeParam)?.value ?? "all";
   const hasUpcomingFilters =
-    (upcomingSearch ?? "").trim().length > 0 || upcomingStatus !== "all" || upcomingType !== "all";
+    (upcomingSearch ?? "").trim().length > 0 ||
+    upcomingStatus !== "all" ||
+    upcomingType !== "all";
 
   const { photographer } = await requirePhotographer();
   const [events, upcomingEvents, stats] = await Promise.all([
@@ -200,7 +215,10 @@ export default async function DashboardPage({
 
   const allOrders = stats.recentOrders ?? [];
   const { months: series, hasRealData } = buildMonthlySeries(allOrders);
-  const peakIndex = series.reduce((acc, cur, i) => (cur.value > series[acc].value ? i : acc), 0);
+  const peakIndex = series.reduce(
+    (acc, cur, i) => (cur.value > series[acc].value ? i : acc),
+    0
+  );
   const seriesTotal = series.reduce((acc, m) => acc + m.value, 0);
   const seriesAvg = Math.round(seriesTotal / series.length);
 
@@ -241,7 +259,8 @@ export default async function DashboardPage({
               </span>
             </h1>
             <p className="mt-3 text-[13.5px] text-gray-600">
-              Gestiona tus eventos, sigue tus ventas y revisa tus fotos — todo en un solo lugar.
+              Gestiona tus eventos, sigue tus ventas y revisa tus fotos — todo en un solo
+              lugar.
             </p>
           </div>
         </header>
@@ -288,7 +307,9 @@ export default async function DashboardPage({
                   : "Aun no hay informacion"
               }
               changeLabel={
-                hasRealData ? `${monthlyChange >= 0 ? "+" : ""}${monthlyChange}%` : undefined
+                hasRealData
+                  ? `${monthlyChange >= 0 ? "+" : ""}${monthlyChange}%`
+                  : undefined
               }
               changePositive={monthlyChange >= 0}
               hasRealData={hasRealData}
@@ -296,7 +317,10 @@ export default async function DashboardPage({
             />
           </div>
 
-          <BuyingHistory orders={recentOrders} getEvent={(id) => eventNameById.get(id) ?? null} />
+          <BuyingHistory
+            orders={recentOrders}
+            getEvent={(id) => eventNameById.get(id) ?? null}
+          />
         </section>
 
         <section className="mt-5">
@@ -381,7 +405,13 @@ function BuyingHistory({
 }: {
   orders: Pick<
     OrderRow,
-    "id" | "customer_name" | "status" | "event_id" | "created_at" | "photo_ids" | "total_hnl"
+    | "id"
+    | "customer_name"
+    | "status"
+    | "event_id"
+    | "created_at"
+    | "photo_ids"
+    | "total_hnl"
   >[];
   getEvent: (eventId: string) => EventRow | null;
 }) {
@@ -472,7 +502,9 @@ function UpcomingEvents({
   return (
     <section className="rounded-3xl border border-zinc-200 bg-white">
       <header className="flex items-center justify-between border-b border-zinc-100 px-5 py-4">
-        <h2 className="text-[15px] font-semibold tracking-tight text-zinc-950">Próximos eventos</h2>
+        <h2 className="text-[15px] font-semibold tracking-tight text-zinc-950">
+          Próximos eventos
+        </h2>
         <Link
           href="#upcoming-filters"
           className="inline-flex items-center gap-1.5 rounded-xl border border-zinc-200 bg-white px-3 py-1.5 text-[12.5px] font-medium text-zinc-700 transition-colors hover:bg-zinc-50"
@@ -593,12 +625,17 @@ function UpcomingEvents({
                     </span>
                   </td>
                   <td className="px-3 py-3.5 font-medium text-zinc-900">
-                    <Link href={`/dashboard/events/${e.id}/upload`} className="hover:underline">
+                    <Link
+                      href={`/dashboard/events/${e.id}/upload`}
+                      className="hover:underline"
+                    >
                       {e.name}
                     </Link>
                   </td>
                   <td className="px-3 py-3.5 text-zinc-600">{e.type}</td>
-                  <td className="px-3 py-3.5 text-zinc-600 tabular-nums">{formatDate(e.date)}</td>
+                  <td className="px-3 py-3.5 text-zinc-600 tabular-nums">
+                    {formatDate(e.date)}
+                  </td>
                   <td className="px-5 py-3.5">
                     <span
                       className={cn(

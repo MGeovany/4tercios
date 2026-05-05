@@ -51,7 +51,15 @@ function formatDateTime(iso: string | null) {
   }).format(new Date(iso));
 }
 
-function buildHref({ q, status, provider }: { q: string; status: string; provider: string }) {
+function buildHref({
+  q,
+  status,
+  provider,
+}: {
+  q: string;
+  status: string;
+  provider: string;
+}) {
   const params = new URLSearchParams();
   if (q.trim()) params.set("q", q.trim());
   if (status && status !== "all") params.set("status", status);
@@ -68,7 +76,11 @@ export default async function PaymentsPage({
   const sp = await searchParams;
   const search = typeof sp.q === "string" ? sp.q : Array.isArray(sp.q) ? sp.q[0] : "";
   const statusParam =
-    typeof sp.status === "string" ? sp.status : Array.isArray(sp.status) ? sp.status[0] : "all";
+    typeof sp.status === "string"
+      ? sp.status
+      : Array.isArray(sp.status)
+        ? sp.status[0]
+        : "all";
   const providerParam =
     typeof sp.provider === "string"
       ? sp.provider
@@ -76,7 +88,8 @@ export default async function PaymentsPage({
         ? sp.provider[0]
         : "all";
 
-  const statusFilter = STATUS_OPTIONS.find((opt) => opt.value === statusParam)?.value ?? "all";
+  const statusFilter =
+    STATUS_OPTIONS.find((opt) => opt.value === statusParam)?.value ?? "all";
   const providerFilter =
     PROVIDER_OPTIONS.find((opt) => opt.value === providerParam)?.value ?? "all";
 
@@ -205,11 +218,17 @@ function Stat({
   accent?: "emerald" | "amber";
 }) {
   const accentClass =
-    accent === "emerald" ? "text-emerald-700" : accent === "amber" ? "text-amber-700" : "";
+    accent === "emerald"
+      ? "text-emerald-700"
+      : accent === "amber"
+        ? "text-amber-700"
+        : "";
   return (
     <div>
       <p className="text-xs tracking-wide text-zinc-500 uppercase">{label}</p>
-      <p className={cn("mt-1 text-xl font-semibold tabular-nums", accentClass)}>{value}</p>
+      <p className={cn("mt-1 text-xl font-semibold tabular-nums", accentClass)}>
+        {value}
+      </p>
     </div>
   );
 }

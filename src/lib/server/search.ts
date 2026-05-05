@@ -37,13 +37,17 @@ export async function searchEventBySelfie(opts: {
   // 1. Persist selfie to bucket so Replicate can fetch via signed URL.
   const queryId = randomUUID();
   const path = selfiePath(opts.event.id, queryId);
-  const upload = await admin.storage.from(STORAGE_BUCKETS.selfies).upload(path, opts.selfieBytes, {
-    contentType: opts.contentType || "image/jpeg",
-    upsert: true,
-  });
+  const upload = await admin.storage
+    .from(STORAGE_BUCKETS.selfies)
+    .upload(path, opts.selfieBytes, {
+      contentType: opts.contentType || "image/jpeg",
+      upsert: true,
+    });
   if (upload.error) throw new Error(`Selfie upload failed: ${upload.error.message}`);
 
-  const signed = await admin.storage.from(STORAGE_BUCKETS.selfies).createSignedUrl(path, 300);
+  const signed = await admin.storage
+    .from(STORAGE_BUCKETS.selfies)
+    .createSignedUrl(path, 300);
   if (signed.error || !signed.data) {
     throw new Error(`Selfie signed URL failed: ${signed.error?.message}`);
   }
@@ -83,7 +87,10 @@ export async function searchEventBySelfie(opts: {
   const photoIds = results.map((r) => r.photo_id);
   const thumbsByPhoto = new Map<string, string>();
   if (photoIds.length > 0) {
-    const { data: photos } = await admin.from("photos").select("id, thumb_path").in("id", photoIds);
+    const { data: photos } = await admin
+      .from("photos")
+      .select("id, thumb_path")
+      .in("id", photoIds);
     for (const p of photos ?? []) {
       if (p.thumb_path) thumbsByPhoto.set(p.id as string, p.thumb_path as string);
     }

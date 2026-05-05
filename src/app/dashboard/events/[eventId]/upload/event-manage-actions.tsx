@@ -64,8 +64,8 @@ export function EventManageActions({ eventId }: { eventId: string }) {
           <DialogHeader>
             <DialogTitle>¿Eliminar evento?</DialogTitle>
             <DialogDescription>
-              Se borrarán también las fotos, rostros y órdenes asociadas. Esta acción no se puede
-              deshacer.
+              Se borrarán también las fotos, rostros y órdenes asociadas. Esta acción no
+              se puede deshacer.
             </DialogDescription>
           </DialogHeader>
 
@@ -80,7 +80,12 @@ export function EventManageActions({ eventId }: { eventId: string }) {
             >
               Cancelar
             </Button>
-            <Button type="button" variant="destructive" disabled={deleting} onClick={onDelete}>
+            <Button
+              type="button"
+              variant="destructive"
+              disabled={deleting}
+              onClick={onDelete}
+            >
               {deleting ? "Eliminando..." : "Sí, eliminar"}
             </Button>
           </DialogFooter>

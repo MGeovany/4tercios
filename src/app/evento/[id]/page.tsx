@@ -92,14 +92,18 @@ export default function PublicEventPage() {
               {eventData.totalPhotos} fotos
             </span>
           </div>
-          <p className="text-muted-foreground mx-auto mt-4 max-w-lg">{eventData.description}</p>
+          <p className="text-muted-foreground mx-auto mt-4 max-w-lg">
+            {eventData.description}
+          </p>
         </div>
 
         {/* Selfie Upload Card */}
         <Card className="border-border/50 mb-8 shadow-lg">
           <CardContent className="p-8">
             <div className="text-center">
-              <h2 className="text-xl font-semibold">Encuentra tus fotos con una selfie</h2>
+              <h2 className="text-xl font-semibold">
+                Encuentra tus fotos con una selfie
+              </h2>
               <p className="text-muted-foreground mt-2">
                 Sube una selfie y te mostraremos las fotos sugeridas del evento
               </p>
@@ -124,7 +128,9 @@ export default function PublicEventPage() {
                     <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-green-100">
                       <div className="bg-muted h-16 w-16 rounded-full" />
                     </div>
-                    <p className="font-medium text-green-700">Selfie cargada correctamente</p>
+                    <p className="font-medium text-green-700">
+                      Selfie cargada correctamente
+                    </p>
                     <p className="text-muted-foreground mt-1 text-sm">
                       Haz clic en buscar para encontrar tus fotos
                     </p>
@@ -169,7 +175,9 @@ export default function PublicEventPage() {
             {/* Browse Gallery Link */}
             <div className="mt-4 text-center">
               <Button variant="link" asChild>
-                <Link href={`/evento/${eventData.id}/galeria`}>O explorar toda la galería</Link>
+                <Link href={`/evento/${eventData.id}/galeria`}>
+                  O explorar toda la galería
+                </Link>
               </Button>
             </div>
           </CardContent>
@@ -184,9 +192,9 @@ export default function PublicEventPage() {
             <div>
               <h3 className="font-medium">Tu privacidad es importante</h3>
               <p className="text-muted-foreground mt-1 text-sm">
-                Tu selfie se usa únicamente para buscar coincidencias y se elimina inmediatamente
-                después. No almacenamos datos biométricos ni compartimos tu información con
-                terceros.
+                Tu selfie se usa únicamente para buscar coincidencias y se elimina
+                inmediatamente después. No almacenamos datos biométricos ni compartimos tu
+                información con terceros.
               </p>
             </div>
           </CardContent>

@@ -45,7 +45,9 @@ export default function SupportPage() {
               <MessageCircleMore className="size-4" strokeWidth={1.75} />
             </div>
             <h2 className="mt-3 text-sm font-semibold text-zinc-950">Contacto general</h2>
-            <p className="mt-1 text-sm text-zinc-600">Canal para dudas comerciales o alianzas.</p>
+            <p className="mt-1 text-sm text-zinc-600">
+              Canal para dudas comerciales o alianzas.
+            </p>
             <Link
               href="/contacto"
               className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-zinc-900 hover:underline"
@@ -58,7 +60,9 @@ export default function SupportPage() {
             <div className="inline-flex size-9 items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 text-zinc-700">
               <LifeBuoy className="size-4" strokeWidth={1.75} />
             </div>
-            <h2 className="mt-3 text-sm font-semibold text-zinc-950">Legal y políticas</h2>
+            <h2 className="mt-3 text-sm font-semibold text-zinc-950">
+              Legal y políticas
+            </h2>
             <p className="mt-1 text-sm text-zinc-600">
               Revisa términos y privacidad de la plataforma.
             </p>

@@ -8,7 +8,10 @@ export const maxDuration = 30;
 
 const MAX_BYTES = 8 * 1024 * 1024;
 
-export async function POST(request: NextRequest, ctx: { params: Promise<{ slug: string }> }) {
+export async function POST(
+  request: NextRequest,
+  ctx: { params: Promise<{ slug: string }> }
+) {
   const { slug } = await ctx.params;
 
   const event = await getPublicEventBySlug(slug);
@@ -27,7 +30,10 @@ export async function POST(request: NextRequest, ctx: { params: Promise<{ slug: 
         return NextResponse.json({ error: "Falta el campo 'selfie'" }, { status: 400 });
       }
       if (file.size > MAX_BYTES) {
-        return NextResponse.json({ error: "La selfie es demasiado grande" }, { status: 400 });
+        return NextResponse.json(
+          { error: "La selfie es demasiado grande" },
+          { status: 400 }
+        );
       }
       bytes = Buffer.from(await file.arrayBuffer());
       contentType = file.type || contentType;
@@ -41,7 +47,10 @@ export async function POST(request: NextRequest, ctx: { params: Promise<{ slug: 
         return NextResponse.json({ error: "dataUrl inválido" }, { status: 400 });
       }
       if (decoded.bytes.length > MAX_BYTES) {
-        return NextResponse.json({ error: "La selfie es demasiado grande" }, { status: 400 });
+        return NextResponse.json(
+          { error: "La selfie es demasiado grande" },
+          { status: 400 }
+        );
       }
       bytes = decoded.bytes;
       contentType = decoded.contentType;
@@ -65,7 +74,12 @@ export async function POST(request: NextRequest, ctx: { params: Promise<{ slug: 
     null;
 
   try {
-    const result = await searchEventBySelfie({ event, selfieBytes: bytes, contentType, ip });
+    const result = await searchEventBySelfie({
+      event,
+      selfieBytes: bytes,
+      contentType,
+      ip,
+    });
     return NextResponse.json(result);
   } catch (err) {
     const message = err instanceof Error ? err.message : "Error inesperado";

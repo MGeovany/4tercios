@@ -4,7 +4,12 @@ import * as React from "react";
 
 export type EventType = "Carrera" | "Graduacion" | "Boda" | "Torneo" | "Corporativo";
 
-export type ProcessingStatus = "Borrador" | "Subiendo" | "Procesando" | "Listo" | "Con errores";
+export type ProcessingStatus =
+  | "Borrador"
+  | "Subiendo"
+  | "Procesando"
+  | "Listo"
+  | "Con errores";
 
 export type AppUser = {
   id: string;
@@ -248,10 +253,15 @@ type AppActions = {
     patch: Partial<Omit<AppOrder, "id" | "eventId" | "createdAt">>
   ): void;
   updateUser(patch: Partial<Omit<AppUser, "id">>): void;
-  updateSettings<K extends keyof AppSettings>(section: K, patch: Partial<AppSettings[K]>): void;
+  updateSettings<K extends keyof AppSettings>(
+    section: K,
+    patch: Partial<AppSettings[K]>
+  ): void;
 };
 
-const AppStoreContext = React.createContext<(AppState & { actions: AppActions }) | null>(null);
+const AppStoreContext = React.createContext<(AppState & { actions: AppActions }) | null>(
+  null
+);
 
 export function AppStoreProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = React.useState<AppState>(() => {
@@ -385,7 +395,8 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
               e.id === eventId
                 ? {
                     ...e,
-                    status: uploaded > 0 && processed === uploaded ? "Listo" : "Procesando",
+                    status:
+                      uploaded > 0 && processed === uploaded ? "Listo" : "Procesando",
                     photosUploaded: Math.max(e.photosUploaded, uploaded),
                     photosProcessed: processed,
                     facesDetected: faces,
@@ -469,7 +480,9 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <AppStoreContext.Provider value={{ ...state, actions }}>{children}</AppStoreContext.Provider>
+    <AppStoreContext.Provider value={{ ...state, actions }}>
+      {children}
+    </AppStoreContext.Provider>
   );
 }
 

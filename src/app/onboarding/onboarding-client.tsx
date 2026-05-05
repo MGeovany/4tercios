@@ -16,7 +16,12 @@ import { Button } from "@/components/ui/button";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 import { OnboardingProgress } from "./_components/progress";
-import { StepBusiness, StepContact, StepNotifications, StepPayments } from "./_components/steps";
+import {
+  StepBusiness,
+  StepContact,
+  StepNotifications,
+  StepPayments,
+} from "./_components/steps";
 import { ONBOARDING_STEPS, type OnboardingState, type StepId } from "./_components/types";
 
 type SaveState = "idle" | "saving" | "error";
@@ -98,7 +103,10 @@ async function saveOnboarding(args: PersistArgs) {
   if (minimalErr) throw minimalErr;
 }
 
-function getStepRequirementMessage(stepId: StepId, state: OnboardingState): string | null {
+function getStepRequirementMessage(
+  stepId: StepId,
+  state: OnboardingState
+): string | null {
   if (stepId === "business" && state.business.businessName.trim().length === 0) {
     return "Agrega el nombre de tu negocio para continuar.";
   }
@@ -149,7 +157,8 @@ export function OnboardingClient({
       })
       .catch((err: unknown) => {
         if (lastSaveTokenRef.current !== token) return;
-        const message = err instanceof Error ? err.message : "No se pudo guardar tu avance.";
+        const message =
+          err instanceof Error ? err.message : "No se pudo guardar tu avance.";
         console.error("[onboarding] persist error", err);
         setSaveState("error");
         setErrorMessage(message);
@@ -190,7 +199,8 @@ export function OnboardingClient({
       await saveOnboarding({ state, step: "notifications", markCompleted: true });
       setCompleted(true);
     } catch (err) {
-      const message = err instanceof Error ? err.message : "No se pudo guardar tu información.";
+      const message =
+        err instanceof Error ? err.message : "No se pudo guardar tu información.";
       console.error("[onboarding] finish error", err);
       setSaveState("error");
       setErrorMessage(message);
@@ -262,7 +272,9 @@ export function OnboardingClient({
               ) : null}
             </div>
 
-            {errorMessage ? <p className="mt-6 text-sm text-red-600">{errorMessage}</p> : null}
+            {errorMessage ? (
+              <p className="mt-6 text-sm text-red-600">{errorMessage}</p>
+            ) : null}
             {!errorMessage && requirementMessage ? (
               <p className="text-muted-foreground mt-6 text-xs">{requirementMessage}</p>
             ) : null}
@@ -294,7 +306,9 @@ export function OnboardingClient({
                     ? "Terminar"
                     : "Continuar"}
                 {!isLastStep ? <ArrowRight className="size-4" /> : null}
-                {isLastStep && saveState !== "saving" ? <Check className="size-4" /> : null}
+                {isLastStep && saveState !== "saving" ? (
+                  <Check className="size-4" />
+                ) : null}
               </Button>
             </div>
           </>
@@ -311,7 +325,9 @@ function CompletionView({ onContinue }: { onContinue: () => void }) {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
     if (prefersReducedMotion) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setShowConfetti(false);
@@ -348,9 +364,12 @@ function CompletionView({ onContinue }: { onContinue: () => void }) {
       <div className="bg-muted mx-auto flex size-14 items-center justify-center rounded-full">
         <PartyPopper className="size-6" />
       </div>
-      <h1 className="mt-6 text-2xl font-semibold tracking-tight sm:text-[28px]">¡Todo listo!</h1>
+      <h1 className="mt-6 text-2xl font-semibold tracking-tight sm:text-[28px]">
+        ¡Todo listo!
+      </h1>
       <p className="text-muted-foreground mx-auto mt-3 max-w-sm text-sm leading-relaxed">
-        Tu cuenta está configurada. Ya puedes crear tu primer evento y compartir tu galería.
+        Tu cuenta está configurada. Ya puedes crear tu primer evento y compartir tu
+        galería.
       </p>
 
       <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">

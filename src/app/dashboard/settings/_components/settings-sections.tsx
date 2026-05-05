@@ -2,22 +2,13 @@
 
 import * as React from "react";
 
-import {
-  BRAND_FONTS,
-  BRAND_PALETTES,
-  normalizeHexColor,
-  WATERMARK_FONTS,
-  WATERMARK_STYLES,
-  type BrandFontId,
-  type BrandPaletteId,
-  type WatermarkFontId,
-  type WatermarkStyle,
-} from "@/lib/branding";
 import { useAuthProfile } from "@/lib/auth-profile";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { useAppStore, type SupportedLocale } from "@/lib/local-store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { RangeSlider } from "@/components/ui/range-slider";
+import { WatermarkOverlay } from "@/components/photo/watermark-overlay";
 import {
   Select,
   SelectContent,
@@ -172,7 +163,9 @@ export function ProfileSection() {
       const nextAvatar = await fileToImageDataUrl(file);
       setAvatarUrl(nextAvatar);
     } catch (error) {
-      setSaveError(error instanceof Error ? error.message : "No se pudo preparar la imagen.");
+      setSaveError(
+        error instanceof Error ? error.message : "No se pudo preparar la imagen."
+      );
     } finally {
       setIsProcessingAvatar(false);
     }
@@ -215,14 +208,16 @@ export function ProfileSection() {
           });
           if (profileError) throw profileError;
 
-          const { error: photographerError } = await supabase.from("photographers").upsert(
-            {
-              id: userRes.user.id,
-              business_name: normalizedName || "Fotógrafo",
-              whatsapp: normalizedPhone || null,
-            },
-            { onConflict: "id" }
-          );
+          const { error: photographerError } = await supabase
+            .from("photographers")
+            .upsert(
+              {
+                id: userRes.user.id,
+                business_name: normalizedName || "Fotógrafo",
+                whatsapp: normalizedPhone || null,
+              },
+              { onConflict: "id" }
+            );
           if (photographerError) throw photographerError;
 
           if (normalizedEmail && normalizedEmail !== profile.email) {
@@ -234,7 +229,9 @@ export function ProfileSection() {
 
           trigger();
         } catch (error) {
-          setSaveError(error instanceof Error ? error.message : "No se pudo guardar tu perfil.");
+          setSaveError(
+            error instanceof Error ? error.message : "No se pudo guardar tu perfil."
+          );
         } finally {
           setIsSaving(false);
         }
@@ -266,7 +263,12 @@ export function ProfileSection() {
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
         <Field label="Nombre o negocio" htmlFor="name">
-          <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required />
+          <Input
+            id="name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+          />
         </Field>
         <Field label="Email" htmlFor="email">
           <Input
@@ -353,11 +355,20 @@ export function ProfileSection() {
             />
           </Field>
         </div>
-        {saveError ? <p className="text-sm text-red-600 sm:col-span-2">{saveError}</p> : null}
+        {saveError ? (
+          <p className="text-sm text-red-600 sm:col-span-2">{saveError}</p>
+        ) : null}
       </div>
     </SectionCard>
   );
 }
+
+const WATERMARK_PREVIEW_OPTIONS = [
+  { id: "running", label: "Running", src: "/landing/fotos-webp/DSC04068.webp" },
+  { id: "marathon", label: "Maratón", src: "/landing/fotos-webp/P1056924.webp" },
+  { id: "team", label: "Equipo", src: "/landing/fotos-webp/DSC04612.webp" },
+  { id: "stadium", label: "Estadio", src: "/landing/fotos-webp/P1253263.webp" },
+] as const;
 
 export function BrandSection() {
   const { profile, loading } = useAuthProfile();
@@ -365,39 +376,31 @@ export function BrandSection() {
   const [isSaving, setIsSaving] = React.useState(false);
   const [saveError, setSaveError] = React.useState<string | null>(null);
 
-  const [primaryColor, setPrimaryColor] = React.useState(profile.brandColor);
-  const [palette, setPalette] = React.useState<BrandPaletteId>(profile.brandPalette);
-  const [brandFont, setBrandFont] = React.useState<BrandFontId>(profile.brandFont);
-  const [watermarkStyle, setWatermarkStyle] = React.useState<WatermarkStyle>(
-    profile.watermarkStyle
+  const [watermarkLabel, setWatermarkLabel] = React.useState(
+    profile.watermarkLabel || "4Tercios"
   );
-  const [watermarkColor, setWatermarkColor] = React.useState(profile.watermarkColor);
-  const [watermarkFont, setWatermarkFont] = React.useState<WatermarkFontId>(profile.watermarkFont);
+  const [watermarkOpacity, setWatermarkOpacity] = React.useState(
+    profile.watermarkOpacity ?? 0.08
+  );
+  const [watermarkDensity, setWatermarkDensity] = React.useState(
+    profile.watermarkDensity ?? 1
+  );
+  const [previewSrc, setPreviewSrc] = React.useState<string>(WATERMARK_PREVIEW_OPTIONS[0].src);
 
   React.useEffect(() => {
     /* eslint-disable react-hooks/set-state-in-effect */
-    setPrimaryColor(profile.brandColor || "#2563eb");
-    setPalette(profile.brandPalette);
-    setBrandFont(profile.brandFont);
-    setWatermarkStyle(profile.watermarkStyle);
-    setWatermarkColor(profile.watermarkColor);
-    setWatermarkFont(profile.watermarkFont);
+    setWatermarkLabel(profile.watermarkLabel || "4Tercios");
+    setWatermarkOpacity(profile.watermarkOpacity ?? 0.08);
+    setWatermarkDensity(profile.watermarkDensity ?? 1);
     /* eslint-enable react-hooks/set-state-in-effect */
-  }, [
-    profile.brandColor,
-    profile.brandFont,
-    profile.brandPalette,
-    profile.watermarkColor,
-    profile.watermarkFont,
-    profile.watermarkStyle,
-  ]);
+  }, [profile.watermarkLabel, profile.watermarkOpacity, profile.watermarkDensity]);
 
   return (
     <SectionCard
       id="marca"
       eyebrow="02"
       title="Marca"
-      description="Personaliza paleta, fuente y marca de agua para tu landing y galería."
+      description="Configura el texto de marca de agua de tu galería."
       saved={saved}
       canSave={!loading && !isSaving}
       onSubmit={async () => {
@@ -405,8 +408,9 @@ export function BrandSection() {
         setIsSaving(true);
         try {
           const supabase = getSupabaseBrowserClient();
-          const safePrimary = normalizeHexColor(primaryColor, "#2563eb");
-          const safeWatermark = normalizeHexColor(watermarkColor, "#ffffff");
+          const safeWatermarkLabel = watermarkLabel.trim() || "4Tercios";
+          const safeWatermarkOpacity = Math.max(0.02, Math.min(0.45, watermarkOpacity));
+          const safeWatermarkDensity = Math.max(0.4, Math.min(2.2, watermarkDensity));
 
           const { data: userRes, error: userError } = await supabase.auth.getUser();
           if (userError) throw userError;
@@ -414,174 +418,221 @@ export function BrandSection() {
 
           const { error } = await supabase.auth.updateUser({
             data: {
-              brand_color: safePrimary,
-              brand_palette: palette,
-              brand_font: brandFont,
-              watermark_style: watermarkStyle,
-              watermark_color: safeWatermark,
-              watermark_font: watermarkFont,
+              watermark_style: "subtle",
+              watermark_color: "#ffffff",
+              watermark_font: "sans",
+              watermark_label: safeWatermarkLabel,
+              watermark_opacity: safeWatermarkOpacity,
+              watermark_density: safeWatermarkDensity,
             },
           });
           if (error) throw error;
 
           const fullPatch = {
             id: userRes.user.id,
-            brand_color: safePrimary,
-            theme_palette: palette,
-            theme_font: brandFont,
-            watermark_style: watermarkStyle,
-            watermark_color: safeWatermark,
-            watermark_font: watermarkFont,
+            watermark_style: "subtle",
+            watermark_color: "#ffffff",
+            watermark_font: "sans",
+            watermark_label: safeWatermarkLabel,
+            watermark_opacity: safeWatermarkOpacity,
+            watermark_density: safeWatermarkDensity,
           } as const;
 
-          const { error: photographerError } = await supabase
-            .from("photographers")
-            .upsert(fullPatch, { onConflict: "id" });
+          const photographerAttempts: Array<Record<string, unknown>> = [
+            fullPatch,
+            (() => {
+              const { watermark_density, ...rest } = fullPatch;
+              void watermark_density;
+              return rest;
+            })(),
+            (() => {
+              const { watermark_density, watermark_opacity, ...rest } = fullPatch;
+              void watermark_density;
+              void watermark_opacity;
+              return rest;
+            })(),
+            { id: userRes.user.id },
+          ];
 
-          if (photographerError) {
-            const code = (photographerError as { code?: string }).code;
+          let lastError: { message?: string; code?: string } | null = null;
+          let savedRow = false;
+          for (const payload of photographerAttempts) {
+            const res = await supabase
+              .from("photographers")
+              .upsert(payload, { onConflict: "id" });
+            if (!res.error) {
+              savedRow = true;
+              break;
+            }
+            lastError = res.error as { message?: string; code?: string };
+            if (lastError?.code !== "PGRST204") break;
+          }
+          if (!savedRow && lastError) {
+            const code = lastError.code;
             if (code === "PGRST204") {
-              const { error: minimalError } = await supabase
-                .from("photographers")
-                .upsert({ id: userRes.user.id, brand_color: safePrimary }, { onConflict: "id" });
-              if (minimalError) throw minimalError;
               setSaveError(
-                "Aplicamos el color y guardamos el resto en tu perfil. Para activar paleta/watermark en BD ejecuta la migración 0005_branding_theme.sql en Supabase."
+                "Guardamos el texto en tu perfil. Para persistirlo también en BD ejecuta las migraciones de branding en Supabase."
               );
             } else {
-              throw photographerError;
+              throw new Error(lastError.message ?? "No se pudo guardar la marca.");
             }
           }
 
           trigger();
         } catch (error) {
-          setSaveError(error instanceof Error ? error.message : "No se pudo guardar la marca.");
+          setSaveError(
+            error instanceof Error ? error.message : "No se pudo guardar la marca."
+          );
         } finally {
           setIsSaving(false);
         }
       }}
     >
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="Paleta de color" hint="Define el look base de la plataforma.">
-          <Select value={palette} onValueChange={(v) => setPalette(v as BrandPaletteId)}>
-            <SelectTrigger className="w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {BRAND_PALETTES.map((option) => (
-                <SelectItem key={option.id} value={option.id}>
-                  {option.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <p className="mt-1.5 text-xs text-zinc-500">
-            {BRAND_PALETTES.find((option) => option.id === palette)?.description}
-          </p>
-        </Field>
-        <Field label="Fuente" hint="Tipografía principal para dashboard y páginas públicas.">
-          <Select value={brandFont} onValueChange={(v) => setBrandFont(v as BrandFontId)}>
-            <SelectTrigger className="w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {BRAND_FONTS.map((option) => (
-                <SelectItem key={option.id} value={option.id}>
-                  {option.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </Field>
-        <Field label="Color principal" hint="Botones y acentos de la galería pública.">
-          <div className="flex items-center gap-3">
-            <input
-              type="color"
-              value={primaryColor}
-              onChange={(e) => setPrimaryColor(e.target.value)}
-              className="size-10 cursor-pointer rounded-md border border-zinc-200"
-              aria-label="Color principal"
-            />
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,360px)_minmax(0,1fr)]">
+        <div className="space-y-5">
+          <Field
+            label="Texto de marca de agua"
+            hint="Aparecerá sobre cada foto entregada."
+          >
             <Input
-              value={primaryColor}
-              onChange={(e) => setPrimaryColor(e.target.value)}
-              className="font-mono"
-              maxLength={7}
+              value={watermarkLabel}
+              onChange={(e) => setWatermarkLabel(e.target.value)}
+              placeholder="4Tercios"
+              maxLength={48}
+            />
+          </Field>
+
+          <SliderControl
+            label="Opacidad"
+            description="Qué tan visible se ve sobre la foto."
+            min={0.02}
+            max={0.45}
+            step={0.01}
+            value={watermarkOpacity}
+            onChange={(v) =>
+              setWatermarkOpacity(Math.max(0.02, Math.min(0.45, v)))
+            }
+            valueLabel={`${Math.round(watermarkOpacity * 100)}%`}
+            ariaLabel="Opacidad de watermark"
+          />
+
+          <SliderControl
+            label="Cantidad de marca de agua"
+            description="Más alto = más texto repetido sobre la foto."
+            min={0.5}
+            max={2.0}
+            step={0.05}
+            value={watermarkDensity}
+            onChange={(v) =>
+              setWatermarkDensity(Math.max(0.4, Math.min(2.2, v)))
+            }
+            valueLabel={watermarkDensity < 0.85
+              ? "Bajo"
+              : watermarkDensity < 1.25
+                ? "Medio"
+                : watermarkDensity < 1.7
+                  ? "Alto"
+                  : "Muy alto"}
+            ariaLabel="Cantidad de watermark"
+          />
+        </div>
+
+        <div className="space-y-3">
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-sm font-medium text-zinc-900">Vista previa</p>
+            <p className="text-xs text-zinc-500">
+              Probando sobre una foto de ejemplo
+            </p>
+          </div>
+          <div className="relative overflow-hidden rounded-2xl border border-zinc-200 bg-zinc-900 shadow-sm">
+            <div
+              className="aspect-4/3 w-full bg-cover bg-center transition-[background-image] duration-300"
+              style={{ backgroundImage: `url("${previewSrc}")` }}
+            />
+            <WatermarkOverlay
+              label={watermarkLabel.trim() || "4Tercios"}
+              style="subtle"
+              color="#ffffff"
+              font="sans"
+              opacity={watermarkOpacity}
+              tileDensity={watermarkDensity}
+              density="preview"
             />
           </div>
-        </Field>
-        <Field label="Estilo de marca de agua">
-          <Select
-            value={watermarkStyle}
-            onValueChange={(v) => setWatermarkStyle(v as WatermarkStyle)}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {WATERMARK_STYLES.map((option) => (
-                <SelectItem key={option.id} value={option.id}>
-                  {option.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <p className="mt-1.5 text-xs text-zinc-500">
-            {WATERMARK_STYLES.find((option) => option.id === watermarkStyle)?.description}
-          </p>
-        </Field>
-        <Field label="Color del watermark">
-          <div className="flex items-center gap-3">
-            <input
-              type="color"
-              value={watermarkColor}
-              onChange={(e) => setWatermarkColor(e.target.value)}
-              className="size-10 cursor-pointer rounded-md border border-zinc-200"
-              aria-label="Color de watermark"
-            />
-            <Input
-              value={watermarkColor}
-              onChange={(e) => setWatermarkColor(e.target.value)}
-              className="font-mono"
-              maxLength={7}
-            />
+          <div className="flex flex-wrap gap-2">
+            {WATERMARK_PREVIEW_OPTIONS.map((opt) => {
+              const active = previewSrc === opt.src;
+              return (
+                <button
+                  key={opt.id}
+                  type="button"
+                  onClick={() => setPreviewSrc(opt.src)}
+                  className={
+                    active
+                      ? "relative h-14 w-14 overflow-hidden rounded-lg ring-2 ring-zinc-950 ring-offset-2 ring-offset-white transition"
+                      : "relative h-14 w-14 overflow-hidden rounded-lg ring-1 ring-zinc-200 transition hover:ring-zinc-400"
+                  }
+                  aria-label={`Probar con foto ${opt.label}`}
+                  title={opt.label}
+                >
+                  <span
+                    className="block h-full w-full bg-cover bg-center"
+                    style={{ backgroundImage: `url("${opt.src}")` }}
+                  />
+                </button>
+              );
+            })}
           </div>
-        </Field>
-        <Field label="Fuente del watermark">
-          <Select
-            value={watermarkFont}
-            onValueChange={(value) => setWatermarkFont(value as WatermarkFontId)}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {WATERMARK_FONTS.map((option) => (
-                <SelectItem key={option.id} value={option.id}>
-                  {option.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </Field>
-        <div className="rounded-lg border border-zinc-200 bg-zinc-50 p-3 sm:col-span-2">
-          <p className="text-sm text-zinc-800">
-            Vista previa:{" "}
-            <span
-              className="font-semibold"
-              style={{ color: normalizeHexColor(primaryColor, "#2563eb") }}
-            >
-              {BRAND_PALETTES.find((option) => option.id === palette)?.name}
-            </span>{" "}
-            · Watermark{" "}
-            <span style={{ color: normalizeHexColor(watermarkColor, "#ffffff") }}>
-              {WATERMARK_STYLES.find((option) => option.id === watermarkStyle)?.name}
-            </span>
-          </p>
         </div>
       </div>
       {saveError ? <p className="mt-4 text-sm text-red-600">{saveError}</p> : null}
     </SectionCard>
+  );
+}
+
+function SliderControl({
+  label,
+  description,
+  value,
+  onChange,
+  min,
+  max,
+  step,
+  valueLabel,
+  ariaLabel,
+}: {
+  label: string;
+  description?: string;
+  value: number;
+  onChange: (next: number) => void;
+  min: number;
+  max: number;
+  step: number;
+  valueLabel: string;
+  ariaLabel?: string;
+}) {
+  return (
+    <div className="space-y-2">
+      <div className="flex items-baseline justify-between gap-3">
+        <div>
+          <p className="text-sm font-medium text-zinc-900">{label}</p>
+          {description ? (
+            <p className="mt-0.5 text-xs text-zinc-500">{description}</p>
+          ) : null}
+        </div>
+        <span className="text-sm font-semibold text-zinc-900 tabular-nums">
+          {valueLabel}
+        </span>
+      </div>
+      <RangeSlider
+        min={min}
+        max={max}
+        step={step}
+        value={value}
+        onValueChange={onChange}
+        ariaLabel={ariaLabel}
+      />
+    </div>
   );
 }
 
@@ -628,21 +679,28 @@ export function PayoutSection() {
           });
           if (error) throw error;
 
-          const { error: photographerError } = await supabase.from("photographers").upsert(
-            {
-              id: userRes.user.id,
-              payout_country: country || null,
-              payout_method: method || null,
-            },
-            { onConflict: "id" }
-          );
-          if (photographerError && (photographerError as { code?: string }).code !== "PGRST204") {
+          const { error: photographerError } = await supabase
+            .from("photographers")
+            .upsert(
+              {
+                id: userRes.user.id,
+                payout_country: country || null,
+                payout_method: method || null,
+              },
+              { onConflict: "id" }
+            );
+          if (
+            photographerError &&
+            (photographerError as { code?: string }).code !== "PGRST204"
+          ) {
             throw photographerError;
           }
 
           trigger();
         } catch (error) {
-          setSaveError(error instanceof Error ? error.message : "No se pudo guardar pagos.");
+          setSaveError(
+            error instanceof Error ? error.message : "No se pudo guardar pagos."
+          );
         } finally {
           setIsSaving(false);
         }
@@ -764,7 +822,9 @@ export function PreferencesSection() {
   const { settings, actions } = useAppStore();
   const { saved, trigger } = useSavedIndicator();
 
-  const [locale, setLocale] = React.useState<SupportedLocale>(settings.preferences.locale);
+  const [locale, setLocale] = React.useState<SupportedLocale>(
+    settings.preferences.locale
+  );
   const [timezone, setTimezone] = React.useState(settings.preferences.timezone);
   const [dateFormat, setDateFormat] = React.useState<"short" | "long">(
     settings.preferences.dateFormat
@@ -813,7 +873,10 @@ export function PreferencesSection() {
         </Field>
         <div className="sm:col-span-2">
           <Field label="Formato de fecha">
-            <Select value={dateFormat} onValueChange={(v) => setDateFormat(v as "short" | "long")}>
+            <Select
+              value={dateFormat}
+              onValueChange={(v) => setDateFormat(v as "short" | "long")}
+            >
               <SelectTrigger className="w-full">
                 <SelectValue />
               </SelectTrigger>
@@ -844,12 +907,18 @@ export function DangerSection() {
         <div>
           <p className="text-sm font-medium text-red-900">Restablecer datos locales</p>
           <p className="mt-1 text-xs text-red-700/80">
-            Limpia datos locales guardados en este navegador y vuelve al estado inicial vacío.
+            Limpia datos locales guardados en este navegador y vuelve al estado inicial
+            vacío.
           </p>
         </div>
         {confirming ? (
           <div className="flex items-center gap-2">
-            <Button type="button" variant="ghost" size="sm" onClick={() => setConfirming(false)}>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => setConfirming(false)}
+            >
               Cancelar
             </Button>
             <Button

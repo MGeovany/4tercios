@@ -1,7 +1,11 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
-export default async function GalleryRedirectPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function GalleryRedirectPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const { id } = await params;
   // Legacy route — galleries now live under /dashboard/events/[eventId]/upload (private)
   // and /e/[slug]/results (public). For old shared links we just bounce back to the dashboard.

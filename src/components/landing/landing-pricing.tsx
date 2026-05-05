@@ -27,8 +27,8 @@ export function LandingPricing() {
               Gratis hasta que vendas.
             </h2>
             <p className="text-muted-foreground mt-4 text-[15px] leading-relaxed">
-              Sin suscripción, sin setup, sin mínimos. 4Tercios solo toma una comisión de tu venta.
-              El resto, totalmente gratis.
+              Sin suscripción, sin setup, sin mínimos. 4Tercios solo toma una comisión de
+              tu venta. El resto, totalmente gratis.
             </p>
           </div>
 
@@ -42,17 +42,23 @@ export function LandingPricing() {
             <p className="text-muted-foreground text-xs">Ejemplo por foto</p>
             <div className="sm:divide-border mt-4 grid gap-6 sm:grid-cols-3 sm:gap-0 sm:divide-x">
               <div className="sm:pr-8">
-                <p className="text-muted-foreground text-xs tracking-wide uppercase">Tú defines</p>
+                <p className="text-muted-foreground text-xs tracking-wide uppercase">
+                  Tú defines
+                </p>
                 <p className="mt-2 text-2xl font-semibold tabular-nums">L 80</p>
                 <p className="text-muted-foreground mt-1 text-xs">precio por foto</p>
               </div>
               <div className="sm:px-8">
-                <p className="text-muted-foreground text-xs tracking-wide uppercase">Comisión</p>
+                <p className="text-muted-foreground text-xs tracking-wide uppercase">
+                  Comisión
+                </p>
                 <p className="mt-2 text-2xl font-semibold tabular-nums">L 16</p>
                 <p className="text-muted-foreground mt-1 text-xs">20% por venta</p>
               </div>
               <div className="sm:pl-8">
-                <p className="text-muted-foreground text-xs tracking-wide uppercase">Recibes</p>
+                <p className="text-muted-foreground text-xs tracking-wide uppercase">
+                  Recibes
+                </p>
                 <p className="mt-2 text-2xl font-semibold tabular-nums">L 64</p>
                 <p className="text-muted-foreground mt-1 text-xs">directo a tu cuenta</p>
               </div>

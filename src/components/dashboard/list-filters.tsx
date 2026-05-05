@@ -57,7 +57,11 @@ export function ListFilters({
     const nextCaret = caretRef.current;
     requestAnimationFrame(() => {
       inputRef.current?.focus();
-      if (inputRef.current && typeof nextCaret === "number" && inputRef.current.setSelectionRange) {
+      if (
+        inputRef.current &&
+        typeof nextCaret === "number" &&
+        inputRef.current.setSelectionRange
+      ) {
         inputRef.current.setSelectionRange(nextCaret, nextCaret);
       }
     });

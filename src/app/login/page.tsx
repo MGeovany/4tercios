@@ -91,7 +91,9 @@ export default function LoginPage() {
       const onboardingStep = getOnboardingStepFromMetadata(meta);
 
       setSuccess("Ingreso exitoso. Redirigiendo...");
-      router.replace(onboardingCompleted ? "/dashboard" : buildOnboardingPath(onboardingStep));
+      router.replace(
+        onboardingCompleted ? "/dashboard" : buildOnboardingPath(onboardingStep)
+      );
     } catch (err) {
       const message = err instanceof Error ? err.message : "No se pudo iniciar sesión.";
       setError(message);
@@ -121,7 +123,8 @@ export default function LoginPage() {
         setError(oauthError.message);
       }
     } catch (err) {
-      const message = err instanceof Error ? err.message : "No se pudo iniciar con Google.";
+      const message =
+        err instanceof Error ? err.message : "No se pudo iniciar con Google.";
       setError(message);
     } finally {
       setGoogleLoading(false);
@@ -145,22 +148,27 @@ export default function LoginPage() {
             priority
           />
         </Link>
-        <Link href="/register" className="text-sm font-semibold text-zinc-700 hover:text-zinc-950">
+        <Link
+          href="/register"
+          className="text-sm font-semibold text-zinc-700 hover:text-zinc-950"
+        >
           Registrarse
         </Link>
       </header>
 
       <main className="flex min-h-[calc(100vh-72px)] items-center justify-center px-6 pb-16">
         <div className="w-full max-w-sm">
-          <h1 className="text-center text-4xl font-semibold tracking-tight">Iniciar sesión</h1>
+          <h1 className="text-center text-4xl font-semibold tracking-tight">
+            Iniciar sesión
+          </h1>
           <p className="mt-3 text-center text-lg text-zinc-500">
             Ingresa tus credenciales para continuar.
           </p>
 
           {!supabaseReady ? (
             <p className="mt-6 rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-zinc-700">
-              Configura `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` para
-              activar autenticación.
+              Configura `NEXT_PUBLIC_SUPABASE_URL` y
+              `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` para activar autenticación.
             </p>
           ) : null}
 
@@ -206,12 +214,18 @@ export default function LoginPage() {
                   aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
                   className="absolute top-1/2 right-3 -translate-y-1/2 text-zinc-500 transition-colors hover:text-zinc-800"
                 >
-                  {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                  {showPassword ? (
+                    <EyeOff className="size-4" />
+                  ) : (
+                    <Eye className="size-4" />
+                  )}
                 </button>
               </div>
             </div>
 
-            {error ? <p className="text-xs font-medium text-red-600">{`*` + error}</p> : null}
+            {error ? (
+              <p className="text-xs font-medium text-red-600">{`*` + error}</p>
+            ) : null}
             {success ? <p className="text-sm text-zinc-700">{success}</p> : null}
 
             <Button
@@ -243,11 +257,17 @@ export default function LoginPage() {
 
           <p className="mt-8 text-center text-sm leading-relaxed text-zinc-500">
             Al continuar, aceptas nuestros{" "}
-            <Link href="/terminos" className="underline underline-offset-4 hover:text-zinc-900">
+            <Link
+              href="/terminos"
+              className="underline underline-offset-4 hover:text-zinc-900"
+            >
               Términos de servicio
             </Link>{" "}
             y la{" "}
-            <Link href="/privacidad" className="underline underline-offset-4 hover:text-zinc-900">
+            <Link
+              href="/privacidad"
+              className="underline underline-offset-4 hover:text-zinc-900"
+            >
               Política de privacidad
             </Link>
             .

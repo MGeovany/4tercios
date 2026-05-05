@@ -79,7 +79,11 @@ export async function createClinpaysSession(
     throw new Error(`Clinpays ${res.status}: ${text || "error desconocido"}`);
   }
 
-  const body = (await res.json()) as { payment_url?: string; url?: string; reference?: string };
+  const body = (await res.json()) as {
+    payment_url?: string;
+    url?: string;
+    reference?: string;
+  };
   const paymentUrl = body.payment_url || body.url;
   if (!paymentUrl) {
     throw new Error("Clinpays no devolvió payment_url");

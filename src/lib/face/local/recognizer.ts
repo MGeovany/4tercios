@@ -9,8 +9,19 @@ export async function embedFace(
   session: ort.InferenceSession,
   alignedRgb: Uint8ClampedArray
 ): Promise<number[]> {
-  const tensorData = toCHWFloat32(alignedRgb, ALIGNED_FACE_SIZE, ALIGNED_FACE_SIZE, 127.5, 127.5);
-  const input = new ort.Tensor("float32", tensorData, [1, 3, ALIGNED_FACE_SIZE, ALIGNED_FACE_SIZE]);
+  const tensorData = toCHWFloat32(
+    alignedRgb,
+    ALIGNED_FACE_SIZE,
+    ALIGNED_FACE_SIZE,
+    127.5,
+    127.5
+  );
+  const input = new ort.Tensor("float32", tensorData, [
+    1,
+    3,
+    ALIGNED_FACE_SIZE,
+    ALIGNED_FACE_SIZE,
+  ]);
   const inputName = session.inputNames[0];
   const output = await session.run({ [inputName]: input });
   const tensor = output[session.outputNames[0]] as ort.Tensor;

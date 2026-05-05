@@ -47,7 +47,11 @@ export default async function OrdersListPage({
   const sp = await searchParams;
   const search = typeof sp.q === "string" ? sp.q : Array.isArray(sp.q) ? sp.q[0] : "";
   const statusParam =
-    typeof sp.status === "string" ? sp.status : Array.isArray(sp.status) ? sp.status[0] : "all";
+    typeof sp.status === "string"
+      ? sp.status
+      : Array.isArray(sp.status)
+        ? sp.status[0]
+        : "all";
   const statusFilter =
     ORDER_STATUS_OPTIONS.find((opt) => opt.value === statusParam)?.value ?? "all";
 
@@ -83,7 +87,11 @@ export default async function OrdersListPage({
             <Stat label="Órdenes" value={orders.length.toLocaleString("es-HN")} />
             <Stat label="Total bruto" value={formatHnl(totals.gross)} />
             <Stat label="Cobrado" value={formatHnl(totals.paid)} accent="emerald" />
-            <Stat label="Pendiente" value={formatHnl(totals.gross - totals.paid)} accent="amber" />
+            <Stat
+              label="Pendiente"
+              value={formatHnl(totals.gross - totals.paid)}
+              accent="amber"
+            />
           </div>
         ) : null}
 
@@ -117,8 +125,9 @@ export default async function OrdersListPage({
                         </span>
                       </div>
                       <p className="mt-0.5 truncate text-xs text-zinc-500">
-                        {order.events?.name ?? "Evento eliminado"} · {order.photo_ids.length} fotos
-                        · {formatDateTime(order.created_at)}
+                        {order.events?.name ?? "Evento eliminado"} ·{" "}
+                        {order.photo_ids.length} fotos ·{" "}
+                        {formatDateTime(order.created_at)}
                       </p>
                     </div>
                     <p className="text-sm font-medium text-zinc-950 tabular-nums">
@@ -146,11 +155,17 @@ function Stat({
   accent?: "emerald" | "amber";
 }) {
   const accentClass =
-    accent === "emerald" ? "text-emerald-700" : accent === "amber" ? "text-amber-700" : "";
+    accent === "emerald"
+      ? "text-emerald-700"
+      : accent === "amber"
+        ? "text-amber-700"
+        : "";
   return (
     <div>
       <p className="text-xs tracking-wide text-zinc-500 uppercase">{label}</p>
-      <p className={cn("mt-1 text-xl font-semibold tabular-nums", accentClass)}>{value}</p>
+      <p className={cn("mt-1 text-xl font-semibold tabular-nums", accentClass)}>
+        {value}
+      </p>
     </div>
   );
 }

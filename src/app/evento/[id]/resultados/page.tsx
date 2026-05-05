@@ -59,9 +59,13 @@ export default function SearchResultsPage() {
 
   const getConfidenceBadge = (confidence: number) => {
     if (confidence >= 90) {
-      return <Badge className="bg-green-100 text-green-700">{confidence}% coincidencia</Badge>;
+      return (
+        <Badge className="bg-green-100 text-green-700">{confidence}% coincidencia</Badge>
+      );
     } else if (confidence >= 75) {
-      return <Badge className="bg-amber-100 text-amber-700">{confidence}% coincidencia</Badge>;
+      return (
+        <Badge className="bg-amber-100 text-amber-700">{confidence}% coincidencia</Badge>
+      );
     }
     return <Badge variant="secondary">{confidence}% posible</Badge>;
   };
@@ -89,7 +93,9 @@ export default function SearchResultsPage() {
           </Button>
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h1 className="text-2xl font-semibold tracking-tight">Tus fotos encontradas</h1>
+              <h1 className="text-2xl font-semibold tracking-tight">
+                Tus fotos encontradas
+              </h1>
               <p className="text-muted-foreground mt-1">
                 {eventData.name} • {photos.length} fotos coinciden con tu selfie
               </p>
@@ -157,10 +163,12 @@ export default function SearchResultsPage() {
             <div className="border-border/50 bg-muted/30 mt-6 flex items-start gap-3 rounded-lg border p-4">
               <Sparkles className="text-muted-foreground mt-0.5 h-5 w-5 flex-shrink-0" />
               <div className="text-muted-foreground text-sm">
-                <p className="text-foreground font-medium">Resultados ordenados por coincidencia</p>
+                <p className="text-foreground font-medium">
+                  Resultados ordenados por coincidencia
+                </p>
                 <p className="mt-1">
-                  Las fotos con mayor porcentaje tienen más probabilidad de ser tuyas. Revisa todas
-                  las opciones antes de comprar.
+                  Las fotos con mayor porcentaje tienen más probabilidad de ser tuyas.
+                  Revisa todas las opciones antes de comprar.
                 </p>
               </div>
             </div>
@@ -187,17 +195,23 @@ export default function SearchResultsPage() {
                       {/* Selected photos summary */}
                       <div className="space-y-3">
                         <div className="flex items-center justify-between text-sm">
-                          <span className="text-muted-foreground">Fotos seleccionadas</span>
+                          <span className="text-muted-foreground">
+                            Fotos seleccionadas
+                          </span>
                           <span className="font-medium">{selectedPhotos.length}</span>
                         </div>
                         <div className="flex items-center justify-between text-sm">
                           <span className="text-muted-foreground">Precio por foto</span>
-                          <span className="font-medium">${eventData.pricePerPhoto.toFixed(2)}</span>
+                          <span className="font-medium">
+                            ${eventData.pricePerPhoto.toFixed(2)}
+                          </span>
                         </div>
                         <div className="border-border border-t pt-3">
                           <div className="flex items-center justify-between">
                             <span className="font-semibold">Total</span>
-                            <span className="text-xl font-semibold">${totalPrice.toFixed(2)}</span>
+                            <span className="text-xl font-semibold">
+                              ${totalPrice.toFixed(2)}
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -225,7 +239,9 @@ export default function SearchResultsPage() {
                   <div className="border-border border-t pt-4 text-center">
                     <p className="text-muted-foreground text-xs">
                       Fotos por{" "}
-                      <span className="text-foreground font-medium">{eventData.photographer}</span>
+                      <span className="text-foreground font-medium">
+                        {eventData.photographer}
+                      </span>
                     </p>
                   </div>
                 </CardContent>

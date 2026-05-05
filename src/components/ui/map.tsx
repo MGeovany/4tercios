@@ -2,7 +2,14 @@
 
 import MapLibreGL from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { createPortal } from "react-dom";
 import { Locate, Minus, Plus } from "lucide-react";
 
@@ -164,11 +171,17 @@ type MapControlsProps = {
   className?: string;
 };
 
-export function MapControls({ showZoom = true, showLocate = false, className }: MapControlsProps) {
+export function MapControls({
+  showZoom = true,
+  showLocate = false,
+  className,
+}: MapControlsProps) {
   const { map } = useMap();
 
   return (
-    <div className={cn("absolute right-2 bottom-10 z-10 flex flex-col gap-1.5", className)}>
+    <div
+      className={cn("absolute right-2 bottom-10 z-10 flex flex-col gap-1.5", className)}
+    >
       {showZoom ? (
         <div className="overflow-hidden rounded-md border border-zinc-200 bg-white shadow-sm">
           <button

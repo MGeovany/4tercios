@@ -5,7 +5,9 @@ const OAUTH_ERROR_PARAMS = ["error", "error_code", "error_description"] as const
 
 export function proxy(request: NextRequest) {
   const url = request.nextUrl;
-  const hasOauthErrorParams = OAUTH_ERROR_PARAMS.some((param) => url.searchParams.has(param));
+  const hasOauthErrorParams = OAUTH_ERROR_PARAMS.some((param) =>
+    url.searchParams.has(param)
+  );
 
   if (!hasOauthErrorParams) {
     return NextResponse.next();

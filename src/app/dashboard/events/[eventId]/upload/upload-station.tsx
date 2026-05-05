@@ -45,7 +45,9 @@ export function UploadStation({
 function Stat({ label, value }: { label: string; value: number }) {
   return (
     <div className="rounded-xl bg-white/70 px-1 py-1 text-center">
-      <p className="text-[11px] font-medium tracking-[0.08em] text-zinc-500 uppercase">{label}</p>
+      <p className="text-[11px] font-medium tracking-[0.08em] text-zinc-500 uppercase">
+        {label}
+      </p>
       <p className="mt-1 text-4xl leading-none font-semibold tracking-tight text-zinc-950 tabular-nums">
         {value.toLocaleString("es-HN")}
       </p>

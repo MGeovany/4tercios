@@ -41,7 +41,12 @@ type GroupItem = {
   icon: React.ReactNode;
   defaultOpen?: boolean;
   match: (pathname: string) => boolean;
-  children: { id: string; href: string; label: string; match: (pathname: string) => boolean }[];
+  children: {
+    id: string;
+    href: string;
+    label: string;
+    match: (pathname: string) => boolean;
+  }[];
 };
 
 type NavItem = LeafItem | GroupItem;
@@ -70,13 +75,15 @@ const PRIMARY_NAV: NavItem[] = [
     label: "Eventos",
     icon: <Calendar className="size-[18px]" strokeWidth={1.75} />,
     defaultOpen: true,
-    match: (p) => p.startsWith("/dashboard/events") && !p.startsWith("/dashboard/events/new"),
+    match: (p) =>
+      p.startsWith("/dashboard/events") && !p.startsWith("/dashboard/events/new"),
     children: [
       {
         id: "events-procesando",
         href: "/dashboard/events?status=Procesando",
         label: "Procesando",
-        match: (p) => p.startsWith("/dashboard/events") && p.includes("status=Procesando"),
+        match: (p) =>
+          p.startsWith("/dashboard/events") && p.includes("status=Procesando"),
       },
       {
         id: "events-listo",
@@ -354,7 +361,10 @@ function NavGroup({
                 />
                 <span className="inline-flex items-center gap-1.5">
                   {loadingChildHref === child.href ? (
-                    <Loader2 className="size-3.5 animate-spin text-zinc-400" strokeWidth={2} />
+                    <Loader2
+                      className="size-3.5 animate-spin text-zinc-400"
+                      strokeWidth={2}
+                    />
                   ) : null}
                   {child.label}
                 </span>
@@ -394,7 +404,8 @@ function UserPill({
       .toUpperCase();
   }, [resolvedName, resolvedEmail]);
 
-  const display = resolvedName || (resolvedEmail ? resolvedEmail.split("@")[0] : "Tu cuenta");
+  const display =
+    resolvedName || (resolvedEmail ? resolvedEmail.split("@")[0] : "Tu cuenta");
   const email = resolvedEmail || "—";
 
   if (collapsed) {
@@ -585,7 +596,9 @@ export function Sidebar({
             <NavLeaf
               key={item.id}
               item={item}
-              active={item.match(pathname) || (showLoading && pendingNav?.href === item.href)}
+              active={
+                item.match(pathname) || (showLoading && pendingNav?.href === item.href)
+              }
               collapsed={collapsed}
               loading={showLoading && pendingNav?.href === item.href}
               onNavigate={handleNavigate}
@@ -616,7 +629,9 @@ export function Sidebar({
             <NavLeaf
               key={item.id}
               item={item}
-              active={item.match(pathname) || (showLoading && pendingNav?.href === item.href)}
+              active={
+                item.match(pathname) || (showLoading && pendingNav?.href === item.href)
+              }
               collapsed={collapsed}
               loading={showLoading && pendingNav?.href === item.href}
               onNavigate={handleNavigate}

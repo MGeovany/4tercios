@@ -72,8 +72,12 @@ export function SectionCard({
                 {eyebrow}
               </span>
             </div>
-            <h2 className="mt-1 text-base font-semibold tracking-tight text-zinc-950">{title}</h2>
-            {description ? <p className="mt-1 text-sm text-zinc-500">{description}</p> : null}
+            <h2 className="mt-1 text-base font-semibold tracking-tight text-zinc-950">
+              {title}
+            </h2>
+            {description ? (
+              <p className="mt-1 text-sm text-zinc-500">{description}</p>
+            ) : null}
           </div>
           <div className="p-6 sm:p-8">{children}</div>
           {footer !== null && onSubmit ? (
@@ -152,7 +156,9 @@ export function Toggle({
       />
       <div className="min-w-0">
         <p className="text-sm font-medium text-zinc-950">{label}</p>
-        {description ? <p className="mt-0.5 text-xs text-zinc-500">{description}</p> : null}
+        {description ? (
+          <p className="mt-0.5 text-xs text-zinc-500">{description}</p>
+        ) : null}
       </div>
     </label>
   );
@@ -217,7 +223,10 @@ export function SideNav() {
   }, []);
 
   return (
-    <nav className="sticky top-20 hidden self-start lg:block" aria-label="Navegación de ajustes">
+    <nav
+      className="sticky top-20 hidden self-start lg:block"
+      aria-label="Navegación de ajustes"
+    >
       <p className="px-3 pb-2 text-[10px] font-medium tracking-wider text-zinc-400 uppercase">
         Secciones
       </p>

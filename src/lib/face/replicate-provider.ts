@@ -102,7 +102,8 @@ function parseFace(
   if (!raw || typeof raw !== "object") return null;
   const r = raw as Record<string, unknown>;
 
-  const embeddingRaw = r.embedding ?? r.embeddings ?? r.features ?? r.vector ?? r.descriptor;
+  const embeddingRaw =
+    r.embedding ?? r.embeddings ?? r.features ?? r.vector ?? r.descriptor;
   const embedding = toNumberArray(embeddingRaw);
   if (!embedding || embedding.length === 0) return null;
   // Some providers return 128-d, 192-d or 512-d. Truncate or pad to expected dim.

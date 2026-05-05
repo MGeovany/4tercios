@@ -131,8 +131,8 @@ export function EventRowActions({
           <DialogHeader>
             <DialogTitle>¿Eliminar evento?</DialogTitle>
             <DialogDescription>
-              Se borrarán también sus fotos, rostros y órdenes asociadas. Esta acción no se puede
-              deshacer.
+              Se borrarán también sus fotos, rostros y órdenes asociadas. Esta acción no
+              se puede deshacer.
             </DialogDescription>
           </DialogHeader>
 
@@ -147,7 +147,12 @@ export function EventRowActions({
             >
               Cancelar
             </Button>
-            <Button type="button" variant="destructive" disabled={deleting} onClick={onDelete}>
+            <Button
+              type="button"
+              variant="destructive"
+              disabled={deleting}
+              onClick={onDelete}
+            >
               {deleting ? "Eliminando..." : "Sí, eliminar"}
             </Button>
           </DialogFooter>

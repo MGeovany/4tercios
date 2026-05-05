@@ -36,7 +36,9 @@ export function LandingHowItWorks() {
                 <h3 className="mt-5 text-3xl leading-tight font-semibold tracking-tight text-neutral-900">
                   {s.title}
                 </h3>
-                <p className="text-md mt-3 leading-relaxed text-neutral-500">{s.description}</p>
+                <p className="text-md mt-3 leading-relaxed text-neutral-500">
+                  {s.description}
+                </p>
               </m.div>
             ))}
           </div>

@@ -40,6 +40,8 @@ export function SelfieSearch({
   watermarkColor = "#ffffff",
   watermarkLabel = "4Tercios",
   watermarkFont = "sans",
+  watermarkOpacity = 0.08,
+  watermarkDensity = 1,
 }: {
   slug: string;
   pricePerPhotoHnl: number;
@@ -49,6 +51,8 @@ export function SelfieSearch({
   watermarkColor?: string;
   watermarkLabel?: string;
   watermarkFont?: WatermarkFontId;
+  watermarkOpacity?: number;
+  watermarkDensity?: number;
 }) {
   const [selfie, setSelfie] = React.useState<SelfieResult | null>(null);
   const [phase, setPhase] = React.useState<Phase>("idle");
@@ -142,7 +146,9 @@ export function SelfieSearch({
                 <div className="space-y-2">
                   <Progress value={phase === "uploading" ? 35 : 80} />
                   <p className="text-sm text-zinc-700">
-                    {phase === "uploading" ? "Subiendo selfie..." : "Buscando coincidencias..."}
+                    {phase === "uploading"
+                      ? "Subiendo selfie..."
+                      : "Buscando coincidencias..."}
                   </p>
                 </div>
               ) : null}
@@ -196,11 +202,15 @@ export function SelfieSearch({
                     key={m.photoId}
                     match={m}
                     selected={!!selected[m.photoId]}
-                    onToggle={() => setSelected((s) => ({ ...s, [m.photoId]: !s[m.photoId] }))}
+                    onToggle={() =>
+                      setSelected((s) => ({ ...s, [m.photoId]: !s[m.photoId] }))
+                    }
                     watermarkStyle={watermarkStyle}
                     watermarkColor={watermarkColor}
                     watermarkLabel={watermarkLabel}
                     watermarkFont={watermarkFont}
+                    watermarkOpacity={watermarkOpacity}
+                    watermarkDensity={watermarkDensity}
                   />
                 ))}
               </div>
@@ -228,19 +238,20 @@ export function SelfieSearch({
                   <strong>1.</strong> Toma o sube una selfie clara, mirando al frente.
                 </p>
                 <p>
-                  <strong>2.</strong> Comparamos tu rostro con cada foto del evento usando IA.
+                  <strong>2.</strong> Comparamos tu rostro con cada foto del evento usando
+                  IA.
                 </p>
                 <p>
-                  <strong>3.</strong> Te mostramos las fotos donde apareces. Selecciona las que
-                  quieras y solicítalas por WhatsApp o paga online.
+                  <strong>3.</strong> Te mostramos las fotos donde apareces. Selecciona
+                  las que quieras y solicítalas por WhatsApp o paga online.
                 </p>
               </div>
               <p className="text-xs text-zinc-500">
                 Tu selfie nunca se publica y se elimina después de la búsqueda.
               </p>
               <p className="text-xs text-zinc-500">
-                ¿No tienes cámara? Sube una foto desde tu galería con el botón &ldquo;Subir
-                foto&rdquo;.
+                ¿No tienes cámara? Sube una foto desde tu galería con el botón
+                &ldquo;Subir foto&rdquo;.
               </p>
               <div className="rounded-xl border border-zinc-200/80 bg-zinc-50 p-3">
                 <Link
@@ -270,8 +281,8 @@ function EmptyState({ eventName }: { eventName: string }) {
           <strong>{eventName}</strong>.
         </p>
         <p>
-          Si el fotógrafo aún está subiendo, vuelve a intentar en unos minutos. También puedes
-          probar con otra selfie de mejor iluminación.
+          Si el fotógrafo aún está subiendo, vuelve a intentar en unos minutos. También
+          puedes probar con otra selfie de mejor iluminación.
         </p>
       </CardContent>
     </Card>
@@ -286,6 +297,8 @@ function MatchCard({
   watermarkColor,
   watermarkLabel,
   watermarkFont,
+  watermarkOpacity,
+  watermarkDensity,
 }: {
   match: Match;
   selected: boolean;
@@ -294,6 +307,8 @@ function MatchCard({
   watermarkColor: string;
   watermarkLabel: string;
   watermarkFont: WatermarkFontId;
+  watermarkOpacity: number;
+  watermarkDensity: number;
 }) {
   const pct = Math.round(match.score * 100);
   const tier =
@@ -327,6 +342,8 @@ function MatchCard({
           style={watermarkStyle}
           color={watermarkColor}
           font={watermarkFont}
+          opacity={watermarkOpacity}
+          tileDensity={watermarkDensity}
         />
         {selected ? (
           <span className="absolute top-2 right-2 grid h-7 w-7 place-items-center rounded-full bg-zinc-950 text-white">
@@ -415,7 +432,9 @@ function SelectionBar({
           <p className="mt-0.5 text-2xl font-semibold tracking-tight text-zinc-950 tabular-nums">
             {formatHnl(total)}
           </p>
-          <p className="text-xs text-zinc-500">Precio por foto: {formatHnl(pricePerPhotoHnl)}</p>
+          <p className="text-xs text-zinc-500">
+            Precio por foto: {formatHnl(pricePerPhotoHnl)}
+          </p>
         </div>
         <div className="grid w-full gap-2 sm:max-w-md sm:grid-cols-2">
           <input
@@ -451,7 +470,9 @@ function SelectionBar({
         </Button>
       </div>
 
-      {orderError ? <p className="mt-2 text-sm font-medium text-red-700">{orderError}</p> : null}
+      {orderError ? (
+        <p className="mt-2 text-sm font-medium text-red-700">{orderError}</p>
+      ) : null}
       {orderUrl ? (
         <a
           href={orderUrl}

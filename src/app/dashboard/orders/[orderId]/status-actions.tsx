@@ -46,7 +46,8 @@ export function OrderStatusActions({
         disabled={status === "delivered" || pending !== null}
         onClick={() => setStatus("delivered")}
       >
-        <DownloadIcon /> {pending === "delivered" ? "Guardando..." : "Marcar como entregada"}
+        <DownloadIcon />{" "}
+        {pending === "delivered" ? "Guardando..." : "Marcar como entregada"}
       </Button>
       {status !== "cancelled" ? (
         <Button

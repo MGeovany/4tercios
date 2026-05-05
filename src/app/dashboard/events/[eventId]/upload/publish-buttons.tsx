@@ -22,7 +22,12 @@ export function PublishEventButton({
 export function SaveDraftButton({ disabled }: { disabled: boolean }) {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" variant="secondary" className="w-full" disabled={disabled || pending}>
+    <Button
+      type="submit"
+      variant="secondary"
+      className="w-full"
+      disabled={disabled || pending}
+    >
       {pending ? "Guardando..." : "Salvar como draft"}
     </Button>
   );

@@ -180,3 +180,68 @@
 .marquee-strip {
   will-change: transform;
 }
+
+/* Modern range slider used in settings (watermark opacity/density). */
+.range-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  background: #e4e4e7;
+  outline: none;
+  cursor: pointer;
+  transition: filter 0.18s ease;
+}
+.range-slider:hover {
+  filter: brightness(0.97);
+}
+.range-slider::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 999px;
+}
+.range-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  margin-top: -6px;
+  border-radius: 999px;
+  background: #ffffff;
+  border: 2px solid #0a0a0a;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.16),
+    0 4px 10px rgba(0, 0, 0, 0.12);
+  cursor: pointer;
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.12s ease;
+}
+.range-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.08);
+}
+.range-slider:active::-webkit-slider-thumb {
+  transform: scale(1.12);
+  box-shadow:
+    0 0 0 6px rgba(10, 10, 10, 0.08),
+    0 1px 3px rgba(0, 0, 0, 0.18);
+}
+.range-slider:focus-visible::-webkit-slider-thumb {
+  box-shadow:
+    0 0 0 4px rgba(10, 10, 10, 0.16),
+    0 1px 3px rgba(0, 0, 0, 0.18);
+}
+.range-slider::-moz-range-track {
+  height: 6px;
+  border-radius: 999px;
+  background: transparent;
+}
+.range-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: #ffffff;
+  border: 2px solid #0a0a0a;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
+  cursor: pointer;
+}

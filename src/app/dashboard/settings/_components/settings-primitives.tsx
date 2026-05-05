@@ -159,23 +159,61 @@ export function Toggle({
 }
 
 export function SideNav() {
-  const [active, setActive] = React.useState<string>(SETTINGS_SECTIONS[0].id);
+  const [active, setActive] = React.useState<string>(() => {
+    if (typeof window === "undefined") return SETTINGS_SECTIONS[0].id;
+    const fromHash = window.location.hash.replace("#", "");
+    return SETTINGS_SECTIONS.some((section) => section.id === fromHash)
+      ? fromHash
+      : SETTINGS_SECTIONS[0].id;
+  });
 
   React.useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((e) => e.isIntersecting)
-          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
-        if (visible[0]?.target.id) setActive(visible[0].target.id);
-      },
-      { rootMargin: "-100px 0px -60% 0px", threshold: 0 }
-    );
-    SETTINGS_SECTIONS.forEach((section) => {
-      const el = document.getElementById(section.id);
-      if (el) observer.observe(el);
-    });
-    return () => observer.disconnect();
+    const onHashChange = () => {
+      const next = window.location.hash.replace("#", "");
+      if (SETTINGS_SECTIONS.some((section) => section.id === next)) {
+        setActive(next);
+      }
+    };
+
+    window.addEventListener("hashchange", onHashChange);
+    return () => window.removeEventListener("hashchange", onHashChange);
+  }, []);
+
+  React.useEffect(() => {
+    const TOP_OFFSET = 140;
+
+    const resolveActive = () => {
+      const positions = SETTINGS_SECTIONS.map((section) => {
+        const el = document.getElementById(section.id);
+        if (!el) return null;
+        return { id: section.id, top: el.getBoundingClientRect().top };
+      }).filter(
+        (entry): entry is { id: (typeof SETTINGS_SECTIONS)[number]["id"]; top: number } =>
+          entry !== null
+      );
+
+      if (!positions.length) return;
+
+      // Prefer the section that has crossed the top offset and is closest to it.
+      const crossed = positions.filter((entry) => entry.top <= TOP_OFFSET);
+      if (crossed.length > 0) {
+        crossed.sort((a, b) => b.top - a.top);
+        setActive(crossed[0].id);
+        return;
+      }
+
+      // Fallback: the first section visible below the offset.
+      positions.sort((a, b) => a.top - b.top);
+      setActive(positions[0].id);
+    };
+
+    resolveActive();
+    window.addEventListener("scroll", resolveActive, { passive: true });
+    window.addEventListener("resize", resolveActive);
+    return () => {
+      window.removeEventListener("scroll", resolveActive);
+      window.removeEventListener("resize", resolveActive);
+    };
   }, []);
 
   return (
@@ -188,6 +226,15 @@ export function SideNav() {
           <li key={section.id}>
             <a
               href={`#${section.id}`}
+              onClick={(e) => {
+                e.preventDefault();
+                setActive(section.id);
+                const el = document.getElementById(section.id);
+                if (el) {
+                  el.scrollIntoView({ behavior: "smooth", block: "start" });
+                  history.replaceState(null, "", `#${section.id}`);
+                }
+              }}
               className={cn(
                 "block rounded-md px-3 py-1.5 text-sm transition-colors",
                 active === section.id

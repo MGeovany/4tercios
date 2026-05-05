@@ -101,7 +101,9 @@ export default function NewEventPage() {
   const [venue, setVenue] = React.useState("");
   const [location, setLocation] = React.useState<{ lat: number; lng: number } | null>(null);
   const [resolvingLocation, setResolvingLocation] = React.useState(false);
+  const [resolvingCity, setResolvingCity] = React.useState(false);
   const [description, setDescription] = React.useState("");
+  const skipNextCityGeocodeRef = React.useRef(false);
 
   const [slugTouched, setSlugTouched] = React.useState(false);
   const [slug, setSlug] = React.useState("");
@@ -139,6 +141,7 @@ export default function NewEventPage() {
         const body = (await res.json()) as { city?: string; venue?: string };
 
         if (typeof body.city === "string" && body.city.trim().length > 0) {
+          skipNextCityGeocodeRef.current = true;
           setCity(body.city.trim());
         }
         if (typeof body.venue === "string" && body.venue.trim().length > 0) {
@@ -159,6 +162,45 @@ export default function NewEventPage() {
       controller.abort();
     };
   }, [location]);
+
+  React.useEffect(() => {
+    const cityText = city.trim();
+    if (cityText.length < 2) return;
+    if (skipNextCityGeocodeRef.current) {
+      skipNextCityGeocodeRef.current = false;
+      return;
+    }
+
+    const controller = new AbortController();
+    const timeout = window.setTimeout(async () => {
+      setResolvingCity(true);
+      try {
+        const res = await fetch(`/api/geocode/forward?city=${encodeURIComponent(cityText)}`, {
+          signal: controller.signal,
+        });
+        if (!res.ok) return;
+        const body = (await res.json()) as { lat?: number; lng?: number };
+        if (typeof body.lat !== "number" || typeof body.lng !== "number") return;
+
+        setLocation({
+          lat: body.lat,
+          lng: body.lng,
+        });
+      } catch {
+        // Ignore transient geocoder errors and keep manual values.
+      } finally {
+        if (!controller.signal.aborted) {
+          setResolvingCity(false);
+        }
+      }
+    }, 350);
+
+    return () => {
+      controller.abort();
+      window.clearTimeout(timeout);
+      setResolvingCity(false);
+    };
+  }, [city]);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -259,6 +301,7 @@ export default function NewEventPage() {
                     onChange={(e) => setCity(e.target.value)}
                   />
                   {resolvingLocation ? <Hint>Actualizando ciudad desde el pin...</Hint> : null}
+                  {resolvingCity ? <Hint>Moviendo pin desde la ciudad seleccionada...</Hint> : null}
                 </div>
                 <div>
                   <Label htmlFor="venue">
@@ -348,7 +391,7 @@ export default function NewEventPage() {
                   </Label>
                   <Textarea
                     id="description"
-                    placeholder="Una frase que tus clientes verán en la galería. Ej: Las mejores fotos del 10K con vistas al río Choluteca."
+                    placeholder="Una frase que tus clientes verán en la galería."
                     className="mt-2"
                     rows={3}
                     value={description}

@@ -20,15 +20,15 @@ let cached: Promise<LoadedModels> | null = null;
 export function loadModels(): Promise<LoadedModels> {
   if (cached) return cached;
   cached = (async () => {
-    const cacheDir = process.env.FACE_MODELS_DIR ?? join(tmpdir(), "4tercios-face-models");
+    const cacheDir = nonEmptyEnv("FACE_MODELS_DIR") ?? join(tmpdir(), "4tercios-face-models");
     await mkdir(cacheDir, { recursive: true });
 
     const detectionPath = join(cacheDir, "detection.onnx");
     const recognitionPath = join(cacheDir, "recognition.onnx");
 
     await Promise.all([
-      ensureFile(detectionPath, process.env.FACE_DETECTION_URL ?? DEFAULT_DETECTION_URL),
-      ensureFile(recognitionPath, process.env.FACE_RECOGNITION_URL ?? DEFAULT_RECOGNITION_URL),
+      ensureFile(detectionPath, nonEmptyEnv("FACE_DETECTION_URL") ?? DEFAULT_DETECTION_URL),
+      ensureFile(recognitionPath, nonEmptyEnv("FACE_RECOGNITION_URL") ?? DEFAULT_RECOGNITION_URL),
     ]);
 
     const sessionOpts: ort.InferenceSession.SessionOptions = {
@@ -48,6 +48,13 @@ export function loadModels(): Promise<LoadedModels> {
   });
 
   return cached;
+}
+
+function nonEmptyEnv(name: string) {
+  const raw = process.env[name];
+  if (typeof raw !== "string") return undefined;
+  const value = raw.trim();
+  return value.length > 0 ? value : undefined;
 }
 
 async function ensureFile(path: string, url: string) {

@@ -109,10 +109,10 @@ const PRIMARY_NAV: NavItem[] = [
   {
     kind: "leaf",
     id: "payments",
-    href: "/dashboard/orders?tab=pagos",
+    href: "/dashboard/payments",
     label: "Pagos",
     icon: <CreditCard className="size-[18px]" strokeWidth={1.75} />,
-    match: (p) => p.includes("tab=pagos"),
+    match: (p) => p.startsWith("/dashboard/payments"),
   },
   {
     kind: "leaf",
@@ -136,18 +136,18 @@ const SECONDARY_NAV: LeafItem[] = [
   {
     kind: "leaf",
     id: "support",
-    href: "/contacto",
+    href: "/dashboard/support",
     label: "Soporte y ayuda",
     icon: <HelpCircle className="size-[18px]" strokeWidth={1.75} />,
-    match: () => false,
+    match: (p) => p.startsWith("/dashboard/support"),
   },
   {
     kind: "leaf",
     id: "feedback",
-    href: "/contacto?tipo=feedback",
+    href: "/dashboard/feedback",
     label: "Feedback",
     icon: <MessageSquare className="size-[18px]" strokeWidth={1.75} />,
-    match: () => false,
+    match: (p) => p.startsWith("/dashboard/feedback"),
   },
 ];
 

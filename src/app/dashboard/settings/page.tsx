@@ -1,7 +1,6 @@
 "use client";
 
-import Link from "next/link";
-import { ArrowLeftIcon, ExternalLinkIcon } from "@radix-ui/react-icons";
+import { ExternalLinkIcon } from "@radix-ui/react-icons";
 
 import { useAppStore } from "@/lib/local-store";
 import { Topbar } from "@/components/shell/topbar";
@@ -43,14 +42,6 @@ export default function SettingsPage() {
       />
 
       <div className="mx-auto w-full max-w-5xl px-6 py-8">
-        <Link
-          href="/dashboard"
-          className="inline-flex items-center gap-1.5 text-xs text-zinc-600 hover:text-zinc-950"
-        >
-          <ArrowLeftIcon className="size-3" />
-          Volver al dashboard
-        </Link>
-
         <div className="mt-6 grid gap-8 lg:grid-cols-[180px_minmax(0,1fr)] lg:items-start">
           <SideNav />
           <div className="flex flex-col gap-6">

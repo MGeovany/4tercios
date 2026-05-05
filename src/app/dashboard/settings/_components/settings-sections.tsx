@@ -79,6 +79,43 @@ const TIMEZONES = [
   "Europe/Madrid",
 ];
 
+function fileToImageDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error("No se pudo leer la imagen."));
+    reader.onload = () => {
+      const img = new Image();
+      img.onerror = () => reject(new Error("No se pudo procesar la imagen."));
+      img.onload = () => {
+        const maxSize = 512;
+        const scale = Math.min(1, maxSize / Math.max(img.width, img.height));
+        const width = Math.max(1, Math.round(img.width * scale));
+        const height = Math.max(1, Math.round(img.height * scale));
+
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          reject(new Error("No se pudo preparar el canvas."));
+          return;
+        }
+
+        ctx.drawImage(img, 0, 0, width, height);
+        // Keep metadata lightweight by storing a compressed image.
+        const webp = canvas.toDataURL("image/webp", 0.82);
+        if (webp && webp.startsWith("data:image/webp")) {
+          resolve(webp);
+          return;
+        }
+        resolve(canvas.toDataURL("image/jpeg", 0.82));
+      };
+      img.src = String(reader.result ?? "");
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
 export function ProfileSection() {
   const { profile, loading } = useAuthProfile();
   const { saved, trigger } = useSavedIndicator();
@@ -91,6 +128,8 @@ export function ProfileSection() {
   const [websiteUrl, setWebsiteUrl] = React.useState("");
   const [instagram, setInstagram] = React.useState("");
   const [bio, setBio] = React.useState("");
+  const [avatarUrl, setAvatarUrl] = React.useState("");
+  const [isProcessingAvatar, setIsProcessingAvatar] = React.useState(false);
 
   React.useEffect(() => {
     /* eslint-disable react-hooks/set-state-in-effect */
@@ -100,8 +139,17 @@ export function ProfileSection() {
     setWebsiteUrl(profile.website);
     setInstagram(profile.instagram);
     setBio(profile.bio);
+    setAvatarUrl(profile.avatarUrl);
     /* eslint-enable react-hooks/set-state-in-effect */
-  }, [profile.bio, profile.email, profile.instagram, profile.name, profile.phone, profile.website]);
+  }, [
+    profile.avatarUrl,
+    profile.bio,
+    profile.email,
+    profile.instagram,
+    profile.name,
+    profile.phone,
+    profile.website,
+  ]);
 
   const initials = name
     .split(" ")
@@ -109,7 +157,26 @@ export function ProfileSection() {
     .slice(0, 2)
     .join("")
     .toUpperCase();
-  const hasGoogleAvatar = profile.provider === "google" && profile.avatarUrl;
+  const currentAvatarUrl = avatarUrl.trim();
+  const hasAvatar = currentAvatarUrl.length > 0;
+
+  async function onAvatarFileChange(file: File | null) {
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      setSaveError("Selecciona un archivo de imagen válido.");
+      return;
+    }
+    setSaveError(null);
+    setIsProcessingAvatar(true);
+    try {
+      const nextAvatar = await fileToImageDataUrl(file);
+      setAvatarUrl(nextAvatar);
+    } catch (error) {
+      setSaveError(error instanceof Error ? error.message : "No se pudo preparar la imagen.");
+    } finally {
+      setIsProcessingAvatar(false);
+    }
+  }
 
   return (
     <SectionCard
@@ -129,6 +196,7 @@ export function ProfileSection() {
           const normalizedInstagram = instagram.trim().replace(/^@/, "");
           const normalizedName = name.trim();
           const normalizedPhone = phone.trim();
+          const normalizedAvatarUrl = avatarUrl.trim();
 
           const { data: userRes, error: userError } = await supabase.auth.getUser();
           if (userError) throw userError;
@@ -142,6 +210,7 @@ export function ProfileSection() {
               website: websiteUrl.trim(),
               instagram: normalizedInstagram,
               bio: bio.trim(),
+              avatar_url: normalizedAvatarUrl || null,
             },
           });
           if (profileError) throw profileError;
@@ -172,10 +241,10 @@ export function ProfileSection() {
       }}
     >
       <div className="flex items-center gap-4">
-        {hasGoogleAvatar ? (
+        {hasAvatar ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={profile.avatarUrl}
+            src={currentAvatarUrl}
             alt={name ? `Avatar de ${name}` : "Avatar de perfil"}
             className="size-14 rounded-full object-cover"
             referrerPolicy="no-referrer"
@@ -187,9 +256,11 @@ export function ProfileSection() {
         )}
         <div className="text-xs text-zinc-500">
           <p>
-            {hasGoogleAvatar ? "Usando foto de Google." : "El avatar se genera con tus iniciales."}
+            {hasAvatar
+              ? "Usando tu imagen de perfil personalizada."
+              : "El avatar se genera con tus iniciales."}
           </p>
-          <p className="mt-0.5">Datos sincronizados con lo que configuras en onboarding.</p>
+          <p className="mt-0.5">Puedes pegar una URL de imagen y guardarla.</p>
         </div>
       </div>
 
@@ -230,6 +301,42 @@ export function ProfileSection() {
             onChange={(e) => setInstagram(e.target.value.replace(/^@/, ""))}
           />
         </Field>
+        <div className="sm:col-span-2">
+          <Field
+            label="Imagen de perfil"
+            htmlFor="avatar-file"
+            hint="Sube una imagen desde tus archivos. Recomendado: cuadrada."
+            optional
+          >
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+              <Input
+                id="avatar-file"
+                type="file"
+                accept="image/*"
+                onChange={async (e) => {
+                  const inputEl = e.currentTarget;
+                  const file = e.target.files?.[0] ?? null;
+                  await onAvatarFileChange(file);
+                  inputEl.value = "";
+                }}
+                className="py-1.5"
+              />
+              {isProcessingAvatar ? (
+                <p className="text-xs text-zinc-500">Procesando imagen...</p>
+              ) : null}
+              {avatarUrl.trim() ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setAvatarUrl("")}
+                  disabled={isProcessingAvatar}
+                >
+                  Quitar
+                </Button>
+              ) : null}
+            </div>
+          </Field>
+        </div>
         <div className="sm:col-span-2">
           <Field
             label="Bio"

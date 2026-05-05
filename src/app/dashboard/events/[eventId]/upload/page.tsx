@@ -123,12 +123,6 @@ export default async function UploadPage({ params }: { params: Promise<{ eventId
                     {event.city ?? "—"} · {event.date}
                   </p>
                 </div>
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <KpiBox label="Fotos" value={totals.uploaded} />
-                  <KpiBox label="Listas" value={totals.ready} />
-                  <KpiBox label="Rostros" value={totals.faces} />
-                  <KpiBox label="Errores" value={totals.errors} />
-                </div>
                 <div className="space-y-2 pt-2">
                   <form action={publishEventAction.bind(null, event.id, event.slug)}>
                     <PublishEventButton
@@ -157,16 +151,5 @@ export default async function UploadPage({ params }: { params: Promise<{ eventId
         </div>
       </div>
     </>
-  );
-}
-
-function KpiBox({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-3">
-      <p className="text-xs text-zinc-500">{label}</p>
-      <p className="mt-1 text-sm font-semibold text-zinc-950 tabular-nums">
-        {value.toLocaleString("es-HN")}
-      </p>
-    </div>
   );
 }

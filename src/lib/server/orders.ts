@@ -117,6 +117,12 @@ export type ListOrdersFilters = {
   status?: OrderStatus | "all" | null;
 };
 
+export type ListPaymentsFilters = {
+  search?: string | null;
+  status?: OrderStatus | "all" | null;
+  provider?: PaymentProvider | "all" | null;
+};
+
 export type OrderWithEventName = OrderRow & {
   events: { name: string } | null;
 };
@@ -160,6 +166,36 @@ export async function listOrdersWithEventNameForPhotographer(
 
   if (filters.status && filters.status !== "all") {
     query = query.eq("status", filters.status);
+  }
+
+  const search = filters.search?.trim();
+  if (search) {
+    const escaped = search.replace(/[\\%_,]/g, (m) => `\\${m}`);
+    query = query.or(
+      `customer_name.ilike.%${escaped}%,customer_whatsapp.ilike.%${escaped}%,payment_reference.ilike.%${escaped}%`
+    );
+  }
+
+  const { data, error } = await query;
+  if (error) throw error;
+  return (data ?? []) as OrderWithEventName[];
+}
+
+export async function listPaymentsForPhotographer(
+  filters: ListPaymentsFilters = {}
+): Promise<OrderWithEventName[]> {
+  const supabase = await getSupabaseServerClient();
+  let query = supabase
+    .from("orders")
+    .select("*, events(name)")
+    .order("created_at", { ascending: false })
+    .limit(250);
+
+  if (filters.status && filters.status !== "all") {
+    query = query.eq("status", filters.status);
+  }
+  if (filters.provider && filters.provider !== "all") {
+    query = query.eq("payment_provider", filters.provider);
   }
 
   const search = filters.search?.trim();

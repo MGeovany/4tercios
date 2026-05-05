@@ -27,7 +27,11 @@ export default async function GalleryPage({
   if (!event) notFound();
 
   const filterParam =
-    typeof sp.filter === "string" ? sp.filter : Array.isArray(sp.filter) ? sp.filter[0] : "all";
+    typeof sp.filter === "string"
+      ? sp.filter
+      : Array.isArray(sp.filter)
+        ? sp.filter[0]
+        : "all";
   const filter: "all" | "ready" | "error" | "processing" =
     filterParam === "ready" || filterParam === "error" || filterParam === "processing"
       ? filterParam
@@ -60,7 +64,8 @@ export default async function GalleryPage({
     all: photos.length,
     ready: photos.filter((p) => p.status === "ready").length,
     error: photos.filter((p) => p.status === "error").length,
-    processing: photos.filter((p) => p.status === "processing" || p.status === "uploaded").length,
+    processing: photos.filter((p) => p.status === "processing" || p.status === "uploaded")
+      .length,
   };
 
   return (
@@ -76,7 +81,7 @@ export default async function GalleryPage({
           </Button>
         }
       />
-      <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6">
+      <div className="w-full px-4 py-4 sm:px-6 sm:py-6">
         <GalleryManager
           eventId={event.id}
           photos={filtered}

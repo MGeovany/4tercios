@@ -15,9 +15,11 @@ type Result = {
 export function ReprocessFailedButton({
   eventId,
   failedCount,
+  keepPrivateOnReprocess = false,
 }: {
   eventId: string;
   failedCount: number;
+  keepPrivateOnReprocess?: boolean;
 }) {
   const router = useRouter();
   const [running, setRunning] = React.useState(false);
@@ -33,7 +35,14 @@ export function ReprocessFailedButton({
     setLast(null);
 
     try {
-      const res = await fetch(`/api/events/id/${eventId}/reprocess-failed`, { method: "POST" });
+      const url = new URL(
+        `/api/events/id/${eventId}/reprocess-failed`,
+        window.location.origin
+      );
+      if (keepPrivateOnReprocess) {
+        url.searchParams.set("keepPrivate", "1");
+      }
+      const res = await fetch(url.toString(), { method: "POST" });
       const body = (await res.json().catch(() => ({}))) as {
         attempted?: number;
         succeeded?: number;

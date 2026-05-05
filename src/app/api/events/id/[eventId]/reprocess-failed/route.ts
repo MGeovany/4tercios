@@ -2,13 +2,17 @@ import { NextResponse, type NextRequest } from "next/server";
 
 import { requirePhotographer } from "@/lib/server/auth";
 import { listFailedPhotoIdsForEvent, processPhoto } from "@/lib/server/photos";
+import { getSupabaseServerClient } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
 
 const MAX_PARALLEL = 3;
 
-export async function POST(_request: NextRequest, ctx: { params: Promise<{ eventId: string }> }) {
+export async function POST(
+  request: NextRequest,
+  ctx: { params: Promise<{ eventId: string }> }
+) {
   const { eventId } = await ctx.params;
   if (!eventId) {
     return NextResponse.json({ error: "eventId is required" }, { status: 400 });
@@ -16,9 +20,20 @@ export async function POST(_request: NextRequest, ctx: { params: Promise<{ event
 
   try {
     await requirePhotographer();
+    const keepPrivate = request.nextUrl.searchParams.get("keepPrivate") === "1";
+    const supabase = await getSupabaseServerClient();
+    if (keepPrivate) {
+      await supabase.from("events").update({ is_public: false }).eq("id", eventId);
+    }
     const ids = await listFailedPhotoIdsForEvent(eventId);
     if (ids.length === 0) {
-      return NextResponse.json({ ok: true, attempted: 0, succeeded: 0, failed: 0, errors: [] });
+      return NextResponse.json({
+        ok: true,
+        attempted: 0,
+        succeeded: 0,
+        failed: 0,
+        errors: [],
+      });
     }
 
     const errors: { photoId: string; message: string }[] = [];
@@ -37,6 +52,10 @@ export async function POST(_request: NextRequest, ctx: { params: Promise<{ event
           });
         }
       });
+    }
+
+    if (keepPrivate) {
+      await supabase.from("events").update({ is_public: false }).eq("id", eventId);
     }
 
     return NextResponse.json({

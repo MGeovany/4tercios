@@ -13,13 +13,16 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { UploadStation } from "./upload-station";
-import { PhotosListActions } from "./photos-list-actions";
 import { publishEventAction, saveEventAsDraftAction } from "./actions";
 import { PublishEventButton, SaveDraftButton } from "./publish-buttons";
 import { EventManageActions } from "./event-manage-actions";
 import { ReprocessFailedButton } from "./reprocess-failed-button";
 
-export default async function UploadPage({ params }: { params: Promise<{ eventId: string }> }) {
+export default async function UploadPage({
+  params,
+}: {
+  params: Promise<{ eventId: string }>;
+}) {
   const { eventId } = await params;
   await requirePhotographer();
 
@@ -31,7 +34,8 @@ export default async function UploadPage({ params }: { params: Promise<{ eventId
 
   const photos = await listPhotosForEvent(eventId);
   if (photos == null) redirect("/dashboard");
-  const photosForPreview = photos.slice(0, 12);
+  const readyPhotos = photos.filter((p) => p.status === "ready");
+  const photosForPreview = readyPhotos.slice(0, 12);
 
   const env = getSupabaseEnv();
   const admin = getSupabaseServiceClient();
@@ -51,7 +55,8 @@ export default async function UploadPage({ params }: { params: Promise<{ eventId
   const totals = {
     uploaded: photos.length,
     ready: photos.filter((p) => p.status === "ready").length,
-    processing: photos.filter((p) => p.status === "processing" || p.status === "uploaded").length,
+    processing: photos.filter((p) => p.status === "processing" || p.status === "uploaded")
+      .length,
     errors: photos.filter((p) => p.status === "error").length,
     faces: photos.reduce((acc, p) => acc + p.faces_count, 0),
   };
@@ -82,27 +87,41 @@ export default async function UploadPage({ params }: { params: Promise<{ eventId
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>Últimas fotos procesadas</CardTitle>
-                {photos.length > 0 ? (
+            {readyPhotos.length > 0 ? (
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <CardTitle>Últimas fotos procesadas</CardTitle>
                   <Button asChild size="sm" variant="ghost">
                     <Link href={`/dashboard/events/${event.id}/gallery`}>
-                      Ver galería completa ({photos.length})
+                      Ver galería completa ({readyPhotos.length})
                     </Link>
                   </Button>
-                ) : null}
-              </CardHeader>
-              <CardContent>
-                {photos.length === 0 ? (
-                  <p className="text-sm text-zinc-700">
-                    Aún no hay fotos. Sube algunas para empezar a detectar rostros.
-                  </p>
-                ) : (
-                  <PhotosListActions photos={photosForPreview} previewUrls={previewUrls} />
-                )}
-              </CardContent>
-            </Card>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+                    {photosForPreview.map((photo) => (
+                      <div key={photo.id} className="space-y-2">
+                        <div className="overflow-hidden rounded-xl border border-zinc-200 bg-zinc-100">
+                          {previewUrls[photo.id] ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={previewUrls[photo.id] as string}
+                              alt={photo.filename}
+                              className="aspect-4/3 w-full object-cover"
+                            />
+                          ) : (
+                            <div className="aspect-4/3 w-full bg-zinc-100" />
+                          )}
+                        </div>
+                        <p className="truncate text-xs font-medium text-zinc-900">
+                          {photo.filename}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            ) : null}
           </div>
 
           <div className="order-1 space-y-6 xl:order-2">
@@ -140,7 +159,11 @@ export default async function UploadPage({ params }: { params: Promise<{ eventId
                   <form action={saveEventAsDraftAction.bind(null, event.id)}>
                     <SaveDraftButton disabled={!isPublished} />
                   </form>
-                  <ReprocessFailedButton eventId={event.id} failedCount={totals.errors} />
+                  <ReprocessFailedButton
+                    eventId={event.id}
+                    failedCount={totals.errors}
+                    keepPrivateOnReprocess={!isPublished}
+                  />
                   <div className="border-t border-zinc-100 pt-2">
                     <EventManageActions eventId={event.id} />
                   </div>

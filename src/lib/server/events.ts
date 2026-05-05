@@ -43,7 +43,10 @@ export async function listEventsForPhotographer(
   filters: ListEventsFilters = {}
 ): Promise<EventRow[]> {
   const supabase = await getSupabaseServerClient();
-  let query = supabase.from("events").select("*").order("created_at", { ascending: false });
+  let query = supabase
+    .from("events")
+    .select("*")
+    .order("created_at", { ascending: false });
 
   if (filters.status && filters.status !== "all") {
     query = query.eq("status", filters.status);
@@ -98,16 +101,27 @@ export async function listUpcomingEventsForPhotographer(
   return data as EventRow[];
 }
 
-export async function listExpiredEventsForPhotographer(filters: { search?: string | null } = {}) {
-  const events = await listEventsForPhotographer({ search: filters.search ?? null, status: null });
+export async function listExpiredEventsForPhotographer(
+  filters: { search?: string | null } = {}
+) {
+  const events = await listEventsForPhotographer({
+    search: filters.search ?? null,
+    status: null,
+  });
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
   return events
     .map((event) => {
-      const expiresDate = addDays(parseYmd(event.date), Math.max(0, event.online_days ?? 0));
+      const expiresDate = addDays(
+        parseYmd(event.date),
+        Math.max(0, event.online_days ?? 0)
+      );
       const expiresMs = expiresDate.getTime();
-      const daysSinceExpired = Math.max(0, Math.floor((today.getTime() - expiresMs) / 86400000));
+      const daysSinceExpired = Math.max(
+        0,
+        Math.floor((today.getTime() - expiresMs) / 86400000)
+      );
       return {
         ...event,
         expires_at: toYmd(expiresDate),
@@ -148,6 +162,9 @@ export type PublicEventPresentation = EventRow & {
     watermark_style: string | null;
     watermark_color: string | null;
     watermark_font: string | null;
+    watermark_label: string | null;
+    watermark_opacity: number | null;
+    watermark_density: number | null;
   } | null;
 };
 
@@ -157,32 +174,41 @@ export async function getPublicEventPresentationBySlug(
   const supabase = await getSupabaseServerClient();
 
   const fullSelect =
-    "*, photographers!events_photographer_id_fkey(business_name, brand_color, theme_palette, theme_font, watermark_style, watermark_color, watermark_font)";
-  const minimalSelect = "*, photographers!events_photographer_id_fkey(business_name, brand_color)";
+    "*, photographers!events_photographer_id_fkey(business_name, brand_color, theme_palette, theme_font, watermark_style, watermark_color, watermark_font, watermark_label, watermark_opacity, watermark_density)";
+  const opacitySelect =
+    "*, photographers!events_photographer_id_fkey(business_name, brand_color, theme_palette, theme_font, watermark_style, watermark_color, watermark_font, watermark_label, watermark_opacity)";
+  const labelSelect =
+    "*, photographers!events_photographer_id_fkey(business_name, brand_color, theme_palette, theme_font, watermark_style, watermark_color, watermark_font, watermark_label)";
+  const minimalSelect =
+    "*, photographers!events_photographer_id_fkey(business_name, brand_color)";
 
-  const primary = await supabase
-    .from("events")
-    .select(fullSelect)
-    .eq("slug", slug)
-    .eq("is_public", true)
-    .in("status", ["Procesando", "Listo"])
-    .maybeSingle();
+  type FetchResult =
+    | { ok: true; data: PublicEventPresentation | null }
+    | { ok: false; code: string | undefined };
 
-  let data = primary.data;
-
-  // Fallback when the branding migration hasn't been applied yet.
-  if (primary.error && (primary.error as { code?: string }).code === "PGRST204") {
-    const fallback = await supabase
+  async function tryFetch(select: string): Promise<FetchResult> {
+    const res = await supabase
       .from("events")
-      .select(minimalSelect)
+      .select(select)
       .eq("slug", slug)
       .eq("is_public", true)
       .in("status", ["Procesando", "Listo"])
       .maybeSingle();
-    data = fallback.data;
+    if (!res.error) {
+      return {
+        ok: true,
+        data: (res.data as PublicEventPresentation | null) ?? null,
+      };
+    }
+    return { ok: false, code: (res.error as { code?: string }).code };
   }
 
-  return (data as PublicEventPresentation | null) ?? null;
+  for (const select of [fullSelect, opacitySelect, labelSelect, minimalSelect]) {
+    const res = await tryFetch(select);
+    if (res.ok) return res.data;
+    if (res.code !== "PGRST204") return null;
+  }
+  return null;
 }
 
 export type CreateEventInput = {
@@ -217,6 +243,8 @@ export async function createEvent(input: CreateEventInput): Promise<EventRow> {
     price_per_photo_hnl: input.pricePerPhotoHnl,
     online_days: input.onlineDays,
     whatsapp: input.whatsapp ?? null,
+    // Events start as private until the user explicitly publishes.
+    is_public: false,
   };
 
   if (Number.isFinite(input.locationLat) && Number.isFinite(input.locationLng)) {
@@ -224,7 +252,11 @@ export async function createEvent(input: CreateEventInput): Promise<EventRow> {
     insert.location_lng = input.locationLng;
   }
 
-  const { data, error } = await supabase.from("events").insert(insert).select("*").single();
+  const { data, error } = await supabase
+    .from("events")
+    .insert(insert)
+    .select("*")
+    .single();
   if (error) throw error;
   return data as EventRow;
 }
@@ -334,7 +366,10 @@ export async function getPhotographerStats() {
   const supabase = await getSupabaseServerClient();
   const [eventsRes, photosRes, ordersRes] = await Promise.all([
     supabase.from("events").select("id, status, is_public", { count: "exact" }),
-    supabase.from("photos").select("id, faces_count, status", { count: "exact" }).limit(1000),
+    supabase
+      .from("photos")
+      .select("id, faces_count, status", { count: "exact" })
+      .limit(1000),
     supabase
       .from("orders")
       .select("id, total_hnl, status, created_at, customer_name, photo_ids, event_id", {

@@ -35,6 +35,9 @@ export function SelfieCapture({ onCapture, busy }: Props) {
   const stopCamera = React.useCallback(() => {
     streamRef.current?.getTracks().forEach((t) => t.stop());
     streamRef.current = null;
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
     setStreaming(false);
   }, []);
 
@@ -99,19 +102,21 @@ export function SelfieCapture({ onCapture, busy }: Props) {
   return (
     <div className="space-y-3">
       <div className="relative aspect-square overflow-hidden rounded-3xl border border-zinc-200 bg-zinc-950">
-        {streaming ? (
-          <video
-            ref={videoRef}
-            playsInline
-            muted
-            className="h-full w-full -scale-x-100 object-cover"
-          />
-        ) : (
-          <div className="flex h-full w-full flex-col items-center justify-center gap-2 bg-zinc-100 text-zinc-700">
+        <video
+          ref={videoRef}
+          playsInline
+          muted
+          className={cn(
+            "h-full w-full -scale-x-100 object-cover transition-opacity duration-200",
+            streaming ? "opacity-100" : "pointer-events-none opacity-0"
+          )}
+        />
+        {!streaming ? (
+          <div className="absolute inset-0 flex h-full w-full flex-col items-center justify-center gap-2 bg-zinc-100 text-zinc-700">
             <CameraIcon className="h-7 w-7" />
             <p className="text-sm">Activa tu cámara o sube una selfie</p>
           </div>
-        )}
+        ) : null}
         <div className="pointer-events-none absolute inset-0 ring-1 ring-white/10 ring-inset" />
       </div>
 

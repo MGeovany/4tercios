@@ -118,8 +118,8 @@ export function GalleryClient({
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-3 rounded-2xl border border-zinc-200/80 bg-white p-3 shadow-sm sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-wrap items-center gap-1.5">
           <FilterChip
             label={`Todas · ${photos.length}`}
             active={filter === "all"}
@@ -141,7 +141,7 @@ export function GalleryClient({
           <button
             type="button"
             onClick={clearSelection}
-            className="text-xs font-medium text-zinc-600 underline underline-offset-4 hover:text-zinc-950"
+            className="text-xs font-medium text-zinc-500 underline underline-offset-4 hover:text-zinc-950"
           >
             Limpiar selección
           </button>
@@ -173,27 +173,36 @@ export function GalleryClient({
         </div>
       )}
 
-      <div className="sticky bottom-3 z-20 rounded-3xl border border-zinc-200/80 bg-white/95 p-4 shadow-xl backdrop-blur sm:p-5">
-        <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="neutral">Pedido</Badge>
-          <p className="text-xs text-zinc-500">Confirma tus fotos y completa tu compra</p>
+      <div className="sticky bottom-3 z-20 overflow-hidden rounded-3xl border border-zinc-200 bg-white/95 shadow-[0_8px_32px_-12px_rgba(0,0,0,0.18)] backdrop-blur">
+        <div className="flex items-center justify-between gap-3 border-b border-zinc-100 px-5 py-2.5">
+          <div className="flex items-center gap-2">
+            <Badge variant="neutral" className="border-zinc-200">
+              Pedido
+            </Badge>
+            <p className="text-xs text-zinc-500">
+              Confirma tus fotos y completa tu compra
+            </p>
+          </div>
+          <p className="hidden text-[11px] text-zinc-400 sm:block">
+            Pago seguro · Envío inmediato
+          </p>
         </div>
 
-        <div className="mt-3 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div className="grid gap-5 p-5 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] sm:items-end sm:gap-6">
           <div>
-            <p className="text-sm text-zinc-700">
+            <p className="text-[11px] font-medium tracking-widest text-zinc-500 uppercase">
               {selectedIds.length} foto{selectedIds.length === 1 ? "" : "s"} seleccionada
               {selectedIds.length === 1 ? "" : "s"}
             </p>
-            <p className="mt-0.5 text-3xl font-semibold tracking-tight text-zinc-950 tabular-nums">
+            <p className="mt-1 text-3xl font-semibold tracking-tight text-zinc-950 tabular-nums sm:text-4xl">
               {formatHnl(total)}
             </p>
-            <p className="text-xs text-zinc-500">
+            <p className="mt-1 text-xs text-zinc-500">
               Precio por foto: {formatHnl(pricePerPhotoHnl)}
             </p>
           </div>
 
-          <div className="grid w-full gap-3 sm:max-w-md sm:grid-cols-2">
+          <div className="grid gap-3 sm:grid-cols-2">
             <div className="space-y-1">
               <Label htmlFor="gallery-name" className="text-xs">
                 Tu nombre
@@ -222,7 +231,7 @@ export function GalleryClient({
           </div>
         </div>
 
-        <div className="mt-4 grid gap-2 sm:grid-cols-2">
+        <div className="grid gap-2 border-t border-zinc-100 bg-zinc-50/50 p-4 sm:grid-cols-2 sm:px-5">
           <Button
             disabled={creating || selectedIds.length === 0 || !name || !phone}
             onClick={() => requestOrder("manual_whatsapp")}
@@ -240,10 +249,14 @@ export function GalleryClient({
           </Button>
         </div>
 
-        {error ? <p className="mt-3 text-sm font-medium text-red-700">{error}</p> : null}
+        {error ? (
+          <p className="border-t border-red-100 bg-red-50/60 px-5 py-2.5 text-sm font-medium text-red-700">
+            {error}
+          </p>
+        ) : null}
 
         {paymentUrl ? (
-          <div className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 p-3">
+          <div className="border-t border-emerald-100 bg-emerald-50/70 px-5 py-3">
             <a
               href={paymentUrl}
               target="_blank"
@@ -255,9 +268,8 @@ export function GalleryClient({
           </div>
         ) : null}
 
-        <p className="mt-3 text-[11px] text-zinc-500">
-          Pago vía Clinpays (Honduras) o coordinación directa con el fotógrafo. WhatsApp:{" "}
-          {whatsapp || "—"}
+        <p className="border-t border-zinc-100 px-5 py-2.5 text-[11px] text-zinc-500">
+          Pago vía Clinpays (Honduras)
         </p>
       </div>
 

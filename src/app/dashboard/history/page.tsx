@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { ChevronRightIcon, ExternalLinkIcon, MagnifyingGlassIcon } from "@radix-ui/react-icons";
 
-import { requirePhotographer } from "@/lib/server/auth";
 import { listExpiredEventsForPhotographer } from "@/lib/server/events";
 import { Topbar } from "@/components/shell/topbar";
 import { cn } from "@/lib/utils";
@@ -29,7 +28,6 @@ export default async function DashboardHistoryPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  await requirePhotographer();
   const sp = await searchParams;
   const search = typeof sp.q === "string" ? sp.q : Array.isArray(sp.q) ? sp.q[0] : "";
   const expiredEvents = await listExpiredEventsForPhotographer({ search });

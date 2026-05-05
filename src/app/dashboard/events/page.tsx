@@ -2,7 +2,6 @@ import Link from "next/link";
 import { ChevronRightIcon, ExternalLinkIcon, PlusIcon } from "@radix-ui/react-icons";
 
 import { listEventsForPhotographer } from "@/lib/server/events";
-import { requirePhotographer } from "@/lib/server/auth";
 import { cn } from "@/lib/utils";
 import { Topbar } from "@/components/shell/topbar";
 import { Button } from "@/components/ui/button";
@@ -46,7 +45,6 @@ export default async function EventsListPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  await requirePhotographer();
   const sp = await searchParams;
   const search = typeof sp.q === "string" ? sp.q : Array.isArray(sp.q) ? sp.q[0] : "";
   const statusParam =

@@ -1,9 +1,7 @@
 import Link from "next/link";
 import { ChevronRightIcon } from "@radix-ui/react-icons";
 
-import { listOrdersForPhotographer } from "@/lib/server/orders";
-import { listEventsForPhotographer } from "@/lib/server/events";
-import { requirePhotographer } from "@/lib/server/auth";
+import { listOrdersWithEventNameForPhotographer } from "@/lib/server/orders";
 import { formatHnl } from "@/lib/currency";
 import { cn } from "@/lib/utils";
 import { Topbar } from "@/components/shell/topbar";
@@ -46,7 +44,6 @@ export default async function OrdersListPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  await requirePhotographer();
   const sp = await searchParams;
   const search = typeof sp.q === "string" ? sp.q : Array.isArray(sp.q) ? sp.q[0] : "";
   const statusParam =
@@ -54,14 +51,10 @@ export default async function OrdersListPage({
   const statusFilter =
     ORDER_STATUS_OPTIONS.find((opt) => opt.value === statusParam)?.value ?? "all";
 
-  const [orders, events] = await Promise.all([
-    listOrdersForPhotographer({
-      search: search ?? null,
-      status: statusFilter === "all" ? null : (statusFilter as OrderStatus),
-    }),
-    listEventsForPhotographer(),
-  ]);
-  const eventNameById = new Map(events.map((e) => [e.id, e.name]));
+  const orders = await listOrdersWithEventNameForPhotographer({
+    search: search ?? null,
+    status: statusFilter === "all" ? null : (statusFilter as OrderStatus),
+  });
   const hasActiveFilters = (search ?? "").trim().length > 0 || statusFilter !== "all";
 
   const totals = orders.reduce(
@@ -124,8 +117,8 @@ export default async function OrdersListPage({
                         </span>
                       </div>
                       <p className="mt-0.5 truncate text-xs text-zinc-500">
-                        {eventNameById.get(order.event_id) ?? "Evento eliminado"} ·{" "}
-                        {order.photo_ids.length} fotos · {formatDateTime(order.created_at)}
+                        {order.events?.name ?? "Evento eliminado"} · {order.photo_ids.length} fotos
+                        · {formatDateTime(order.created_at)}
                       </p>
                     </div>
                     <p className="text-sm font-medium text-zinc-950 tabular-nums">

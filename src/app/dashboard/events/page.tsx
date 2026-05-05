@@ -64,7 +64,6 @@ export default async function EventsListPage({
     <>
       <Topbar
         title="Eventos"
-        subtitle={`${events.length} ${hasActiveFilters ? "filtrados" : "en total"}`}
         right={
           <Button size="sm" asChild>
             <Link href="/dashboard/events/new">

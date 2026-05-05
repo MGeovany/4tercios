@@ -16,7 +16,6 @@ import {
   Plus,
   Settings,
   ShoppingBag,
-  Truck,
   Calendar,
 } from "lucide-react";
 

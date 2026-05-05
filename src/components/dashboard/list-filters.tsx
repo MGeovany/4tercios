@@ -30,25 +30,50 @@ export function ListFilters({
   const [status, setStatus] = React.useState(initialStatus);
 
   const debouncedRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const inputRef = React.useRef<HTMLInputElement | null>(null);
+  const shouldRestoreFocusRef = React.useRef(false);
+  const caretRef = React.useRef<number | null>(null);
 
   const updateUrl = React.useCallback(
-    (nextSearch: string, nextStatus: string) => {
+    (nextSearch: string, nextStatus: string, preserveFocus = false) => {
+      if (preserveFocus) {
+        shouldRestoreFocusRef.current = document.activeElement === inputRef.current;
+        caretRef.current = nextSearch.length;
+      }
       const params = new URLSearchParams(searchParams?.toString() ?? "");
       if (nextSearch.trim()) params.set("q", nextSearch.trim());
       else params.delete("q");
       if (nextStatus && nextStatus !== "all") params.set("status", nextStatus);
       else params.delete("status");
       const qs = params.toString();
-      router.replace(qs ? `${pathname}?${qs}` : pathname);
+      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
     },
     [pathname, router, searchParams]
   );
+
+  React.useEffect(() => {
+    if (!shouldRestoreFocusRef.current) return;
+    shouldRestoreFocusRef.current = false;
+    const nextCaret = caretRef.current;
+    requestAnimationFrame(() => {
+      inputRef.current?.focus();
+      if (inputRef.current && typeof nextCaret === "number" && inputRef.current.setSelectionRange) {
+        inputRef.current.setSelectionRange(nextCaret, nextCaret);
+      }
+    });
+  }, [searchParams]);
+
+  React.useEffect(() => {
+    return () => {
+      if (debouncedRef.current) clearTimeout(debouncedRef.current);
+    };
+  }, []);
 
   function onSearchChange(value: string) {
     setSearch(value);
     if (debouncedRef.current) clearTimeout(debouncedRef.current);
     debouncedRef.current = setTimeout(() => {
-      updateUrl(value, status);
+      updateUrl(value, status, true);
     }, 300);
   }
 
@@ -71,6 +96,7 @@ export function ListFilters({
         <div className="relative flex-1">
           <MagnifyingGlassIcon className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-zinc-400" />
           <Input
+            ref={inputRef}
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder={searchPlaceholder}

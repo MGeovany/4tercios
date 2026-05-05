@@ -75,10 +75,7 @@ export default async function OrdersListPage({
 
   return (
     <>
-      <Topbar
-        title="Órdenes"
-        subtitle={`${orders.length} ${hasActiveFilters ? "filtradas" : "en total"}`}
-      />
+      <Topbar title="Órdenes" />
 
       <div className="mx-auto w-full max-w-5xl space-y-4 px-6 py-8">
         <ListFilters
@@ -99,7 +96,7 @@ export default async function OrdersListPage({
 
         <div className="overflow-hidden rounded-xl border border-zinc-200 bg-white">
           {orders.length === 0 ? (
-            <div className="px-6 py-16 text-center text-sm text-zinc-500">
+            <div className="font-manrope px-6 py-16 text-center text-sm text-gray-500">
               {hasActiveFilters
                 ? "No hay órdenes con esos filtros."
                 : "Cuando tus clientes compren fotos, aparecerán aquí."}
@@ -112,7 +109,7 @@ export default async function OrdersListPage({
                     href={`/dashboard/orders/${order.id}`}
                     className="group flex items-center gap-4 px-4 py-3 transition-colors hover:bg-zinc-50 focus-visible:outline-none"
                   >
-                    <div className="min-w-0 flex-1">
+                    <div className="min-w-0 flex-1 bg-white">
                       <div className="flex items-center gap-2">
                         <p className="truncate text-sm font-medium text-zinc-950 decoration-zinc-300 underline-offset-4 group-hover:underline">
                           {order.customer_name}

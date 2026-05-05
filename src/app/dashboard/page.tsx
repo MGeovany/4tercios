@@ -401,7 +401,7 @@ function BuyingHistory({
 
       <ul className="flex flex-1 flex-col">
         {orders.length === 0 ? (
-          <li className="flex flex-1 items-center justify-center px-5 py-10 text-center text-[13px] text-zinc-500">
+          <li className="text-md flex flex-1 items-center justify-center px-5 py-10 text-center text-gray-500">
             Cuando tus clientes compren fotos, aparecerán aquí.
           </li>
         ) : (

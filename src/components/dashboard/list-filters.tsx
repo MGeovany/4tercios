@@ -27,9 +27,9 @@ export function ListFilters({
   const searchParams = useSearchParams();
 
   const [search, setSearch] = React.useState(initialSearch);
+  const [appliedSearch, setAppliedSearch] = React.useState(initialSearch);
   const [status, setStatus] = React.useState(initialStatus);
 
-  const debouncedRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const inputRef = React.useRef<HTMLInputElement | null>(null);
   const shouldRestoreFocusRef = React.useRef(false);
   const caretRef = React.useRef<number | null>(null);
@@ -75,27 +75,24 @@ export function ListFilters({
     });
   }, [searchParams]);
 
-  React.useEffect(() => {
-    return () => {
-      if (debouncedRef.current) clearTimeout(debouncedRef.current);
-    };
-  }, []);
-
   function onSearchChange(value: string) {
     setSearch(value);
-    if (debouncedRef.current) clearTimeout(debouncedRef.current);
-    debouncedRef.current = setTimeout(() => {
-      updateUrl(value, status, true);
-    }, 300);
+  }
+
+  function applySearch() {
+    const next = search.trim();
+    setAppliedSearch(next);
+    updateUrl(next, status, true);
   }
 
   function onStatusChange(value: string) {
     setStatus(value);
-    updateUrl(search, value);
+    updateUrl(appliedSearch, value);
   }
 
   function clearAll() {
     setSearch("");
+    setAppliedSearch("");
     setStatus("all");
     updateUrl("", "all");
   }
@@ -111,10 +108,23 @@ export function ListFilters({
             ref={inputRef}
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                applySearch();
+              }
+            }}
             placeholder={searchPlaceholder}
             className="pl-9"
           />
         </div>
+        <button
+          type="button"
+          onClick={applySearch}
+          className="inline-flex items-center gap-1 self-end rounded-full border border-zinc-200 bg-white px-3 py-1 text-xs text-zinc-700 transition hover:bg-zinc-50 sm:self-auto"
+        >
+          Buscar
+        </button>
         {hasFilters ? (
           <button
             type="button"

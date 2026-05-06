@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { CSSProperties } from "react";
-import { ArrowLeftIcon, CameraIcon, ImageIcon } from "@radix-ui/react-icons";
+import { ArrowLeftIcon } from "@radix-ui/react-icons";
 
 import { Brand } from "@/components/brand";
 import { Footer } from "@/components/footer";
@@ -94,7 +94,8 @@ export default async function ResultsPage({
     paletteId: event.photographers?.theme_palette,
     primaryColor: event.photographers?.brand_color,
   });
-  const brandFont = event.photographers?.theme_font ?? "inter";
+  const brandFont = "manrope";
+  const manropeFont = 'var(--font-manrope), "Manrope", system-ui, sans-serif';
   const watermarkStyle = "subtle" as const;
   const watermarkColor = "#ffffff";
   const watermarkLabel =
@@ -118,7 +119,7 @@ export default async function ResultsPage({
   return (
     <div
       className="bg-background text-foreground flex min-h-full flex-col"
-      style={themeVars as CSSProperties}
+      style={{ ...(themeVars as CSSProperties), fontFamily: manropeFont }}
       data-brand-font={brandFont}
     >
       <header className="sticky top-0 z-30 border-b border-zinc-200/70 bg-white/80 backdrop-blur-md">
@@ -303,29 +304,6 @@ function Stat({
         {value}
       </dd>
       {hint ? <p className="text-[10px] text-zinc-400">{hint}</p> : null}
-    </div>
-  );
-}
-
-function Step({
-  number,
-  label,
-  accent,
-}: {
-  number: string;
-  label: string;
-  accent: string;
-}) {
-  return (
-    <div className="flex items-center gap-2.5">
-      <span
-        aria-hidden
-        className="grid h-5 w-5 place-items-center rounded-full text-[10px] font-semibold text-white"
-        style={{ background: accent }}
-      >
-        {number}
-      </span>
-      <p className="text-xs text-zinc-700">{label}</p>
     </div>
   );
 }

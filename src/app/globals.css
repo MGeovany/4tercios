@@ -146,6 +146,10 @@
   --app-font-sans: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
 }
 
+[data-brand-font="manrope"] {
+  --app-font-sans: var(--font-manrope), "Manrope", system-ui, sans-serif;
+}
+
 /* Monochrome landing theme */
 .landing-deep-blue {
   --background: #ffffff;

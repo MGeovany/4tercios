@@ -39,13 +39,23 @@ function toYmd(date: Date) {
   return `${y}-${m}-${d}`;
 }
 
+async function getAuthenticatedUserId(
+  supabase: Awaited<ReturnType<typeof getSupabaseServerClient>>
+) {
+  const { data, error } = await supabase.auth.getUser();
+  if (error || !data.user) throw new Error("Not authenticated");
+  return data.user.id;
+}
+
 export async function listEventsForPhotographer(
   filters: ListEventsFilters = {}
 ): Promise<EventRow[]> {
   const supabase = await getSupabaseServerClient();
+  const userId = await getAuthenticatedUserId(supabase);
   let query = supabase
     .from("events")
     .select("*")
+    .eq("photographer_id", userId)
     .order("created_at", { ascending: false });
 
   if (filters.status && filters.status !== "all") {
@@ -69,12 +79,14 @@ export async function listUpcomingEventsForPhotographer(
   filters: ListUpcomingEventsFilters = {}
 ): Promise<EventRow[]> {
   const supabase = await getSupabaseServerClient();
+  const userId = await getAuthenticatedUserId(supabase);
   const today = new Date();
   const todayYmd = toYmd(today);
 
   let query = supabase
     .from("events")
     .select("*")
+    .eq("photographer_id", userId)
     .gte("date", todayYmd)
     .order("date", { ascending: true })
     .order("created_at", { ascending: false });
@@ -137,7 +149,13 @@ export async function listExpiredEventsForPhotographer(
 
 export async function getEventByIdForPhotographer(id: string): Promise<EventRow | null> {
   const supabase = await getSupabaseServerClient();
-  const { data } = await supabase.from("events").select("*").eq("id", id).maybeSingle();
+  const userId = await getAuthenticatedUserId(supabase);
+  const { data } = await supabase
+    .from("events")
+    .select("*")
+    .eq("id", id)
+    .eq("photographer_id", userId)
+    .maybeSingle();
   return (data as EventRow | null) ?? null;
 }
 
@@ -263,7 +281,12 @@ export async function createEvent(input: CreateEventInput): Promise<EventRow> {
 
 export async function updateEventStatus(id: string, status: EventStatus) {
   const supabase = await getSupabaseServerClient();
-  const { error } = await supabase.from("events").update({ status }).eq("id", id);
+  const userId = await getAuthenticatedUserId(supabase);
+  const { error } = await supabase
+    .from("events")
+    .update({ status })
+    .eq("id", id)
+    .eq("photographer_id", userId);
   if (error) throw error;
 }
 
@@ -285,6 +308,7 @@ export type UpdateEventInput = {
 
 export async function updateEvent(id: string, patch: UpdateEventInput) {
   const supabase = await getSupabaseServerClient();
+  const userId = await getAuthenticatedUserId(supabase);
   const update: Record<string, unknown> = {};
   if (patch.name != null) update.name = patch.name;
   if (patch.type != null) update.type = patch.type;
@@ -299,13 +323,27 @@ export async function updateEvent(id: string, patch: UpdateEventInput) {
   if (patch.onlineDays != null) update.online_days = patch.onlineDays;
   if (patch.whatsapp !== undefined) update.whatsapp = patch.whatsapp;
   if (patch.isPublic != null) update.is_public = patch.isPublic;
-  const { error } = await supabase.from("events").update(update).eq("id", id);
+  const { error } = await supabase
+    .from("events")
+    .update(update)
+    .eq("id", id)
+    .eq("photographer_id", userId);
   if (error) throw error;
 }
 
 export async function deleteEvent(id: string) {
   const supabase = await getSupabaseServerClient();
   const admin = getSupabaseServiceClient();
+  const userId = await getAuthenticatedUserId(supabase);
+
+  const { data: ownedEvent, error: eventErr } = await supabase
+    .from("events")
+    .select("id")
+    .eq("id", id)
+    .eq("photographer_id", userId)
+    .maybeSingle();
+  if (eventErr) throw eventErr;
+  if (!ownedEvent) throw new Error("Event not found");
 
   // Fetch storage paths before deleting the event row (which cascades photos).
   const { data: photos, error: photosError } = await supabase
@@ -322,7 +360,11 @@ export async function deleteEvent(id: string) {
     .map((p) => p.thumb_path as string | null)
     .filter((v): v is string => typeof v === "string" && v.length > 0);
 
-  const { error } = await supabase.from("events").delete().eq("id", id);
+  const { error } = await supabase
+    .from("events")
+    .delete()
+    .eq("id", id)
+    .eq("photographer_id", userId);
   if (error) throw error;
 
   // Best-effort storage cleanup.
@@ -338,10 +380,12 @@ export async function deleteEvent(id: string) {
 
 export async function reopenEvent(eventId: string) {
   const supabase = await getSupabaseServerClient();
+  const userId = await getAuthenticatedUserId(supabase);
   const { data: event, error } = await supabase
     .from("events")
     .select("id, status, online_days, purged_at")
     .eq("id", eventId)
+    .eq("photographer_id", userId)
     .maybeSingle();
   if (error) throw error;
   if (!event) throw new Error("Event not found");
@@ -355,7 +399,8 @@ export async function reopenEvent(eventId: string) {
   const { error: updErr } = await supabase
     .from("events")
     .update({ status: "Listo", is_public: true, online_days: nextDays })
-    .eq("id", eventId);
+    .eq("id", eventId)
+    .eq("photographer_id", userId);
   if (updErr) throw updErr;
 
   return { onlineDays: nextDays };
@@ -364,22 +409,37 @@ export async function reopenEvent(eventId: string) {
 /** Aggregated counts for the dashboard home. */
 export async function getPhotographerStats() {
   const supabase = await getSupabaseServerClient();
-  const [eventsRes, photosRes, ordersRes] = await Promise.all([
-    supabase.from("events").select("id, status, is_public", { count: "exact" }),
-    supabase
-      .from("photos")
-      .select("id, faces_count, status", { count: "exact" })
-      .limit(1000),
-    supabase
-      .from("orders")
-      .select("id, total_hnl, status, created_at, customer_name, photo_ids, event_id", {
-        count: "exact",
-      })
-      .order("created_at", { ascending: false })
-      .limit(50),
-  ]);
+  const userId = await getAuthenticatedUserId(supabase);
+  const eventsRes = await supabase
+    .from("events")
+    .select("id, status, is_public", { count: "exact" })
+    .eq("photographer_id", userId);
+  if (eventsRes.error) throw eventsRes.error;
 
   const events = eventsRes.data ?? [];
+  const eventIds = events.map((event) => event.id as string);
+
+  const [photosRes, ordersRes] =
+    eventIds.length > 0
+      ? await Promise.all([
+          supabase
+            .from("photos")
+            .select("id, faces_count, status", { count: "exact" })
+            .in("event_id", eventIds)
+            .limit(1000),
+          supabase
+            .from("orders")
+            .select("id, total_hnl, status, created_at, customer_name, photo_ids, event_id", {
+              count: "exact",
+            })
+            .in("event_id", eventIds)
+            .order("created_at", { ascending: false })
+            .limit(50),
+        ])
+      : [{ data: [], error: null }, { data: [], error: null }];
+  if (photosRes.error) throw photosRes.error;
+  if (ordersRes.error) throw ordersRes.error;
+
   const photos = photosRes.data ?? [];
   const orders = ordersRes.data ?? [];
 

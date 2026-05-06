@@ -54,7 +54,8 @@ export default async function PublicEventPage({
     paletteId: event.photographers?.theme_palette,
     primaryColor: event.photographers?.brand_color,
   });
-  const brandFont = event.photographers?.theme_font ?? "inter";
+  const brandFont = "manrope";
+  const manropeFont = 'var(--font-manrope), "Manrope", system-ui, sans-serif';
   const watermarkStyle = "subtle" as const;
   const watermarkColor = "#ffffff";
   const watermarkLabel =
@@ -75,7 +76,7 @@ export default async function PublicEventPage({
   return (
     <div
       className="bg-background text-foreground flex min-h-full flex-col"
-      style={themeVars as CSSProperties}
+      style={{ ...(themeVars as CSSProperties), fontFamily: manropeFont }}
       data-brand-font={brandFont}
     >
       <header className="border-b border-zinc-200/80 bg-white/90 backdrop-blur">

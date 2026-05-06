@@ -30,7 +30,7 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="flex min-h-screen bg-zinc-50/60">
+    <div className="flex min-h-screen bg-zinc-50/60 font-sans" data-brand-font="manrope">
       <Sidebar initialName={initialName} initialEmail={initialEmail} />
       <div className="flex min-h-screen min-w-0 flex-1 flex-col bg-white">
         <div className="min-w-0 flex-1">{children}</div>

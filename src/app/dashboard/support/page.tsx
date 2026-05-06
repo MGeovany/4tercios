@@ -7,15 +7,39 @@ import { Topbar } from "@/components/shell/topbar";
 const FAQS = [
   {
     q: "¿Cómo publico un evento?",
-    a: "Crea el evento, sube tus fotos y usa la pantalla de gestión para publicarlo cuando esté listo.",
+    a: "Crea el evento, sube tus fotos y, cuando todo esté revisado, cambia su estado a público desde Gestión.",
+  },
+  {
+    q: "¿Cuál es el flujo recomendado para vender más rápido?",
+    a: "Sube fotos en lotes, verifica miniaturas, publica el evento y comparte primero el enlace de selfie; luego comparte la galería completa.",
   },
   {
     q: "¿Cómo reabro un evento archivado?",
-    a: "En la lista de eventos, abre acciones del evento archivado y selecciona “Reabrir”.",
+    a: "Ve a Eventos, abre el menú de acciones del evento archivado y selecciona “Reabrir” para extender su tiempo en línea.",
+  },
+  {
+    q: "¿Cuánto tiempo dura un evento publicado?",
+    a: "Depende de los días online configurados en el evento. Cuando ese periodo termina, el evento pasa a archivado.",
+  },
+  {
+    q: "¿Qué diferencia hay entre búsqueda por selfie y galería completa?",
+    a: "La selfie muestra fotos donde aparece el cliente; la galería completa permite explorar todas las imágenes del evento.",
+  },
+  {
+    q: "¿Cómo confirma el cliente su compra?",
+    a: "El cliente selecciona fotos, completa su nombre y WhatsApp, y finaliza por pago online o solicitud directa por WhatsApp.",
   },
   {
     q: "¿Dónde veo pagos y cobros?",
-    a: "En la sección “Pagos” del dashboard encontrarás estado, referencia y montos.",
+    a: "En la sección “Pagos” puedes revisar estado de pago, referencia, monto total y seguimiento de cada orden.",
+  },
+  {
+    q: "¿Puedo editar precio o datos del evento después de publicarlo?",
+    a: "Sí. Desde editar evento puedes ajustar precio, ubicación y contacto; los cambios se reflejan en el enlace público.",
+  },
+  {
+    q: "¿Qué hago si un cliente no encuentra sus fotos?",
+    a: "Pídele intentar con otra selfie, revisar la galería completa y verificar que esté usando el enlace correcto del evento.",
   },
 ];
 

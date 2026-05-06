@@ -2,6 +2,8 @@ import Link from "next/link";
 import { ChevronRightIcon, ExternalLinkIcon, PlusIcon } from "@radix-ui/react-icons";
 
 import { listEventsForPhotographer } from "@/lib/server/events";
+import { requirePhotographer } from "@/lib/server/auth";
+import { resolvePublicUsername } from "@/lib/public-event-path";
 import { cn } from "@/lib/utils";
 import { Topbar } from "@/components/shell/topbar";
 import { Button } from "@/components/ui/button";
@@ -55,6 +57,8 @@ export default async function EventsListPage({
         : "all";
   const statusFilter =
     EVENT_STATUS_OPTIONS.find((opt) => opt.value === statusParam)?.value ?? "all";
+  const { photographer } = await requirePhotographer();
+  const publicUsername = resolvePublicUsername(photographer.business_name);
   const events = await listEventsForPhotographer({
     search: search ?? null,
     status: statusFilter === "all" ? null : (statusFilter as EventStatus),
@@ -136,7 +140,7 @@ export default async function EventsListPage({
                       </div>
                     </Link>
                     <Link
-                      href={`/e/${event.slug}`}
+                      href={`/${publicUsername}/${event.slug}`}
                       target="_blank"
                       className="hidden text-zinc-400 hover:text-zinc-700 sm:inline-flex"
                       aria-label="Ver página pública"

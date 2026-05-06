@@ -6,6 +6,8 @@ import {
 } from "@radix-ui/react-icons";
 
 import { listExpiredEventsForPhotographer } from "@/lib/server/events";
+import { requirePhotographer } from "@/lib/server/auth";
+import { resolvePublicUsername } from "@/lib/public-event-path";
 import { Topbar } from "@/components/shell/topbar";
 import { cn } from "@/lib/utils";
 import type { EventStatus } from "@/lib/db/types";
@@ -34,6 +36,8 @@ export default async function DashboardHistoryPage({
 }) {
   const sp = await searchParams;
   const search = typeof sp.q === "string" ? sp.q : Array.isArray(sp.q) ? sp.q[0] : "";
+  const { photographer } = await requirePhotographer();
+  const publicUsername = resolvePublicUsername(photographer.business_name);
   const expiredEvents = await listExpiredEventsForPhotographer({ search });
 
   return (
@@ -104,7 +108,7 @@ export default async function DashboardHistoryPage({
 
                     <div className="flex items-center gap-3">
                       <Link
-                        href={`/e/${event.slug}`}
+                        href={`/${publicUsername}/${event.slug}`}
                         target="_blank"
                         className="hidden text-zinc-400 hover:text-zinc-700 sm:inline-flex"
                         aria-label="Ver página pública"

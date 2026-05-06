@@ -6,6 +6,7 @@ import { Topbar } from "@/components/shell/topbar";
 import { Button } from "@/components/ui/button";
 import { requirePhotographer } from "@/lib/server/auth";
 import { getEventByIdForPhotographer } from "@/lib/server/events";
+import { resolvePublicUsername } from "@/lib/public-event-path";
 import { EditEventForm } from "./edit-form";
 
 export default async function EditEventPage({
@@ -14,10 +15,12 @@ export default async function EditEventPage({
   params: Promise<{ eventId: string }>;
 }) {
   const { eventId } = await params;
-  await requirePhotographer();
+  const { photographer } = await requirePhotographer();
 
   const event = await getEventByIdForPhotographer(eventId);
   if (!event) notFound();
+
+  const publicUsername = resolvePublicUsername(photographer.business_name);
 
   return (
     <>
@@ -26,7 +29,7 @@ export default async function EditEventPage({
         subtitle={event.name}
         right={
           <Button variant="secondary" size="sm" asChild>
-            <Link href={`/e/${event.slug}`} target="_blank">
+            <Link href={`/${publicUsername}/${event.slug}`} target="_blank">
               <ExternalLinkIcon /> Ver público
             </Link>
           </Button>

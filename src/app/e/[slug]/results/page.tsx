@@ -12,6 +12,7 @@ import { getSupabaseServiceClient } from "@/lib/supabase/server";
 import { thumbPublicUrl } from "@/lib/storage/paths";
 import { getSupabaseEnv } from "@/lib/supabase/env";
 import { formatHnl } from "@/lib/currency";
+import { resolvePublicUsername } from "@/lib/public-event-path";
 
 const DATE_FORMATTER = new Intl.DateTimeFormat("es-HN", {
   year: "numeric",
@@ -33,15 +34,16 @@ const VIBRANT_ACCENTS = [
   "#ef4444",
 ] as const;
 
-export default async function ResultsPage({
-  params,
+export async function PublicResultsView({
+  slug,
   searchParams,
+  username,
 }: {
-  params: Promise<{ slug: string }>;
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
+  slug: string;
+  searchParams: Record<string, string | string[] | undefined>;
+  username?: string;
 }) {
-  const { slug } = await params;
-  const sp = await searchParams;
+  const sp = searchParams;
   const event = await getPublicEventPresentationBySlug(slug);
 
   if (!event) {
@@ -115,6 +117,24 @@ export default async function ResultsPage({
   const photographerName = event.photographers?.business_name ?? null;
   const rangeStart = (currentPage - 1) * PAGE_SIZE + 1;
   const rangeEnd = Math.min(totalPhotos, currentPage * PAGE_SIZE);
+  const canonicalUsername = resolvePublicUsername(event.photographers?.business_name);
+  const publicBasePath = `/${canonicalUsername}/${event.slug}`;
+  const publicResultsPath = `${publicBasePath}/results`;
+
+  if (username && username !== canonicalUsername) {
+    return (
+      <div className="mx-auto max-w-3xl px-4 py-20">
+        <Brand />
+        <p className="mt-6 text-lg font-semibold text-zinc-950">Evento no encontrado</p>
+        <p className="mt-2 text-sm text-zinc-700">URL inválida para este fotógrafo.</p>
+        <div className="mt-6">
+          <Button asChild variant="secondary">
+            <Link href={publicResultsPath}>Ir al enlace correcto</Link>
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -136,12 +156,12 @@ export default async function ResultsPage({
           </div>
           <div className="flex items-center gap-2">
             <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
-              <Link href={`/e/${event.slug}`}>
+              <Link href={publicBasePath}>
                 <ArrowLeftIcon /> Buscar con selfie
               </Link>
             </Button>
             <Button asChild size="sm" className="sm:hidden">
-              <Link href={`/e/${event.slug}`}>
+              <Link href={publicBasePath}>
                 <ArrowLeftIcon /> Selfie
               </Link>
             </Button>
@@ -213,7 +233,7 @@ export default async function ResultsPage({
               </p>
             </div>
             <Link
-              href={`/e/${event.slug}`}
+              href={publicBasePath}
               className="inline-flex items-center gap-1.5 text-xs font-medium text-zinc-700 underline-offset-4 hover:text-zinc-950 hover:underline"
             >
               <span
@@ -236,7 +256,7 @@ export default async function ResultsPage({
                 </p>
                 <div className="mt-4">
                   <Button asChild>
-                    <Link href={`/e/${event.slug}`}>Ir a buscar con selfie</Link>
+                    <Link href={publicBasePath}>Ir a buscar con selfie</Link>
                   </Button>
                 </div>
               </div>
@@ -257,7 +277,7 @@ export default async function ResultsPage({
                 />
                 {totalPages > 1 ? (
                   <Pagination
-                    slug={event.slug}
+                    resultsBasePath={publicResultsPath}
                     currentPage={currentPage}
                     totalPages={totalPages}
                     totalPhotos={totalPhotos}
@@ -273,6 +293,18 @@ export default async function ResultsPage({
       <Footer />
     </div>
   );
+}
+
+export default async function ResultsPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const { slug } = await params;
+  const sp = await searchParams;
+  return PublicResultsView({ slug, searchParams: sp });
 }
 
 function Stat({
@@ -309,13 +341,13 @@ function Stat({
 }
 
 function Pagination({
-  slug,
+  resultsBasePath,
   currentPage,
   totalPages,
   totalPhotos,
   pageSize,
 }: {
-  slug: string;
+  resultsBasePath: string;
   currentPage: number;
   totalPages: number;
   totalPhotos: number;
@@ -323,9 +355,9 @@ function Pagination({
 }) {
   const start = (currentPage - 1) * pageSize + 1;
   const end = Math.min(totalPhotos, currentPage * pageSize);
-  const prev = currentPage > 1 ? `/e/${slug}/results?page=${currentPage - 1}` : null;
+  const prev = currentPage > 1 ? `${resultsBasePath}?page=${currentPage - 1}` : null;
   const next =
-    currentPage < totalPages ? `/e/${slug}/results?page=${currentPage + 1}` : null;
+    currentPage < totalPages ? `${resultsBasePath}?page=${currentPage + 1}` : null;
 
   return (
     <nav

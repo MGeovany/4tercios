@@ -6,7 +6,6 @@ import Link from "next/link";
 import { ArrowRightIcon, CheckIcon } from "@radix-ui/react-icons";
 
 import { SelfieCapture, type SelfieResult } from "./selfie-capture";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -33,6 +32,7 @@ type Phase = "idle" | "uploading" | "matching" | "done" | "error";
 
 export function SelfieSearch({
   slug,
+  publicBasePath,
   pricePerPhotoHnl,
   whatsapp,
   eventName,
@@ -44,6 +44,7 @@ export function SelfieSearch({
   watermarkDensity = 1,
 }: {
   slug: string;
+  publicBasePath?: string;
   pricePerPhotoHnl: number;
   whatsapp: string;
   eventName: string;
@@ -55,6 +56,7 @@ export function SelfieSearch({
   watermarkDensity?: number;
 }) {
   const [selfie, setSelfie] = React.useState<SelfieResult | null>(null);
+  const galleryPath = `${publicBasePath ?? `/e/${slug}`}/results`;
   const [phase, setPhase] = React.useState<Phase>("idle");
   const [error, setError] = React.useState<string | null>(null);
   const [result, setResult] = React.useState<SearchResponse | null>(null);
@@ -251,7 +253,7 @@ export function SelfieSearch({
               </p>
               <div className="rounded-xl border border-zinc-200/80 bg-zinc-50 p-3">
                 <Link
-                  href={`/e/${slug}/results`}
+                  href={galleryPath}
                   className="text-sm font-medium text-zinc-950 underline underline-offset-4"
                 >
                   O explora la galería completa →

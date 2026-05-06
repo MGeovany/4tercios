@@ -22,6 +22,7 @@ import { LocationPickerMap } from "@/components/forms/location-picker-map";
 import { useAuthProfile } from "@/lib/auth-profile";
 import { CITY_SUGGESTIONS } from "@/lib/cities";
 import { cn } from "@/lib/utils";
+import { resolvePublicUsername } from "@/lib/public-event-path";
 import {
   commissionHnl,
   formatDateISO,
@@ -125,6 +126,13 @@ export default function NewEventPage() {
   const [whatsapp, setWhatsapp] = React.useState("");
   const effectiveWhatsapp = whatsappTouched ? whatsapp : whatsapp || profile.phone;
 
+  const publicUsername = React.useMemo(
+    () =>
+      resolvePublicUsername(
+        profile.name || profile.email.split("@")[0] || "fotografo"
+      ),
+    [profile.email, profile.name]
+  );
   const autoSlug = React.useMemo(() => slugify(name || "nuevo-evento"), [name]);
   const effectiveSlug = slugTouched && slug ? slugify(slug) : autoSlug;
 
@@ -388,7 +396,7 @@ export default function NewEventPage() {
                     )}
                   >
                     <span className="px-3 text-sm text-zinc-500 select-none">
-                      4tercios.thefndrs.com/e/
+                      4tercios.thefndrs.com/{publicUsername}/
                     </span>
                     <input
                       id="slug"
@@ -403,7 +411,8 @@ export default function NewEventPage() {
                     />
                   </div>
                   <Hint>
-                    Se genera automáticamente desde el nombre. Puedes personalizarlo.
+                    Se genera desde el nombre del evento. URL final:
+                    <span className="font-medium"> /{publicUsername}/{effectiveSlug}</span>
                   </Hint>
                 </div>
 
@@ -533,7 +542,7 @@ export default function NewEventPage() {
               </p>
 
               <div className="mt-4 rounded-md bg-zinc-50 px-3 py-2 text-xs">
-                <span className="text-zinc-500">4tercios.thefndrs.com/e/</span>
+                <span className="text-zinc-500">4tercios.thefndrs.com/{publicUsername}/</span>
                 <span className="font-medium text-zinc-900">{effectiveSlug}</span>
               </div>
 

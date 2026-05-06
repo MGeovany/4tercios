@@ -8,6 +8,7 @@ import { SelfieSearch } from "@/components/search/selfie-search";
 import { buildThemeCssVars } from "@/lib/branding";
 import { getPublicEventPresentationBySlug } from "@/lib/server/events";
 import { formatHnl } from "@/lib/currency";
+import { resolvePublicUsername } from "@/lib/public-event-path";
 
 /** Vibrant solid colors used as a per-event accent. */
 const VIBRANT_ACCENTS = [
@@ -21,12 +22,13 @@ const VIBRANT_ACCENTS = [
   "#ef4444",
 ] as const;
 
-export default async function PublicEventPage({
-  params,
+export async function PublicEventView({
+  slug,
+  username,
 }: {
-  params: Promise<{ slug: string }>;
+  slug: string;
+  username?: string;
 }) {
-  const { slug } = await params;
   const event = await getPublicEventPresentationBySlug(slug);
 
   if (!event) {
@@ -72,6 +74,24 @@ export default async function PublicEventPage({
       ? Math.max(0.4, Math.min(2.2, event.photographers.watermark_density))
       : 1;
   const accent = pickVibrantAccent(event.slug);
+  const canonicalUsername = resolvePublicUsername(event.photographers?.business_name);
+  const publicBasePath = `/${canonicalUsername}/${event.slug}`;
+  const publicResultsPath = `${publicBasePath}/results`;
+
+  if (username && username !== canonicalUsername) {
+    return (
+      <div className="mx-auto max-w-3xl px-4 py-20">
+        <Brand />
+        <p className="mt-6 text-lg font-semibold text-zinc-950">Evento no encontrado</p>
+        <p className="mt-2 text-sm text-zinc-700">URL inválida para este fotógrafo.</p>
+        <div className="mt-6">
+          <Button asChild variant="secondary">
+            <Link href={publicBasePath}>Ir al enlace correcto</Link>
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -142,6 +162,7 @@ export default async function PublicEventPage({
         <div className="mt-8">
           <SelfieSearch
             slug={event.slug}
+            publicBasePath={publicBasePath}
             pricePerPhotoHnl={event.price_per_photo_hnl}
             whatsapp={event.whatsapp ?? ""}
             eventName={event.name}
@@ -156,7 +177,7 @@ export default async function PublicEventPage({
 
         <div className="mt-10">
           <Link
-            href={`/e/${event.slug}/results`}
+            href={publicResultsPath}
             className="text-sm font-medium text-zinc-700 underline underline-offset-4 hover:text-zinc-950"
           >
             ¿Prefieres explorar todas las fotos? Ver galería completa →
@@ -167,6 +188,15 @@ export default async function PublicEventPage({
       <Footer />
     </div>
   );
+}
+
+export default async function PublicEventPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  return PublicEventView({ slug });
 }
 
 function pickVibrantAccent(seed: string) {
